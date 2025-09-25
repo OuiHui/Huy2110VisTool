@@ -1,37 +1,92 @@
-# 2110 LC-3 Datapath Visualizer
+# CS 2110 Visualization Tool
 
-This interactive visualizer was created for educational purposes for demonstrating how the LC3 instructions can be traced during their "Execute Phase". 
-Currently, the clock cycles are differentiated by color and a very simple bar allows you to select the instruction to run. The "Fetch" and "Decode" macrostates are also included,
- while the AND and RTI instruction is currently not implemented.<br />
+An interactive educational platform featuring multiple visualization tools for computer organization and programming concepts. 
 
-Additional features of the visualizer are currently in the works (as well as other planned visualizers for 2110)
+## Features
+
+### LC-3 Datapath Visualizer
+- **Interactive datapath tracing**: Step through fetch, decode, and execute cycles 
+- **Instruction sequences**: Visualize how different LC-3 instructions move through the processor with different colors for every clock cycle
+- **Pseudocode integration**: View corresponding pseudocode alongside datapath execution
+
+### IEEE 754 Floating Point Converter
+- **Binary representation**: Visualize how floating point numbers are stored
+- **Interactive conversion**: Convert between decimal and IEEE 754 format
+- **Component breakdown**: See sign bit, exponent, and mantissa separately
+- **Educational explanations**: Understand the mathematics behind floating point representation
+
+### Boolean Logic & K-Map Visualizer
+- **Truth table generation**: Create truth tables from logical expressions
+- **Karnaugh map visualization**: See how Boolean expressions map to K-maps
+- **Logic simplification**: Visualize the process of minimizing Boolean expressions
+
+## Technology Stack
+
+- **Frontend Framework**: Vue 3 with TypeScript
+- **Styling**: Tailwind CSS + PrimeVue UI components
+- **Build Tool**: Vite
+- **Graphics**: SVG-based visualizations for scalable diagrams
+- **Animations**: CSS animations with Vue transitions
+
+## Getting Started
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/gt-cs2110/2110VisTool.git
+   cd 2110VisTool
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
 
-## Description
+## Project Structure
 
-Every component making up the LC3 is an SVG (Scalable Vector Graphic) that was converted through Figma: https://www.figma.com/design/n7pDo1cotmBlgZB02SF8K8/2110-Vis-Tool?node-id=0-1&t=2E0biyAyEhnxR92p-1 <br />
-The components (arrows, text, shapes, etc.) were given a unique id within HTML and grouped accordingly in 'LC3.vue'. A CSS state called "wire" was created (originally intended for the wires hence the name)
-that would allow the component to flash a color. The pulse animation can be also be found in the same file above the SVG. <br />
+```
+src/
+├── components/          # Reusable Vue components
+│   ├── LC3.vue         # LC-3 datapath SVG component
+│   └── SiteNav.vue     # Navigation component
+├── pages/              # Page components
+│   ├── Home.vue        # Landing page with project cards
+│   └── NotFound.vue    # 404 error page
+├── projects/           # Individual visualization tools
+│   ├── LC3/           # LC-3 datapath visualizer
+│   ├── IEEE/          # IEEE 754 floating point tool
+│   └── Kmap/          # K-map and Boolean logic tool
+└── router.ts          # Vue Router configuration
+```
 
-In the 'sequences.json' file, each instruction has a sequence that maps to an array of arrays (seperated by clock cycle) that hold the sequence of components that become highlighted when run.
-Refactoring using Vue.js and Tailwind was done by Henry Bui: Vue components can be found in 'components.d.ts' 
 
+## Educational Use
 
-## Running the Visualization Tool
+This tool is designed specifically for **CS 2110: Computer Organization and Programming** at Georgia Tech. It serves as a supplementary learning resource to help students visualize and understand:
 
-Currently, the visualization tool is hosted online using GitHub Pages. Run it here:<br /> https://gt-cs2110.github.io/2110VisTool/ 
-
-To run locally, run the following in the terminal: <br />
-npm install --dev <br />
-npm run dev
+- Processor datapath operation
+- Floating point number representation
+- Boolean algebra and digital logic design
+- Computer architecture fundamentals
 
 ## Authors
 
-Huy Nguyen - hnguyen499@gatech.edu <br />
-Henry Bui - hbui43@gatech.edu
+- **Huy Nguyen** - *Original Creator & Designer* - hnguyen499@gatech.edu
+- **Henry Bui** - *Vue.js Refactoring & Development* - hbui43@gatech.edu
+- **GT CS 2110 TA Team** - *Maintenance & Updates*
 
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+
 
