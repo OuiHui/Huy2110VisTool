@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+
+/* Background for UI related items */
+@utility bg-surface-ui {
+    background-color: var(--p-surface-200);
+    @variant dark {
+        background-color: var(--p-surface-800);
+    }
+}

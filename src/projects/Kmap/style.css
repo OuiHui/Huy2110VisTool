@@ -1,0 +1,757 @@
+.kmap-root :root, .kmap-root{
+    --gt-navy: #003057;
+    --gt-gold: #B3A369;
+    --gt-tech-gold: #EAAA00;
+    --gt-light-gold: #F7F3E9;
+    --gt-dark-navy: #001B35;
+    --gt-accent: #8BB8E8;
+    --shadow: rgba(0, 48, 87, 0.15);
+    --light-shadow: rgba(0, 48, 87, 0.08);
+}
+
+.kmap-root * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.kmap-root body, .kmap-root{
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--gt-light-gold) 0%, #ffffff 100%);
+    color: var(--gt-navy);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.kmap-root .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.kmap-root header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--gt-navy) 0%, var(--gt-dark-navy) 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px var(--shadow);
+    position: relative;
+    overflow: visible;
+    min-height: 80px;
+}
+
+.kmap-root h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(45deg, white, var(--gt-tech-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.kmap-root .subtitle {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+.kmap-root .controls {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 3px 15px var(--light-shadow);
+    border: 1px solid rgba(179, 163, 105, 0.2);
+}
+
+.kmap-root .control-group {
+    margin-bottom: 1rem;
+}
+
+.kmap-root .control-group:last-child {
+    margin-bottom: 0;
+}
+
+.kmap-root .control-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--gt-navy);
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kmap-root .variable-controls,
+.kmap-root .action-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.kmap-root .variable-controls .p-button,
+.kmap-root .action-controls .p-button {
+    flex: 1;
+    min-width: 120px;
+}
+
+.kmap-root .p-button {
+    /* Base PrimeVue Button styling with GT theme */
+    background: linear-gradient(135deg, var(--gt-gold) 0%, var(--gt-tech-gold) 100%) !important;
+    color: var(--gt-navy) !important;
+    border: 2px solid var(--gt-gold) !important;
+    padding: 0.6rem 1.2rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    transition: all 0.2s ease-in-out !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 4px rgba(179, 163, 105, 0.2) !important;
+    outline: none !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: bottom !important;
+    text-decoration: none !important;
+    user-select: none !important;
+    min-width: auto !important;
+    font-family: inherit !important;
+    line-height: 1 !important;
+}
+
+.kmap-root .p-button:enabled:hover {
+    background: linear-gradient(135deg, var(--gt-tech-gold) 0%, #d4af37 100%) !important;
+    border-color: var(--gt-tech-gold) !important;
+    box-shadow: 0 4px 8px rgba(179, 163, 105, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+.kmap-root .p-button:focus-visible {
+    outline: 2px solid var(--gt-tech-gold) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 4px rgba(234, 170, 0, 0.2) !important;
+}
+
+.kmap-root .p-button:enabled:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px rgba(179, 163, 105, 0.2) !important;
+}
+
+.kmap-root .p-button.p-button-primary,
+.kmap-root .p-button.active {
+    background: linear-gradient(135deg, var(--gt-navy) 0%, var(--gt-dark-navy) 100%) !important;
+    color: white !important;
+    border-color: var(--gt-navy) !important;
+    box-shadow: 0 3px 6px rgba(0, 48, 87, 0.3) !important;
+}
+
+.kmap-root .p-button.p-button-primary:enabled:hover,
+.kmap-root .p-button.active:enabled:hover {
+    background: linear-gradient(135deg, var(--gt-dark-navy) 0%, #001428 100%) !important;
+    border-color: var(--gt-dark-navy) !important;
+    box-shadow: 0 4px 8px rgba(0, 48, 87, 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+.kmap-root .p-button.p-button-primary:focus-visible,
+.kmap-root .p-button.active:focus-visible {
+    outline: 2px solid var(--gt-navy) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 4px rgba(0, 48, 87, 0.2) !important;
+}
+
+.kmap-root .p-button.p-button-secondary {
+    background: transparent !important;
+    color: var(--gt-navy) !important;
+    border: 2px solid var(--gt-navy) !important;
+}
+
+.kmap-root .p-button.p-button-secondary:enabled:hover {
+    background: var(--gt-navy) !important;
+    color: white !important;
+    border-color: var(--gt-navy) !important;
+}
+
+.kmap-root .p-button .p-button-label {
+    font-weight: inherit !important;
+    text-transform: inherit !important;
+    letter-spacing: inherit !important;
+}
+
+.kmap-root button[data-pc-name="button"],
+.kmap-root .p-component.p-button,
+.kmap-root [data-pc-name="button"] {
+    /* Ensure all PrimeVue buttons get proper styling */
+    background: linear-gradient(135deg, var(--gt-gold) 0%, var(--gt-tech-gold) 100%) !important;
+    color: var(--gt-navy) !important;
+    border: 2px solid var(--gt-gold) !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease-in-out !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 4px rgba(179, 163, 105, 0.2) !important;
+    outline: none !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: bottom !important;
+    text-decoration: none !important;
+    user-select: none !important;
+    min-width: auto !important;
+    font-family: inherit !important;
+    line-height: 1 !important;
+}
+
+.kmap-root button[data-pc-name="button"]:hover,
+.kmap-root .p-component.p-button:hover,
+.kmap-root [data-pc-name="button"]:hover {
+    background: linear-gradient(135deg, var(--gt-tech-gold) 0%, #d4af37 100%) !important;
+    border-color: var(--gt-tech-gold) !important;
+    box-shadow: 0 4px 8px rgba(179, 163, 105, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* For active/primary state buttons */
+.kmap-root button[data-pc-name="button"].active,
+.kmap-root button[data-pc-name="button"][data-p-severity="primary"],
+.kmap-root .p-component.p-button.active,
+.kmap-root .p-component.p-button[data-p-severity="primary"] {
+    background: linear-gradient(135deg, var(--gt-navy) 0%, var(--gt-dark-navy) 100%) !important;
+    color: white !important;
+    border-color: var(--gt-navy) !important;
+    box-shadow: 0 3px 6px rgba(0, 48, 87, 0.3) !important;
+}
+
+.kmap-root button[data-pc-name="button"].active:hover,
+.kmap-root button[data-pc-name="button"][data-p-severity="primary"]:hover,
+.kmap-root .p-component.p-button.active:hover,
+.kmap-root .p-component.p-button[data-p-severity="primary"]:hover {
+    background: linear-gradient(135deg, var(--gt-dark-navy) 0%, #001428 100%) !important;
+    border-color: var(--gt-dark-navy) !important;
+    box-shadow: 0 4px 8px rgba(0, 48, 87, 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Legacy button styles (keeping for any remaining HTML buttons) */
+.kmap-root .btn {
+    background: linear-gradient(135deg, var(--gt-gold) 0%, var(--gt-tech-gold) 100%);
+    color: var(--gt-navy);
+    border: 2px solid var(--gt-gold);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(179, 163, 105, 0.2);
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: bottom;
+    text-decoration: none;
+    user-select: none;
+    min-width: auto;
+}
+
+.kmap-root .btn:hover {
+    /* PrimeVue hover effect */
+    background: linear-gradient(135deg, var(--gt-tech-gold) 0%, #d4af37 100%);
+    border-color: var(--gt-tech-gold);
+    box-shadow: 0 4px 8px rgba(179, 163, 105, 0.3);
+    transform: translateY(-1px);
+}
+
+.kmap-root .btn:focus {
+    /* PrimeVue focus effect */
+    outline: 2px solid var(--gt-tech-gold);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(234, 170, 0, 0.2);
+}
+
+.kmap-root .btn:active {
+    /* PrimeVue active effect */
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(179, 163, 105, 0.2);
+}
+
+.kmap-root .btn.active {
+    /* PrimeVue primary variant for active state */
+    background: linear-gradient(135deg, var(--gt-navy) 0%, var(--gt-dark-navy) 100%);
+    color: white;
+    border-color: var(--gt-navy);
+    box-shadow: 0 3px 6px rgba(0, 48, 87, 0.3);
+}
+
+.kmap-root .btn.active:hover {
+    background: linear-gradient(135deg, var(--gt-dark-navy) 0%, #001428 100%);
+    border-color: var(--gt-dark-navy);
+    box-shadow: 0 4px 8px rgba(0, 48, 87, 0.4);
+    transform: translateY(-1px);
+}
+
+.kmap-root .btn.active:focus {
+    outline: 2px solid var(--gt-navy);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 48, 87, 0.2);
+}
+
+.kmap-root .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.kmap-root .btn:active::before {
+    width: 300px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+}
+
+.kmap-root .btn > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* PrimeVue secondary button variant */
+.kmap-root .btn.btn-secondary {
+    background: transparent;
+    color: var(--gt-navy);
+    border: 2px solid var(--gt-navy);
+}
+
+.kmap-root .btn.btn-secondary:hover {
+    background: var(--gt-navy);
+    color: white;
+    border-color: var(--gt-navy);
+}
+
+/* PrimeVue outlined button variant */
+.kmap-root .btn.btn-outlined {
+    background: transparent;
+    color: var(--gt-gold);
+    border: 2px solid var(--gt-gold);
+}
+
+.kmap-root .btn.btn-outlined:hover {
+    background: var(--gt-gold);
+    color: var(--gt-navy);
+    border-color: var(--gt-gold);
+}
+
+/* PrimeVue button sizes */
+.kmap-root .btn.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+.kmap-root .btn.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+}
+
+/* PrimeVue disabled state */
+.kmap-root .btn:disabled,
+.kmap-root .btn.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* PrimeVue loading state */
+.kmap-root .btn.btn-loading {
+    pointer-events: none;
+    position: relative;
+}
+
+.kmap-root .btn.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: btn-loading-spin 1s linear infinite;
+}
+
+@keyframes btn-loading-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.kmap-root .main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.kmap-root .kmap-section, .kmap-root .analysis-section {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 15px var(--light-shadow);
+    border: 1px solid rgba(179, 163, 105, 0.2);
+}
+
+.kmap-root .section-title {
+    color: var(--gt-navy);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    position: relative;
+    padding-bottom: 0.4rem;
+}
+
+.kmap-root .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gt-gold) 0%, var(--gt-tech-gold) 100%);
+    border-radius: 2px;
+}
+
+/* K-map instructions styling */
+.kmap-root .kmap-instructions {
+    text-align: center;
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.kmap-root .kmap-instructions small {
+    opacity: 0.8;
+}
+
+/* K-map groupings title */
+.kmap-root .groupings-title {
+    margin-bottom: 1rem;
+    color: var(--gt-navy);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Expression title */
+.kmap-root .expression-title {
+    margin-bottom: 1rem;
+    color: var(--gt-navy);
+    font-weight: 600;
+}
+
+/* K-Map Styles */
+.kmap-root .kmap {
+    display: grid;
+    gap: 1px;
+    background: var(--gt-gold);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 4px 16px var(--light-shadow);
+}
+
+.kmap-root .kmap-2var {
+    grid-template-columns: auto 1fr 1fr;
+    grid-template-rows: auto 1fr 1fr;
+    max-width: 300px;
+}
+
+.kmap-root .kmap-3var {
+    grid-template-columns: auto repeat(4, 1fr);
+    grid-template-rows: auto repeat(2, 1fr);
+    max-width: 400px;
+}
+
+.kmap-root .kmap-4var {
+    grid-template-columns: auto repeat(4, 1fr);
+    grid-template-rows: auto repeat(4, 1fr);
+    max-width: 450px;
+}
+
+.kmap-root .kmap-header, .kmap-root .kmap-label {
+    background: var(--gt-navy);
+    color: white;
+    padding: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(179, 163, 105, 0.3);
+}
+
+.kmap-root .kmap-cell {
+    background: white;
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    position: relative;
+    border: 2px solid transparent;
+    z-index: 1;
+}
+
+.kmap-root .kmap-cell:hover {
+    background: var(--gt-light-gold);
+    border-color: var(--gt-gold);
+    transform: scale(1.02);
+    z-index: 2;
+    box-shadow: 0 2px 8px var(--light-shadow);
+}
+
+.kmap-root .kmap-cell.value-1 {
+    background: linear-gradient(135deg, var(--gt-tech-gold) 0%, var(--gt-gold) 100%);
+    color: var(--gt-navy);
+    border-color: var(--gt-gold);
+    box-shadow: 0 2px 8px rgba(179, 163, 105, 0.3);
+}
+
+.kmap-root .kmap-cell.value-0 {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: rgba(179, 163, 105, 0.2);
+}
+
+/* Truth Table */
+.kmap-root .truth-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--light-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.kmap-root .truth-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    color: var(--gt-navy);
+}
+
+.kmap-root .truth-table th {
+    background: var(--gt-navy);
+    color: white;
+    padding: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kmap-root .truth-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(179, 163, 105, 0.2);
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    color: var(--gt-navy);
+}
+
+.kmap-root .truth-table tr:nth-child(even) {
+    background: var(--gt-light-gold);
+}
+
+.kmap-root .truth-table tr:hover {
+    background: rgba(179, 163, 105, 0.1);
+}
+
+/* Groups Display */
+.kmap-root .groups-container {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(247, 243, 233, 0.95) 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--gt-gold);
+    box-shadow: 0 3px 15px var(--light-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.kmap-root .group-item {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--gt-tech-gold);
+    box-shadow: 0 2px 8px rgba(0, 48, 87, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(179, 163, 105, 0.2);
+}
+
+.kmap-root .group-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 48, 87, 0.15);
+    border-left-color: var(--gt-navy);
+}
+
+.kmap-root .group-item:last-child {
+    margin-bottom: 0;
+}
+
+.kmap-root .group-item strong {
+    color: var(--gt-navy);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.kmap-root .group-item em {
+    color: var(--gt-tech-navy);
+    font-weight: 500;
+    font-style: normal;
+}
+
+
+.kmap-root .group-item.no-groupings {
+    background: linear-gradient(135deg, rgba(255, 243, 224, 0.8) 0%, rgba(224, 228, 5, 0.8) 100%);
+    border-left-color: #ff9800;
+    text-align: center;
+    font-style: italic;
+    color: #795548;
+}
+
+.kmap-root .expression-display {
+    background: linear-gradient(135deg, var(--gt-navy) 0%, var(--gt-dark-navy) 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 3px 12px var(--shadow);
+    border: 2px solid var(--gt-gold);
+}
+
+.kmap-root .fade-in {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .kmap-root .container {
+        padding: 1rem;
+    }
+    
+    .kmap-root .main-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .kmap-root h1 {
+        font-size: 2rem;
+    }
+    
+    .kmap-root .variable-controls, .kmap-root .action-controls {
+        justify-content: center;
+    }
+    
+    .kmap-root .kmap {
+        font-size: 0.9rem;
+    }
+    
+    .kmap-root .kmap-cell {
+        min-height: 40px;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .kmap-root .kmap-4var {
+        max-width: 100%;
+    }
+    
+    .kmap-root .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+    }
+    
+    .kmap-root .kmap-cell {
+        font-size: 0.9rem;
+    }
+}
+
+/* Fallback styling for any button elements */
+.kmap-root button {
+    background: linear-gradient(135deg, var(--gt-gold) 0%, var(--gt-tech-gold) 100%);
+    color: var(--gt-navy);
+    border: 2px solid var(--gt-gold);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(179, 163, 105, 0.2);
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: bottom;
+    text-decoration: none;
+    user-select: none;
+    min-width: auto;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.kmap-root button:hover {
+    background: linear-gradient(135deg, var(--gt-tech-gold) 0%, #d4af37 100%);
+    border-color: var(--gt-tech-gold);
+    box-shadow: 0 4px 8px rgba(179, 163, 105, 0.3);
+    transform: translateY(-1px);
+}
