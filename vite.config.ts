@@ -9,7 +9,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/2110VisTool/",
+  base: "/Huy2110VisTool/",
   plugins: [
     tailwindcss(),
     vue(),
