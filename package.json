@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && copy dist\\index.html dist\\404.html",
+  "build": "tsc && vite build && node scripts/postbuild.cjs",
     "preview": "vite preview"
   },
   "devDependencies": {
