@@ -15,7 +15,6 @@ const activeWireTime = computed(() => {
 });
 // Replace problematic template ref typing with generic HTMLElement fallback to silence TS error if vue shim not yet loaded.
 const lc3Diagram = ref<any>();
-const infoDialogVisible = ref(false);
 const wireState = ref({
   wires: [] as string[],
   step: 0,
@@ -129,20 +128,8 @@ function activateMacro(key: string) {
     <header class="px-4 pt-2 pb-0">
       <div class="flex gap-1 items-center justify-center">
         <h1 class="text-center text-4xl">LC-3 Visualization Tool</h1>
-        <Button severity="secondary" variant="text" icon="pi" aria-label="About" rounded @click="infoDialogVisible = true">
-          <MdiInformationOutline />
-        </Button>
       </div>
     </header>
-    <Dialog v-model:visible="infoDialogVisible" modal dismissableMask header="About">
-      This visualization tool is an interactive guide on how to trace the LC-3 datapath.<br />Designed by Huy Nguyen & Henry Bui, maintained by the
-      <a class="text-blue-500 underline" href="https://github.com/gt-cs2110/">GT CS 2110 TA Team</a>
-      <template #footer>
-        <a title="Source Code" aria-label="Source Code" href="https://github.com/gt-cs2110/2110VisTool">
-          <SiGithub />
-        </a>
-      </template>
-    </Dialog>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
       <div class="diagram-col">
         <LC3 ref="lc3Diagram" class="lc3-resized" />
@@ -157,7 +144,7 @@ function activateMacro(key: string) {
       </div>
     </div>
   <div class="control-panel">
-      <div class="flex items-stretch gap-2 py-2">
+      <div class="flex items-stretch gap-2 py-2 justify-center">
         <div class="flex items-center gap-2">
           Speed:
           <Slider v-model="speedScale" class="w-56" />
@@ -194,13 +181,15 @@ function activateMacro(key: string) {
         <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop()">Reset Wires</Button>
       </div>
       <Divider />
-  <Menubar :model="(Object.entries(SEQUENCE_DATA) as [string, any][]).map(([key, val]) => ({ label: val.label, key, command: (e: any) => activateMacro(e.item.key!) }))" :dt="{ root: { background: 'transparent', borderColor: 'transparent', borderRadius: '0' } }" class="px-0">
+      <div class="flex justify-center">
+        <Menubar :model="(Object.entries(SEQUENCE_DATA) as [string, any][]).map(([key, val]) => ({ label: val.label, key, command: (e: any) => activateMacro(e.item.key!) }))" :dt="{ root: { background: 'transparent', borderColor: 'transparent', borderRadius: '0' } }" class="px-0">
         <template #item="{ item, label, props }">
           <a v-bind="props.action" class="transition-colors rounded text-sm p-1 xl:text-base xl:p-2 inline-flex items-center border border-transparent" :class="{ 'outline outline-surface-500': wireState.macro != item.key, 'bg-primary hover:bg-primary-emphasis text-primary-contrast': wireState.macro == item.key && !isLoopDone, 'outline outline-primary-500': wireState.macro == item.key && isLoopDone }">
             {{ label }}
           </a>
         </template>
-      </Menubar>
+        </Menubar>
+      </div>
     </div>
   </div>
 </template>
@@ -222,10 +211,8 @@ h1 { margin:0; line-height:1.1; }
   width:60%;
   max-width:1150px;
   display:block;
-  /* align diagram flush to pseudocode column by pushing it to the right edge */
-  margin-left:auto;
-  margin-right:1rem;
-  padding-top:0.5rem;
+  /* center the diagram horizontally */
+  margin: 0.5rem auto 0 auto;
 }
 .control-panel {
   display: flex;

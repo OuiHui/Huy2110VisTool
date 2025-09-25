@@ -4,9 +4,9 @@ const route = useRoute();
 // Static nav model (keep light; could be derived from router if needed)
 const links = [
   { to: '/', label: 'Home' },
-  { to: '/lc3', label: 'LC-3' },
   { to: '/ieee', label: 'IEEE 754' },
-  { to: '/kmap', label: 'K-Map' }
+  { to: '/kmap', label: 'K-Map' },
+  { to: '/lc3', label: 'LC-3' },
 ];
 </script>
 

@@ -52,7 +52,6 @@ import { useTemplateRef, onMounted, nextTick } from 'vue';
         }
     })
 
-    // After mount, crop the viewBox to actual drawn content to remove empty top/bottom space
     onMounted(async () => {
         const attemptCrop = (tries = 0) => {
             const svg = svgEl.value;
@@ -66,7 +65,7 @@ import { useTemplateRef, onMounted, nextTick } from 'vue';
                 // Use asymmetric padding so we trim tight on the right while keeping a tiny left gutter
                 const padLeft = 2;   // minimal breathing room
                 const padRight = 0;  // trim flush on the right per user request
-                const padTop = 0;
+                const padTop = 50;
                 const padBottom = 0;
                 const x = bbox.x - padLeft;
                 const y = bbox.y - padTop;
@@ -84,7 +83,6 @@ import { useTemplateRef, onMounted, nextTick } from 'vue';
 </script>
 
 <style scoped>
-    /* Replaced Tailwind @apply utilities with raw CSS for compatibility */
     .wire.active {
         fill: var(--p-surface-500, #888888);
         stroke: var(--p-surface-500, #888888);

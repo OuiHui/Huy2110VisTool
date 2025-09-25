@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 const projects = [
-  { path: '/lc3', title: 'LC-3 Datapath', desc: 'Step through the fetch / decode / execute cycles and see control & data flow.' },
   { path: '/ieee', title: 'IEEE 754 Floating Point', desc: 'Visualize the mathematics and representation of floating point conversion' },
   { path: '/kmap', title: 'Boolean Logic & K-Maps', desc: 'Visualize different logical expressions and their simplifications using Karnaugh maps.' },
+   { path: '/lc3', title: 'LC-3 Datapath', desc: 'Step through the fetch / decode / execute cycles and see control & data flow.' },
 ];
 
 const filtered = computed(() => projects);
+const infoDialogVisible = ref(false);
 </script>
 
 <template>
@@ -14,10 +15,22 @@ const filtered = computed(() => projects);
     <!-- Hero -->
     <section class="gt-hero">
       <div class="inner">
-        <h1 class="main-title">CS 2110 Computer Organization and Programming Visualization Tool</h1>
+        <div class="flex gap-2 items-center justify-center mb-4">
+          <h1 class="main-title">CS 2110 Computer Organization and Programming Visualization Tool</h1>
+        </div>
         <div class="accent-bar" aria-hidden="true"></div>
+        <div class="flex items-center justify-center">
+          <button @click="infoDialogVisible = true" class="info-btn" aria-label="About">
+              About
+          </button>
+        </div>
       </div>
     </section>
+
+    <!-- About Dialog -->
+    <Dialog v-model:visible="infoDialogVisible" modal dismissableMask header="About">
+      This visualization tool is an interactive guide on how to trace computer organization concepts including the LC-3 datapath, IEEE 754 floating point representation, and Boolean logic with K-Maps. Designed by Huy Nguyen & Henry Bui
+    </Dialog>
 
     <!-- Project Cards -->
     <section class="projects-section">
@@ -49,8 +62,25 @@ const filtered = computed(() => projects);
 .gt-hero { background: linear-gradient(140deg, #003057 0%, #00243f 55%, #001729 100%); color: #fff; padding: 4.5rem 1.25rem 3.5rem; position: relative; /* overflow removed to prevent card hover clipping */ }
 .gt-hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 75% 35%, rgba(255,255,255,0.08), transparent 70%); pointer-events: none; }
 .gt-hero .inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
-.gt-hero h1.main-title { font-size: clamp(1.6rem, 2.6vw, 2.4rem); line-height: 1.05; margin: 0 0 1.25rem; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; position: relative; margin-left: -10%;}
-.gt-hero .accent-bar { width: 150px; height: 6px; background: linear-gradient(90deg, #B3A369, #d2c48c); border-radius: 999px; margin: 0 0 1.25rem; box-shadow: 0 0 0 3px rgba(255,255,255,0.08); position: relative; margin-left: -10%;}
+.gt-hero h1.main-title { font-size: clamp(1.6rem, 2.6vw, 2.4rem); line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; position: relative; }
+.gt-hero .info-btn { 
+  color: rgba(255,255,255,0.8); 
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+  backdrop-filter: blur(4px);
+}
+.gt-hero .info-btn:hover { 
+  color: #B3A369; 
+  background: rgba(179,163,105,0.15);
+  border-color: rgba(179,163,105,0.3);
+}
+.gt-hero .accent-bar { width: 150px; height: 6px; background: linear-gradient(90deg, #B3A369, #d2c48c); border-radius: 999px; margin: 0 auto 1.25rem; box-shadow: 0 0 0 3px rgba(255,255,255,0.08); position: relative; }
 .gt-hero .tagline { max-width: 760px; font-size: clamp(1.05rem, 2vw, 1.25rem); opacity: 0.92; margin: 0 0 1.75rem; }
 
 /* Search */
