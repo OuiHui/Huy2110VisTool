@@ -640,7 +640,7 @@ const sequences: Record<string, MacroData> = {
                 "1 (MDRMUX selector)",
                 "MDRMUX selector",
                 "MDRMUX (shape)",
-                "MDRMUX to MDR","MEMORY to MDR",
+                "MDRMUX to MDR",
                 "MDR selector",
                 "MDR (shape)"
             ], [

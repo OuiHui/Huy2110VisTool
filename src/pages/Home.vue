@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 const projects = [
   { path: '/ieee', title: 'IEEE 754 Floating Point', desc: 'Visualize the mathematics and representation of floating point conversion' },
   { path: '/kmap', title: 'Boolean Logic & K-Maps', desc: 'Visualize different logical expressions and their simplifications using Karnaugh maps.' },
@@ -7,30 +7,19 @@ const projects = [
 ];
 
 const filtered = computed(() => projects);
-const infoDialogVisible = ref(false);
 </script>
 
 <template>
   <div class="home-root">
-    <!-- Hero -->
     <section class="gt-hero">
       <div class="inner">
         <div class="flex gap-2 items-center justify-center mb-4">
           <h1 class="main-title">CS 2110 Computer Organization and Programming Visualization Tool</h1>
         </div>
         <div class="accent-bar" aria-hidden="true"></div>
-        <div class="flex items-center justify-center">
-          <button @click="infoDialogVisible = true" class="info-btn" aria-label="About">
-              About
-          </button>
-        </div>
       </div>
     </section>
 
-    <!-- About Dialog -->
-    <Dialog v-model:visible="infoDialogVisible" modal dismissableMask header="About">
-      This visualization tool is an interactive guide on how to trace computer organization concepts including the LC-3 datapath, IEEE 754 floating point representation, and Boolean logic with K-Maps. Designed by Huy Nguyen & Henry Bui
-    </Dialog>
 
     <!-- Project Cards -->
     <section class="projects-section">

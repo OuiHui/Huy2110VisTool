@@ -5,6 +5,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue';
 import LC3 from '../../components/LC3.vue';
 import Pseudocode from './Pseudocode.vue';
 import SEQUENCE_DATA from './sequences';
+import './Lc3Tool.css';
 
 const DEFAULT_ACTIVE_WIRE_TIME = 200;
 const CYCLE_BREAK = 'CYCLE_BREAK';
@@ -193,53 +194,3 @@ function activateMacro(key: string) {
     </div>
   </div>
 </template>
-<style scoped>
-.lc3-tool-root { /* leave space for fixed control panel */
-  padding-bottom: 170px; /* >= control panel height */
-  font-size: 1.05rem;
-  overflow-x: auto;
-}
-.lc3-grid { display:grid; grid-template-columns: minmax(960px, 1fr) 460px; column-gap:0; align-items:center; }
-h1 { margin:0; line-height:1.1; }
-@media (max-width: 1500px) { .lc3-grid { grid-template-columns: minmax(860px, 1fr) 420px; column-gap:0; } }
-@media (max-width: 1300px) { .lc3-grid { grid-template-columns: 1fr; align-items:start; } .side-col { order:2; } }
-.side-col { align-self:center; }
-.side-col :deep(.p-card) { margin-left:0; }
-.side-col :deep(.p-card-body) { padding-left:0.75rem; padding-right:0.75rem; }
-.diagram-col { overflow:auto; }
-.lc3-resized { 
-  width:60%;
-  max-width:1150px;
-  display:block;
-  /* center the diagram horizontally */
-  margin: 0.5rem auto 0 auto;
-}
-.control-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(30,30,35,0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 -4px 16px -4px rgba(0,0,0,0.4);
-  padding: 0 1.25rem 0.35rem;
-  z-index: 40;
-}
-.control-panel :deep(.p-menubar) { /* ensure menubar fits */
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-.control-panel :deep(.p-menubar-root-list) { padding-left: .4rem; }
-.control-panel :deep(.p-menubar)::-webkit-scrollbar { height: 6px; }
-.control-panel :deep(.p-menubar)::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-/* Make PrimeVue buttons / slider a bit larger */
-.control-panel :deep(button.p-button) { padding: 0.9rem; }
-.control-panel :deep(.p-slider) { height: 0.6rem; }
-/* Enlarge mdi icon (play/pause) */
-.control-panel :deep(button svg) { width: 1.35rem; height: 1.35rem; }
-</style>

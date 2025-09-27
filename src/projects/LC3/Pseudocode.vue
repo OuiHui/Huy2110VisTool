@@ -39,55 +39,6 @@ import type { HighlightRange, PseudocodeState } from './sequences';
     }
 </script>
 
-<style lang="css" scoped>
-    @reference "@/style.css";
-
-    .cy-on-disabled {
-        @apply text-surface-400 dark:text-surface-500;
-    }
-    .cy-done-0 .cy-on-0 {
-        @apply text-red-500;
-    }
-    .cy-active-0 .cy-on-0 {
-        @apply text-red-800 dark:text-red-200;
-    }
-    .cy-done-1 .cy-on-1 {
-        @apply text-orange-500;
-    }
-    .cy-active-1 .cy-on-1 {
-        @apply text-orange-800 dark:text-orange-200;
-    }
-    .cy-done-2 .cy-on-2 {
-        @apply text-yellow-500;
-    }
-    .cy-active-2 .cy-on-2 {
-        @apply text-yellow-800 dark:text-yellow-200;
-    }
-    .cy-done-3 .cy-on-3 {
-        @apply text-green-500;
-    }
-    .cy-active-3 .cy-on-3 {
-        @apply text-green-800 dark:text-green-200;
-    }
-    .cy-done-4 .cy-on-4 {
-        @apply text-blue-500;
-    }
-    .cy-active-4 .cy-on-4 {
-        @apply text-blue-800 dark:text-blue-200;
-    }
-    .cy-done-5 .cy-on-5 {
-        @apply text-purple-500;
-    }
-    .cy-active-5 .cy-on-5 {
-        @apply text-purple-800 dark:text-purple-200;
-    }
-    .cy-done-6 .cy-on-6 {
-        @apply text-pink-500;
-    }
-    .cy-active-6 .cy-on-6 {
-        @apply text-pink-800 dark:text-pink-200;
-    }
-</style>
 
 <template>
     <span
