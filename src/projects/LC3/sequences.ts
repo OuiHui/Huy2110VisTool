@@ -462,7 +462,7 @@ const sequences: Record<string, MacroData> = {
     "LD": {
         "label": "LD",
         "pseudocode": pseudocode`
-            ${["DR = ", 2]}${["mem[", 1]}${["PC + SEXT(PCoffset9)", 0]}${["]", 1]}${[";", 2]}
+            ${["DR = ", 2]}${["mem[", 1]}${["PC* + SEXT(PCoffset9)", 0]}${["]", 1]}${[";", 2]}
             ${["setcc();", 2]}
         `,
         "sequence": [
@@ -557,7 +557,7 @@ const sequences: Record<string, MacroData> = {
     "LDI": {
         "label": "LDI",
         "pseudocode": pseudocode`
-            ${["DR = ", 4]}${["mem[", 3]}${["mem[", 2]}${["PC + SEXT(PCoffset9)", 0]}${["]", 2]}${["]", 3]}${[";", 4]}
+            ${["DR = ", 4]}${["mem[", 3]}${["mem[", 2]}${["PC* + SEXT(PCoffset9)", 0]}${["]", 2]}${["]", 3]}${[";", 4]}
             ${["setcc();", 4]}
         `,
         "sequence": [
@@ -779,7 +779,7 @@ const sequences: Record<string, MacroData> = {
     "ST": {
         "label": "ST",
         "pseudocode": pseudocode`
-            ${["mem[", 2]}${["PC + SEXT(PCoffset9)", 0]}${["] = ", 2]}${["SR", 1]}${[";", 2]}
+            ${["mem[", 2]}${["PC* + SEXT(PCoffset9)", 0]}${["] = ", 2]}${["SR", 1]}${[";", 2]}
         `,
         "sequence": [
             [
@@ -865,7 +865,7 @@ const sequences: Record<string, MacroData> = {
     "STI": {
         "label": "STI",
         "pseudocode": pseudocode`
-            ${["mem[", 4]}${["mem[", 2]}${["PC + SEXT(PCoffset9)", 0]}${["]", 2]}${["] = ", 4]}${["SR", 3]}${[";", 4]}
+            ${["mem[", 4]}${["mem[", 2]}${["PC* + SEXT(PCoffset9)", 0]}${["]", 2]}${["] = ", 4]}${["SR", 3]}${[";", 4]}
         `,
         "sequence": [
             [
@@ -1066,7 +1066,7 @@ const sequences: Record<string, MacroData> = {
     "LEA": {
         "label": "LEA",
         "pseudocode": pseudocode`
-            ${["DR = PC + SEXT(PCoffset9);", 0]}
+            ${["DR = PC* + SEXT(PCoffset9);", 0]}
         `,
         "sequence": [
             [
@@ -1122,7 +1122,7 @@ const sequences: Record<string, MacroData> = {
         "label": "BR (taken)",
         "pseudocode": pseudocode`
             if ((n AND N) OR (z AND Z) OR (p AND P))
-                ${["PC = PC + SEXT(PCoffset9);", 0]}
+                ${["PC = PC* + SEXT(PCoffset9);", 0]}
         `,
         "sequence": [
             [
@@ -1209,7 +1209,7 @@ const sequences: Record<string, MacroData> = {
     "JSR": {
         "label": "JSR",
         "pseudocode": pseudocode`
-            ${["[R7, PC] = [PC, PC + SEXT(PCOffset11)];", 0]}
+            ${["[R7, PC] = [PC, PC* + SEXT(PCOffset11)];", 0]}
         `,
         "sequence": [
             [

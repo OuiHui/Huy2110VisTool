@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
-    Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
     LC3: typeof import('./src/components/LC3.vue')['default']
     MdiPause: typeof import('~icons/mdi/pause')['default']
