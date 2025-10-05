@@ -1,6 +1,8 @@
 # CS 2110 Visualization Tool
 
-An interactive educational platform featuring multiple visualization tools for computer organization and programming concepts. 
+An interactive educational platform featuring multiple visualization tools for computer organization and programming concepts.
+
+Test it out: [https://ouihui.github.io/Huy2110VisTool/](https://ouihui.github.io/Huy2110VisTool/)
 
 ## Features
 
