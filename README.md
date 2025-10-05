@@ -33,7 +33,7 @@ An interactive educational platform featuring multiple visualization tools for c
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/gt-cs2110/2110VisTool.git
+   git clone https://github.com/OuiHui/Huy2110VisTool.git
    cd 2110VisTool
    ```
 
