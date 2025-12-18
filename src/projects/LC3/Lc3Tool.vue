@@ -4,7 +4,9 @@ import { computed, ref, onMounted, onUnmounted } from 'vue';
 // Use the canonical LC3 diagram component from the shared components directory
 import LC3 from '../../components/LC3.vue';
 import Pseudocode from './Pseudocode.vue';
+import InstructionFormat from './InstructionFormat.vue';
 import SEQUENCE_DATA from './sequences';
+import { INSTRUCTION_FORMATS_BY_MACRO } from './instructionFormats';
 import './Lc3Tool.css';
 
 const DEFAULT_ACTIVE_WIRE_TIME = 200;
@@ -30,6 +32,10 @@ const isLoopDone = computed(() => wireState.value.step >= wireState.value.wires.
 const macroCycleCount = computed(() => wireState.value.macro ? SEQUENCE_DATA[wireState.value.macro].sequence.length : undefined);
 // Derive current sequence entry (typed as any fallback) to simplify template typing
 const currentSequence = computed(() => wireState.value.macro ? (SEQUENCE_DATA as any)[wireState.value.macro] : undefined);
+const currentFormat = computed(() => {
+  if (!wireState.value.macro) return undefined;
+  return INSTRUCTION_FORMATS_BY_MACRO[wireState.value.macro];
+});
 let lastWireActivate = 0;
 function handleKeydown(event: KeyboardEvent) {
   if (event.code === 'Escape') (document.activeElement as HTMLElement)?.blur();
@@ -133,9 +139,26 @@ function activateMacro(key: string) {
     </header>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
       <div class="diagram-col">
-        <LC3 ref="lc3Diagram" class="lc3-resized" />
+        <div class="diagram-stack">
+          <Card v-if="currentFormat" class="w-full">
+            <template #title>
+              <div class="w-full flex items-baseline gap-2">
+                <span>Instruction Format:</span>
+                <span class="font-mono text-sm text-surface-600 dark:text-surface-300">
+                  {{ currentSequence?.label ?? currentFormat.title }}
+                </span>
+              </div>
+            </template>
+            <template #content>
+              <div class="pt-2">
+                <InstructionFormat :format="currentFormat" />
+              </div>
+            </template>
+          </Card>
+          <LC3 ref="lc3Diagram" class="lc3-resized" />
+        </div>
       </div>
-  <div class="side-col flex grow flex-col items-start justify-center">
+  <div class="side-col flex grow flex-col items-start justify-center gap-3">
         <Card v-if="currentSequence?.pseudocode">
           <template #title>{{ currentSequence.label }} Pseudocode</template>
           <template #content>
