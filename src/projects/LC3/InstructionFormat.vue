@@ -99,7 +99,7 @@ const bits = computed(() => Array.from({ length: 16 }, (_, i) => 15 - i));
 
 .fmt-seg {
   @apply text-xs text-center py-2 select-none;
-  @apply border border-surface-300 dark:border-surface-700;
-  @apply bg-surface-0 dark:bg-surface-950;
+  @apply border border-surface-400 dark:border-surface-700;
+  @apply bg-surface-100 dark:bg-surface-950;
 }
 </style>

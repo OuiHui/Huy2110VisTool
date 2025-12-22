@@ -35,7 +35,7 @@ const links = [
 .brand-text { display: none; }
 @media (min-width: 480px) { .brand-text { display: inline; } }
 .nav-links { display: flex; gap: .35rem; margin: 0; padding: 0; flex-wrap: wrap; }
-.nav-link { position: relative; display: inline-flex; align-items: center; text-decoration: none; padding: .55rem .85rem; font-size: .75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: #c7d8e4; border-radius: .6rem; transition: background .25s, color .25s; }
+.nav-link { position: relative; display: inline-flex; align-items: center; text-decoration: none; padding: .55rem .85rem; font-size: .75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: rgba(255,255,255,0.9); border-radius: .6rem; transition: background .25s, color .25s; }
 .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .nav-link.active { background: #B3A369; color: #00243f; }
 .nav-link.active:hover { background: #d2c48c; }

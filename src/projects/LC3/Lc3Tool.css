@@ -4,6 +4,13 @@
   overflow-x: auto;
 }
 
+/* Add extra padding only on narrow screens where buttons wrap */
+@media (max-width: 1100px) {
+  .lc3-tool-root {
+    padding-bottom: 280px; /* Extra space for wrapping controls */
+  }
+}
+
 .lc3-grid { 
   display: grid; 
   grid-template-columns: 1fr auto; 
@@ -105,13 +112,21 @@ h1 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(30, 30, 35, 0.92);
+  background: rgba(230, 230, 235, 0.92);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 -4px 16px -4px rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 16px -4px rgba(0, 0, 0, 0.15);
   padding: 0 1.25rem 0.35rem;
   z-index: 40;
+}
+
+@media (prefers-color-scheme: dark) {
+  .control-panel {
+    background: rgba(30, 30, 35, 0.92);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 16px -4px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .control-panel :deep(.p-menubar) { /* ensure menubar fits */

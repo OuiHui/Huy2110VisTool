@@ -83,6 +83,35 @@ import { useTemplateRef, onMounted, nextTick } from 'vue';
 </script>
 
 <style scoped>
+    .lc3-container {
+        /* Default (light mode): draw wires dark so they show on light background */
+        --lc3-wire-color: var(--p-surface-700, #444444);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .lc3-container {
+            /* Dark mode: draw wires light so they show on dark background */
+            --lc3-wire-color: var(--p-surface-200, #dddddd);
+        }
+    }
+
+    /* Only override wires that were authored as white. This avoids recoloring boxes/text that have their own colors. */
+    .wire[stroke="white"],
+    .wire[stroke="#fff"],
+    .wire[stroke="#FFF"],
+    .wire[stroke="#ffffff"],
+    .wire[stroke="#FFFFFF"] {
+        stroke: var(--lc3-wire-color);
+    }
+
+    .wire[fill="white"],
+    .wire[fill="#fff"],
+    .wire[fill="#FFF"],
+    .wire[fill="#ffffff"],
+    .wire[fill="#FFFFFF"] {
+        fill: var(--lc3-wire-color);
+    }
+
     .wire.active {
         fill: var(--p-surface-500, #888888);
         stroke: var(--p-surface-500, #888888);
@@ -121,7 +150,7 @@ import { useTemplateRef, onMounted, nextTick } from 'vue';
 </style>
 
 <template>
-    <div ref="top" class="bg-surface-1000 lc3-container">
+    <div ref="top" class="bg-surface-0 dark:bg-surface-950 lc3-container">
     <svg ref="lc3Svg" class="lc3-svg" width="100%" viewBox="0 0 1650 1671" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="Bus">
                 <path class="wire" id="Low Arrow" d="M195 1241L270 1284.3V1197.7L195 1241ZM1643 1233.5L262.5 1233.5V1248.5L1643 1248.5V1233.5Z" fill="white"/>

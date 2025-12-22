@@ -132,9 +132,11 @@ function activateMacro(key: string) {
 </script>
 <template>
   <div class="flex flex-col h-full lc3-tool-root">
-    <header class="px-4 pt-2 pb-0">
-      <div class="flex gap-1 items-center justify-center">
-        <h1 class="text-center text-4xl">LC-3 Visualization Tool</h1>
+    <header class="px-4 pt-3 pb-1">
+      <div class="flex gap-2 items-center justify-center">
+        <h1 class="text-center text-4xl font-bold text-surface-900 dark:text-surface-50 tracking-tight">
+          <span class="text-primary-600 dark:text-primary-400">LC-3</span> Visualization Tool
+        </h1>
       </div>
     </header>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
