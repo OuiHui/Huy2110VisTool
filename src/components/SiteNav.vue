@@ -7,7 +7,23 @@ const links = [
   { to: '/ieee', label: 'IEEE 754' },
   { to: '/kmap', label: 'K-Map' },
   { to: '/lc3', label: 'LC-3' },
+  { to: '/calling-convention', label: 'LC-3 Calling Conv' },
 ];
+
+function isActive(to: string) {
+  if (route.path === to) return true;
+  if (to === '/') return false;
+  if (!route.path.startsWith(to + '/')) return false;
+
+  // If we're on a nested route, prefer highlighting the most specific matching link.
+  const hasMoreSpecificMatch = links.some((l) => {
+    if (l.to === to) return false;
+    const matches = route.path === l.to || (l.to !== '/' && route.path.startsWith(l.to + '/'));
+    return matches && l.to.startsWith(to + '/');
+  });
+
+  return !hasMoreSpecificMatch;
+}
 </script>
 
 <template>
@@ -20,7 +36,7 @@ const links = [
       </RouterLink>
       <ul class="nav-links" role="list">
         <li v-for="l in links" :key="l.to">
-          <RouterLink :to="l.to" :class="['nav-link', { active: route.path === l.to }]">{{ l.label }}</RouterLink>
+          <RouterLink :to="l.to" :class="['nav-link', { active: isActive(l.to) }]">{{ l.label }}</RouterLink>
         </li>
       </ul>
     </div>
