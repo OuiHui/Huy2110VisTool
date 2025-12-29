@@ -4,6 +4,7 @@ const projects = [
   { path: '/ieee', title: 'IEEE 754 Floating Point', desc: 'Visualize the mathematics and representation of floating point conversion' },
   { path: '/kmap', title: 'Boolean Logic & K-Maps', desc: 'Visualize different logical expressions and their simplifications using Karnaugh maps.' },
    { path: '/lc3', title: 'LC-3 Datapath', desc: 'Step through the fetch / decode / execute cycles and see control & data flow.' },
+  { path: '/calling-convention', title: 'LC-3 Calling Convention', desc: 'Visualize stack frames: arguments, saved R7/R5, locals, return value slot, and cleanup.' },
 ];
 
 const filtered = computed(() => projects);
@@ -80,14 +81,16 @@ const filtered = computed(() => projects);
 
 /* Projects section */
 .projects-section { padding: 0 1.25rem; max-width: 1300px; margin: 0 auto; }
-.projects-row { display: flex; flex-wrap: nowrap; gap: 1.4rem; overflow-x: auto; overflow-y: visible; padding: 0.25rem 0 0.75rem; }
-.projects-row::-webkit-scrollbar { height: 10px; }
-.projects-row::-webkit-scrollbar-track { background: #e6e9ec; border-radius: 20px; }
-.projects-row::-webkit-scrollbar-thumb { background: #b3a369; border-radius: 20px; }
-.projects-row::-webkit-scrollbar-thumb:hover { background: #9c8f57; }
+.projects-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.4rem;
+  overflow: visible;
+  padding: 0.25rem 0 0.75rem;
+}
 
 /* Card */
-.project-card { position: relative; text-decoration: none; border-radius: 1rem; background: #ffffff; color: #00243f; border: 1px solid #d9dfe3; box-shadow: 0 2px 4px rgba(0,0,0,0.06); overflow: hidden; transition: box-shadow 0.3s, border-color 0.3s; display: flex; flex: 0 0 300px; max-width: 300px; }
+.project-card { position: relative; text-decoration: none; border-radius: 1rem; background: #ffffff; color: #00243f; border: 1px solid #d9dfe3; box-shadow: 0 2px 4px rgba(0,0,0,0.06); overflow: hidden; transition: box-shadow 0.3s, border-color 0.3s; display: flex; width: 100%; }
 .project-card:focus-visible { outline: 3px solid #B3A369; outline-offset: 3px; }
 .project-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(125deg, rgba(179,163,105,0.12), rgba(255,255,255,0)); opacity: 0; transition: opacity 0.35s; }
 .project-card:hover::before { opacity: 1; }
