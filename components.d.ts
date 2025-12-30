@@ -22,7 +22,7 @@ declare module 'vue' {
     SiteNav: typeof import('./src/components/SiteNav.vue')['default']
     Slider: typeof import('primevue/slider')['default']
   }
-  export interface ComponentCustomProperties {
+  export interface GlobalDirectives {
     Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

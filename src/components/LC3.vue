@@ -67,10 +67,10 @@ import { useTemplateRef, onMounted, nextTick } from 'vue';
                 const padRight = 0;  // trim flush on the right per user request
                 const padTop = 50;
                 const padBottom = 0;
-                const x = bbox.x - padLeft;
-                const y = bbox.y - padTop;
-                const w = bbox.width + padLeft + padRight;
-                const h = bbox.height + padTop + padBottom;
+                const x = Math.floor(bbox.x - padLeft);
+                const y = Math.floor(bbox.y - padTop);
+                const w = Math.ceil(bbox.width + padLeft + padRight);
+                const h = Math.ceil(bbox.height + padTop + padBottom);
                 svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
                 svg.removeAttribute('height'); // allow responsive height
             } catch (e) {

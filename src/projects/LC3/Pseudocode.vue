@@ -42,6 +42,12 @@ import type { HighlightRange, PseudocodeState } from './sequences';
 <style lang="css" scoped>
     @reference "@/style.css";
 
+    .pseudocode-container {
+        max-width: 100%;
+        overflow: hidden;
+        word-break: break-word;
+    }
+
     .cy-on-disabled {
         @apply text-surface-400 dark:text-surface-500;
     }
@@ -90,14 +96,15 @@ import type { HighlightRange, PseudocodeState } from './sequences';
 </style>
 
 <template>
-    <span
-        class="contents"
+    <div
+        class="pseudocode-container"
         :class="getAllEnabledClasses(cycle, running)"
     >
         <span v-for="{start, end, cycle: c} of highlightRanges"
-        class="font-mono whitespace-pre-wrap transition-colors"
-        :class="{ [`cy-on-${c}`] : typeof c != 'number' || c >= 0 }">
+        class="font-mono whitespace-pre-wrap transition-colors break-words overflow-hidden"
+        :class="{ [`cy-on-${c}`] : typeof c != 'number' || c >= 0 }"
+        style="display: inline; max-width: 100%; overflow-wrap: anywhere;">
             {{ pseudocode.source.slice(start, end) }}
         </span>
-    </span>
+    </div>
 </template>

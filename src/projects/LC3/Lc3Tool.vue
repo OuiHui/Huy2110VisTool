@@ -61,8 +61,12 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 // Use capture phase so we intercept before PrimeVue Menubar key handlers
-onMounted(() => window.addEventListener('keydown', handleKeydown, true));
-onUnmounted(() => window.removeEventListener('keydown', handleKeydown, true));
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown, true);
+});
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown, true);
+});
 function stepBack() {
   if (wireState.value.step <= 0) return;
   wireState.value.step--;
@@ -141,32 +145,32 @@ function activateMacro(key: string) {
     </header>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
       <div class="diagram-col">
-        <div class="diagram-stack">
-          <Card v-if="currentFormat" class="w-full">
-            <template #title>
-              <div class="w-full flex items-baseline gap-2">
-                <span>Instruction Format:</span>
-                <span class="font-mono text-sm text-surface-600 dark:text-surface-300">
-                  {{ currentSequence?.label ?? currentFormat.title }}
-                </span>
-              </div>
-            </template>
-            <template #content>
-              <div class="pt-2">
-                <InstructionFormat :format="currentFormat" />
-              </div>
-            </template>
-          </Card>
-          <LC3 ref="lc3Diagram" class="lc3-resized" />
-        </div>
-      </div>
-  <div class="side-col flex grow flex-col items-start justify-center gap-3">
-        <Card v-if="currentSequence?.pseudocode">
-          <template #title>{{ currentSequence.label }} Pseudocode</template>
+        <Card v-if="currentFormat" class="instruction-format-card">
+          <template #title>
+            <div class="w-full flex items-baseline gap-2">
+              <span>Instruction Format:</span>
+              <span class="font-mono text-sm text-surface-600 dark:text-surface-300">
+                {{ currentSequence?.label ?? currentFormat.title }}
+              </span>
+            </div>
+          </template>
           <template #content>
-            <Pseudocode :pseudocode="currentSequence.pseudocode" :cycle="wireState.cycle" :running />
+            <div class="pt-2">
+              <InstructionFormat :format="currentFormat" />
+            </div>
           </template>
         </Card>
+        <div class="diagram-with-pseudocode">
+          <LC3 ref="lc3Diagram" class="lc3-resized" />
+          <div class="side-col" v-if="currentSequence?.pseudocode">
+            <Card>
+              <template #title>{{ currentSequence.label }} Pseudocode</template>
+              <template #content>
+                <Pseudocode :pseudocode="currentSequence.pseudocode" :cycle="wireState.cycle" :running />
+              </template>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   <div class="control-panel">
