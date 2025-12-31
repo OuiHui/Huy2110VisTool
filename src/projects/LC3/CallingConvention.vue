@@ -24,17 +24,24 @@ type MachineState = {
   highlightAddrs: Set<number>;
 };
 
-type DisplayRow = {
-  addr: number;
-  addrHex: string;
-  cell?: Cell;
-  active: boolean;
-  isSP: boolean;
-  isFP: boolean;
-  isHighlight: boolean;
-};
-
 type StepActor = 'caller' | 'callee';
+
+type DisplayRow =
+  | {
+      kind: 'cell';
+      addr: number;
+      addrHex: string;
+      cell?: Cell;
+      active: boolean;
+      isSP: boolean;
+      isFP: boolean;
+      isHighlight: boolean;
+      owner?: StepActor;
+    }
+  | {
+      kind: 'ellipsis';
+      id: string;
+    };
 
 const steps: ReadonlyArray<{
   title: string;
@@ -44,7 +51,7 @@ const steps: ReadonlyArray<{
 }> = [
   {
     title: 'Caller pushes arguments (right → left)',
-    asm: 'PUSH argN ... PUSH arg2; PUSH arg1',
+    asm: 'ADD/STR args (right→left)',
     detail: 'Right-to-left means the last argument is pushed first, so arg1 ends up closest to the callee.',
     actor: 'caller'
   },
@@ -62,13 +69,13 @@ const steps: ReadonlyArray<{
   },
   {
     title: 'Callee saves return address',
-    asm: 'PUSH R7',
+    asm: 'ADD R6, R6, #-1\nSTR R7, R6, #0',
     detail: 'Save R7 on the stack so the callee can safely use R7 (if needed).',
     actor: 'callee'
   },
   {
     title: 'Callee saves old frame pointer',
-    asm: 'PUSH R5',
+    asm: 'ADD R6, R6, #-1\nSTR R5, R6, #0',
     detail: 'Save caller’s frame pointer so we can restore it before returning.',
     actor: 'callee'
   },
@@ -98,13 +105,13 @@ const steps: ReadonlyArray<{
   },
   {
     title: 'Callee restores old frame pointer',
-    asm: 'POP R5',
+    asm: 'LDR R5, R6, #0\nADD R6, R6, #1',
     detail: 'Restore caller’s R5.',
     actor: 'callee'
   },
   {
     title: 'Callee restores return address',
-    asm: 'POP R7',
+    asm: 'LDR R7, R6, #0\nADD R6, R6, #1',
     detail: 'Restore the return address into R7.',
     actor: 'callee'
   },
@@ -116,7 +123,7 @@ const steps: ReadonlyArray<{
   },
   {
     title: 'Caller pops return value',
-    asm: 'POP Rv',
+    asm: 'LDR Rv, R6, #0\nADD R6, R6, #1',
     detail: 'Caller reads the return value from the top of the stack (the slot the callee reserved).',
     actor: 'caller'
   },
@@ -139,7 +146,7 @@ const numParams = ref(2);
 const numLocals = ref(2);
 
 const argValues = ref<string[]>(['x0001', 'x0002']);
-const returnValue = ref('x1234');
+const RETURN_VALUE = 'x1234';
 
 watch(numParams, (n: number) => {
   const next = [...argValues.value];
@@ -258,7 +265,7 @@ function simulate(targetStep: number): MachineState {
 
   // Step 7: do work / store return value at R5 + 3
   if (targetStep >= 7) {
-    write(R5 + 3, { kind: 'ret-slot', label: 'return value (slot)', value: returnValue.value });
+    write(R5 + 3, { kind: 'ret-slot', label: 'return value (slot)', value: RETURN_VALUE });
   }
 
   // Step 8: remove locals
@@ -324,6 +331,19 @@ function simulate(targetStep: number): MachineState {
 
 const current = computed(() => simulate(stepIndex.value));
 
+const previous = computed(() => simulate(Math.max(0, stepIndex.value - 1)));
+
+const registerChanged = computed(() => {
+  if (stepIndex.value <= 0) return { R6: false, R5: false, R7: false };
+  const a = current.value;
+  const b = previous.value;
+  return {
+    R6: a.R6 !== b.R6,
+    R5: a.R5 !== b.R5,
+    R7: a.R7 !== b.R7
+  };
+});
+
 const currentActor = computed<StepActor>(() => steps[stepIndex.value]?.actor ?? 'caller');
 
 const paramIndices = computed<number[]>(() => {
@@ -341,91 +361,117 @@ const displayRows = computed<DisplayRow[]>(() => {
   const highlightKeys: number[] = [];
   state.highlightAddrs.forEach((a) => highlightKeys.push(a));
 
-  // Always display a window that includes BOTH pointers (R6 and R5), plus any written/touched cells.
-  // Also cap the number of rendered rows so the memory window stays compact (no scrolling inside).
-  const minRelevant = Math.min(state.R6, state.R5, ...(keys.length ? keys : [state.R6]), ...(highlightKeys.length ? highlightKeys : [state.R6]));
-  const maxRelevant = Math.max(state.R6, state.R5, ...(keys.length ? keys : [state.R5]), ...(highlightKeys.length ? highlightKeys : [state.R5]));
+  // Sparse memory window: show only meaningful addresses (written cells + R6/R5),
+  // and collapse gaps into a single ellipsis row.
+  const addrSet = new Set<number>();
+  for (const k of keys) addrSet.add(k);
+  for (const k of highlightKeys) addrSet.add(k);
+  addrSet.add(state.R6);
+  addrSet.add(state.R5);
 
-  const maxRows = 26;
-  const mustLow = Math.min(state.R6, state.R5);
-  const mustHigh = Math.max(state.R6, state.R5);
-
-  const fullSpan = (maxRelevant - minRelevant + 0x10000) % 0x10000;
-  const mustSpan = (mustHigh - mustLow + 0x10000) % 0x10000;
-
-  // If wrap-around happens or the span is unexpectedly huge, fall back to a small window around SP.
-  const isSpanReasonable = fullSpan < 0x8000 && mustSpan < 0x8000;
-  let windowLow = isSpanReasonable ? minRelevant : clamp16(state.R6 - 8);
-  let windowHigh = isSpanReasonable ? maxRelevant : clamp16(state.R6 + 8);
-
-  // First ensure the window includes both R6 and R5.
-  if (isSpanReasonable) {
-    windowLow = mustLow;
-    windowHigh = mustHigh;
-
-    // Expand the window (within relevant bounds) until we hit maxRows.
-    const required = (windowHigh - windowLow + 0x10000) % 0x10000 + 1;
-    let remaining = Math.max(0, maxRows - required);
-
-    const addHigh = Math.min(remaining, maxRelevant - windowHigh);
-    windowHigh += addHigh;
-    remaining -= addHigh;
-
-    const addLow = Math.min(remaining, windowLow - minRelevant);
-    windowLow -= addLow;
-    remaining -= addLow;
-
-    // If we still have room (hit a bound on one side), try the other side again.
-    if (remaining > 0) {
-      const addHigh2 = Math.min(remaining, maxRelevant - windowHigh);
-      windowHigh += addHigh2;
-      remaining -= addHigh2;
-    }
-    if (remaining > 0) {
-      const addLow2 = Math.min(remaining, windowLow - minRelevant);
-      windowLow -= addLow2;
-      remaining -= addLow2;
-    }
-
-    windowLow = clamp16(windowLow);
-    windowHigh = clamp16(windowHigh);
-
-    // If it still doesn't fit (shouldn't happen with typical inputs), clamp to maxRows while keeping R6/R5 inside.
-    const finalSpan = (windowHigh - windowLow + 0x10000) % 0x10000;
-    if (finalSpan >= maxRows) {
-      windowLow = mustLow;
-      windowHigh = clamp16(mustLow + (maxRows - 1));
-      if (mustHigh > windowHigh) {
-        windowHigh = mustHigh;
-        windowLow = clamp16(mustHigh - (maxRows - 1));
-      }
-    }
-  }
-
-  const safeSpan = Math.min((windowHigh - windowLow + 0x10000) % 0x10000, maxRows - 1);
-
-  // Render in ascending address order (addresses decrease bottom→top), so pushes visually build upward.
-  const addrs: number[] = [];
-  for (let i = 0; i <= safeSpan; i++) {
-    addrs.push(clamp16(windowLow + i));
-  }
-
+  const addrs = Array.from(addrSet).sort((a, b) => a - b);
   const stackCeiling = keys.length ? Math.max(...keys) : null;
 
-  return addrs.map((addr) => {
-    const cell = state.memory.get(addr);
+  const rows: DisplayRow[] = [];
+  for (let i = 0; i < addrs.length; i++) {
+    const addr = addrs[i];
+    const next = addrs[i + 1];
+
+    const existingCell = state.memory.get(addr);
+    const isFP = addr === state.R5;
+    const isSP = addr === state.R6;
     const active = stackCeiling === null ? false : (addr >= state.R6 && addr <= stackCeiling);
-    return {
+
+    const cell: Cell | undefined = existingCell
+      ? existingCell
+      : (isFP
+          ? {
+              address: addr,
+              kind: 'other',
+              label: 'old R5 points here (caller frame)',
+              value: ''
+            }
+          : undefined);
+
+    const owner: StepActor | undefined = !cell
+      ? undefined
+      : (cell.kind === 'arg'
+          ? 'caller'
+          : cell.kind === 'ret-slot' || cell.kind === 'saved-r7' || cell.kind === 'saved-r5' || cell.kind === 'local'
+              ? 'callee'
+              : isFP
+                  ? 'caller'
+                  : undefined);
+
+    rows.push({
+      kind: 'cell',
       addr,
       addrHex: hex16(addr),
       cell,
       active,
-      isSP: addr === state.R6,
-      isFP: addr === state.R5,
-      isHighlight: state.highlightAddrs.has(addr)
-    };
-  });
+      isSP,
+      isFP,
+      isHighlight: state.highlightAddrs.has(addr),
+      owner
+    });
+
+    if (typeof next === 'number') {
+      const gap = (next - addr + 0x10000) % 0x10000;
+      if (gap > 1) rows.push({ kind: 'ellipsis', id: `${addr}-${next}` });
+    }
+  }
+
+  return rows;
 });
+
+type AsmLine = { text: string; step: number };
+
+function splitAsmComment(text: string): { code: string; comment: string } {
+  const idx = text.indexOf(';');
+  if (idx === -1) return { code: text, comment: '' };
+  return {
+    code: text.slice(0, idx).trimEnd(),
+    comment: text.slice(idx)
+  };
+}
+
+const stepAsmLines = computed<string[]>(() => (steps[stepIndex.value]?.asm ?? '').split('\n'));
+
+const callerAsm: AsmLine[] = [
+  { text: 'ADD R6, R6, #-1', step: 0 },
+  { text: 'STR argN, R6, #0', step: 0 },
+  { text: '', step: -1 },
+  { text: '...            ; repeat down to arg1', step: 0 },
+  { text: 'JSR callee', step: 1 },
+  { text: '', step: -1 },
+  { text: 'LDR Rv, R6, #0  ; read return value', step: 12 },
+  { text: 'ADD R6, R6, #1  ; pop return value', step: 12 },
+  { text: 'ADD R6, R6, #numParams', step: 13 }
+];
+
+const calleeAsm: AsmLine[] = [
+  { text: 'ADD R6, R6, #-1    ; reserve return slot', step: 2 },
+  { text: '', step: -1 },
+  { text: 'ADD R6, R6, #-1', step: 3 },
+  { text: 'STR R7, R6, #0    ; save return address', step: 3 },
+  { text: '', step: -1 },
+  { text: 'ADD R6, R6, #-1', step: 4 },
+  { text: 'STR R5, R6, #0    ; save old FP', step: 4 },
+  { text: '', step: -1 },
+  { text: 'ADD R5, R6, #-1   ; set new FP', step: 5 },
+  { text: 'ADD R6, R6, #-numLocals', step: 6 },
+  { text: '...              ; body', step: 7 },
+  { text: 'STR Rx, R5, #3    ; write return value', step: 7 },
+  { text: 'ADD R6, R6, #numLocals', step: 8 },
+  { text: '', step: -1 },
+  { text: 'LDR R5, R6, #0    ; restore old FP', step: 9 },
+  { text: 'ADD R6, R6, #1', step: 9 },
+  { text: '', step: -1 },
+  { text: 'LDR R7, R6, #0    ; restore return addr', step: 10 },
+  { text: 'ADD R6, R6, #1', step: 10 },
+  { text: '', step: -1 },
+  { text: 'RET', step: 11 }
+];
 
 function nextStep() {
   stepIndex.value = Math.min(stepIndex.value + 1, steps.length - 1);
@@ -440,12 +486,11 @@ function reset() {
   numParams.value = 2;
   numLocals.value = 2;
   argValues.value = ['x0001', 'x0002'];
-  returnValue.value = 'x1234';
 }
 </script>
 
 <template>
-  <div class="px-4 py-3 max-w-[1400px] mx-auto">
+  <div class="px-4 py-3 max-w-350 mx-auto">
     <header class="mb-3">
       <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-surface-900 dark:text-surface-50">
         LC-3 Calling Convention Visualizer
@@ -456,7 +501,7 @@ function reset() {
       </p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-3">
+    <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-3">
       <Card class="cc-sticky">
         <template #title>Controls</template>
         <template #content>
@@ -478,14 +523,14 @@ function reset() {
               <div v-else class="grid grid-cols-2 gap-2">
                 <label v-for="i in paramIndices" :key="i" class="flex flex-col gap-1">
                   <span class="text-xs text-surface-600 dark:text-surface-300">arg{{ i }}</span>
-                  <input v-model="argValues[i - 1]" class="cc-input font-mono" placeholder="x0000" />
+                  <div class="cc-input font-mono cc-readonly">{{ argValues[i - 1] }}</div>
                 </label>
               </div>
             </div>
 
             <label class="flex flex-col gap-1">
               <span class="text-sm font-semibold text-surface-700 dark:text-surface-200">Return value (written at R5 + 3)</span>
-              <input v-model="returnValue" class="cc-input font-mono" placeholder="x1234" />
+              <div class="cc-input font-mono cc-readonly">{{ RETURN_VALUE }}</div>
             </label>
 
             <Divider />
@@ -499,7 +544,17 @@ function reset() {
             <div class="flex flex-col gap-2">
               <div class="flex items-baseline justify-between">
                 <div class="text-sm font-semibold text-surface-700 dark:text-surface-200">Step {{ stepIndex + 1 }} / {{ steps.length }}</div>
-                <div class="text-xs text-surface-500 font-mono">{{ steps[stepIndex].asm }}</div>
+                <div class="text-xs text-surface-500 font-mono text-right">
+                  <div v-for="(l, i) in stepAsmLines" :key="i" class="asm-mini-line">
+                    <template v-if="l.trim().length">
+                      <span class="asm-code">{{ splitAsmComment(l).code }}</span>
+                      <span v-if="splitAsmComment(l).comment" class="asm-comment"> {{ splitAsmComment(l).comment }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="asm-blank">&nbsp;</span>
+                    </template>
+                  </div>
+                </div>
               </div>
               <Slider v-model="stepIndex" :min="0" :max="steps.length - 1" :step="1" />
             </div>
@@ -521,80 +576,130 @@ function reset() {
         </template>
       </Card>
 
-      <div class="flex flex-col gap-3">
-        <Card>
-          <template #title>Registers</template>
-          <template #content>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <div class="reg">
-                <div class="reg-k">R6 (SP)</div>
-                <div class="reg-v font-mono">{{ hex16(current.R6) }}</div>
+      <div class="cc-right">
+        <div class="flex flex-col gap-3">
+          <Card>
+            <template #title>Registers</template>
+            <template #content>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div class="reg" :class="{ changed: registerChanged.R6 }">
+                  <div class="reg-k">R6 (SP)</div>
+                  <div class="reg-v font-mono">{{ hex16(current.R6) }}</div>
+                </div>
+                <div class="reg" :class="{ changed: registerChanged.R5 }">
+                  <div class="reg-k">R5 (FP)</div>
+                  <div class="reg-v font-mono">{{ hex16(current.R5) }}</div>
+                </div>
+                <div class="reg" :class="{ changed: registerChanged.R7 }">
+                  <div class="reg-k">R7</div>
+                  <div class="reg-v font-mono">{{ hex16(current.R7) }}</div>
+                </div>
               </div>
-              <div class="reg">
-                <div class="reg-k">R5 (FP)</div>
-                <div class="reg-v font-mono">{{ hex16(current.R5) }}</div>
+              <div class="mt-3 text-xs text-surface-600 dark:text-surface-300">
+                Convention-specific: return value slot is at <span class="font-mono">R5 + 3</span>, and locals live at
+                <span class="font-mono">R5, R5-1, ...</span>.
               </div>
-              <div class="reg">
-                <div class="reg-k">R7</div>
-                <div class="reg-v font-mono">{{ hex16(current.R7) }}</div>
-              </div>
-            </div>
-            <div class="mt-3 text-xs text-surface-600 dark:text-surface-300">
-              Convention-specific: return value slot is at <span class="font-mono">R5 + 3</span>, and locals live at
-              <span class="font-mono">R5, R5-1, ...</span>.
-            </div>
-          </template>
-        </Card>
+            </template>
+          </Card>
 
-        <Card>
-          <template #title>Stack (memory window)</template>
-          <template #content>
-            <div class="stack">
-              <div class="stack-head">
-                <div>Ptrs</div>
-                <div>Addr</div>
-                <div>Contents</div>
-              </div>
-
-              <div class="stack-body" role="table" aria-label="Stack memory window">
-                <div
-                  v-for="row in displayRows"
-                  :key="row.addr"
-                  :class="[
-                    'stack-row',
-                    {
-                      inactive: !row.active,
-                      highlight: row.isHighlight,
-                      'highlight-caller': row.isHighlight && currentActor === 'caller',
-                      'highlight-callee': row.isHighlight && currentActor === 'callee',
-                      sp: row.isSP,
-                      fp: row.isFP
-                    }
-                  ]"
-                >
-                  <div class="ptrs font-mono">
-                    <span v-if="row.isSP" class="ptr ptr-sp">R6→</span>
-                    <span v-if="row.isFP" class="ptr ptr-fp">R5→</span>
+          <Card>
+            <template #title>Stack (memory window)</template>
+            <template #content>
+              <div class="stack">
+                <div class="stack-head">
+                  <div class="ptr-head">Ptrs</div>
+                  <div class="row-head">
+                    <div>Addr</div>
+                    <div>Contents</div>
                   </div>
-                  <div class="addr font-mono">{{ row.addrHex }}</div>
-                  <div class="contents">
-                    <div v-if="row.cell" class="flex items-baseline justify-between gap-3">
-                      <div class="label">
-                        <span class="font-semibold">{{ row.cell.label }}</span>
-                        <span class="kind">({{ row.cell.kind }})</span>
-                      </div>
-                      <div class="value font-mono" v-if="row.cell.value">{{ row.cell.value }}</div>
+                </div>
+
+                <div class="stack-body" role="table" aria-label="Stack memory window">
+                  <div v-for="row in displayRows" :key="row.kind === 'ellipsis' ? row.id : row.addr" class="stack-line">
+                    <div class="ptr-gutter font-mono">
+                      <template v-if="row.kind === 'cell'">
+                        <span v-if="row.isSP" class="ptr ptr-sp">R6→</span>
+                        <span v-if="row.isFP" class="ptr ptr-fp">R5→</span>
+                      </template>
                     </div>
-                    <div v-else class="empty">(empty)</div>
+                    <div
+                      v-if="row.kind === 'cell'"
+                      :class="[
+                        'stack-row',
+                        {
+                          inactive: !row.active,
+                          highlight: row.isHighlight,
+                          'highlight-caller': row.isHighlight && currentActor === 'caller',
+                          'highlight-callee': row.isHighlight && currentActor === 'callee',
+                          'owner-caller': row.owner === 'caller',
+                          'owner-callee': row.owner === 'callee',
+                          sp: row.isSP,
+                          fp: row.isFP
+                        }
+                      ]"
+                    >
+                      <div class="addr font-mono">{{ row.addrHex }}</div>
+                      <div class="contents">
+                        <div v-if="row.cell" class="flex items-baseline justify-between gap-3">
+                          <div class="label">
+                            <span class="font-semibold">{{ row.cell.label }}</span>
+                            <span class="kind">({{ row.cell.kind }})</span>
+                          </div>
+                          <div class="value font-mono" v-if="row.cell.value">{{ row.cell.value }}</div>
+                        </div>
+                        <div v-else class="empty">(empty)</div>
+                      </div>
+                    </div>
+                    <div v-else class="stack-ellipsis" aria-hidden="true">
+                      <div class="ellipsis-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="legend">
+                  <div><span class="dot active"></span> active stack range</div>
+                  <div><span class="dot inactive"></span> not in stack (popped / above SP)</div>
+                  <div><span class="dot highlight-caller"></span> touched this step (caller)</div>
+                  <div><span class="dot highlight-callee"></span> touched this step (callee)</div>
+                </div>
+              </div>
+            </template>
+          </Card>
+        </div>
+
+        <Card>
+          <template #title>LC-3 Assembly</template>
+          <template #content>
+            <div class="asm">
+              <div class="asm-col">
+                <div class="asm-head caller">Caller</div>
+                <div class="asm-pre" role="list" aria-label="Caller assembly">
+                  <div v-for="(line, idx) in callerAsm" :key="idx" :class="['asm-line', 'caller', { current: stepIndex === line.step }]" role="listitem">
+                    <template v-if="line.text.trim().length">
+                      <span class="asm-code">{{ splitAsmComment(line.text).code }}</span><span v-if="splitAsmComment(line.text).comment" class="asm-comment"> {{ splitAsmComment(line.text).comment }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="asm-blank">&nbsp;</span>
+                    </template>
                   </div>
                 </div>
               </div>
-
-              <div class="legend">
-                <div><span class="dot active"></span> active stack range</div>
-                <div><span class="dot inactive"></span> not in stack (popped / above SP)</div>
-                <div><span class="dot highlight-caller"></span> touched this step (caller)</div>
-                <div><span class="dot highlight-callee"></span> touched this step (callee)</div>
+              <div class="asm-col">
+                <div class="asm-head callee">Callee</div>
+                <div class="asm-pre" role="list" aria-label="Callee assembly">
+                  <div v-for="(line, idx) in calleeAsm" :key="idx" :class="['asm-line', 'callee', { current: stepIndex === line.step && currentActor === 'callee' }]" role="listitem">
+                    <template v-if="line.text.trim().length">
+                      <span class="asm-code">{{ splitAsmComment(line.text).code }}</span><span v-if="splitAsmComment(line.text).comment" class="asm-comment"> {{ splitAsmComment(line.text).comment }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="asm-blank">&nbsp;</span>
+                    </template>
+                  </div>
+                </div>
               </div>
             </div>
           </template>
@@ -613,6 +718,10 @@ function reset() {
   outline: none;
 }
 
+.cc-readonly {
+  user-select: text;
+}
+
 @media (prefers-color-scheme: dark) {
   .cc-input {
     border-color: rgba(255,255,255,0.18);
@@ -625,9 +734,23 @@ function reset() {
 .reg-k { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(0,0,0,0.68); font-weight: 800; }
 .reg-v { font-size: 1.05rem; font-weight: 700; }
 
+.reg.changed {
+  outline: 2px solid rgba(179, 163, 105, 0.55);
+  box-shadow: 0 0 0 4px rgba(179, 163, 105, 0.12);
+}
+
 @media (prefers-color-scheme: dark) {
   .reg { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); }
   .reg-k { color: rgba(255,255,255,0.78); }
+  .reg.changed {
+    outline-color: rgba(179, 163, 105, 0.55);
+    box-shadow: 0 0 0 4px rgba(179, 163, 105, 0.12);
+  }
+}
+
+.cc-right { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+@media (min-width: 1280px) {
+  .cc-right { grid-template-columns: 560px 1fr; align-items: start; }
 }
 
 .cc-sticky { align-self: start; }
@@ -636,7 +759,19 @@ function reset() {
 }
 
 .stack { display: flex; flex-direction: column; gap: .25rem; }
-.stack-head { display: grid; grid-template-columns: 84px 120px 1fr; padding: .35rem .6rem; font-size: .75rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: rgba(0,0,0,0.75); }
+.stack-head {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  padding: .35rem .6rem;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.75);
+}
+
+.row-head { display: grid; grid-template-columns: 120px 1fr; }
+.ptr-head { padding-left: .15rem; }
 
 @media (prefers-color-scheme: dark) {
   .stack-head { color: rgba(255,255,255,0.88); }
@@ -646,9 +781,16 @@ function reset() {
   overflow: visible;
 }
 
+.stack-line {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: .25rem;
+  align-items: stretch;
+}
+
 .stack-row {
   display: grid;
-  grid-template-columns: 84px 120px 1fr;
+  grid-template-columns: 120px 1fr;
   gap: .25rem;
   align-items: center;
   padding: .38rem .6rem;
@@ -657,8 +799,32 @@ function reset() {
   background: rgba(255,255,255,0.86);
 }
 
+.stack-ellipsis {
+  display: grid;
+  place-items: center;
+  border-radius: .7rem;
+  border: 1px dashed rgba(0,0,0,0.14);
+  background: rgba(0,0,0,0.02);
+  padding: .38rem .6rem;
+}
+
+.ellipsis-dots {
+  display: flex;
+  flex-direction: column;
+  gap: .22rem;
+}
+
+.ellipsis-dots .dot {
+  width: .28rem;
+  height: .28rem;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.35);
+}
+
 @media (prefers-color-scheme: dark) {
   .stack-row { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); }
+  .stack-ellipsis { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.03); }
+  .ellipsis-dots .dot { background: rgba(255,255,255,0.42); }
 }
 
 .stack-row.inactive { opacity: .52; filter: grayscale(0.1); }
@@ -668,9 +834,12 @@ function reset() {
 .stack-row.sp { box-shadow: inset 3px 0 0 rgba(0, 96, 168, 0.85); }
 .stack-row.fp { box-shadow: inset 3px 0 0 rgba(0, 160, 96, 0.85); }
 
+.stack-row.owner-caller { background: rgba(0, 96, 168, 0.06); border-color: rgba(0, 96, 168, 0.16); }
+.stack-row.owner-callee { background: rgba(0, 160, 96, 0.06); border-color: rgba(0, 160, 96, 0.16); }
+
 .addr { color: rgba(0,0,0,0.82); }
 
-.ptrs { display: flex; flex-direction: column; gap: .28rem; }
+.ptr-gutter { display: flex; flex-direction: column; gap: .28rem; align-items: flex-start; padding: .38rem 0 0 .6rem; }
 .ptr {
   display: inline-flex;
   align-items: center;
@@ -696,6 +865,8 @@ function reset() {
   .ptr { border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.06); }
   .ptr.ptr-sp { border-color: rgba(0, 96, 168, 0.55); background: rgba(0, 96, 168, 0.22); }
   .ptr.ptr-fp { border-color: rgba(0, 160, 96, 0.55); background: rgba(0, 160, 96, 0.22); }
+  .stack-row.owner-caller { background: rgba(0, 96, 168, 0.14); border-color: rgba(0, 96, 168, 0.22); }
+  .stack-row.owner-callee { background: rgba(0, 160, 96, 0.14); border-color: rgba(0, 160, 96, 0.22); }
   .contents .kind { color: rgba(255,255,255,0.62); }
   .contents .value { color: rgba(255,255,255,0.92); }
   .empty { color: rgba(255,255,255,0.5); }
@@ -732,5 +903,59 @@ function reset() {
   .actor-chip { border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.06); }
   .actor-chip.caller { border-color: rgba(0, 96, 168, 0.55); background: rgba(0, 96, 168, 0.22); }
   .actor-chip.callee { border-color: rgba(0, 160, 96, 0.55); background: rgba(0, 160, 96, 0.22); }
+}
+
+.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+@media (min-width: 640px) {
+  .asm { grid-template-columns: 1fr 1fr; }
+}
+
+.asm-head {
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 950;
+  margin-bottom: .4rem;
+}
+.asm-head.caller { color: rgba(0, 96, 168, 0.9); }
+.asm-head.callee { color: rgba(0, 160, 96, 0.9); }
+
+.asm-pre {
+  border-radius: .75rem;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.7);
+  padding: .6rem .7rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.asm-line {
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: .85rem;
+  color: rgba(0,0,0,0.72);
+  padding: .2rem .3rem;
+  border-radius: .45rem;
+}
+
+.asm-code { color: inherit; }
+.asm-comment { color: rgba(0,0,0,0.48); }
+.asm-blank { display: inline-block; min-width: 1px; }
+
+.asm-mini-line { line-height: 1.2; }
+
+.asm-line.current.caller { background: rgba(0, 96, 168, 0.14); outline: 1px solid rgba(0, 96, 168, 0.22); }
+.asm-line.current.callee { background: rgba(0, 160, 96, 0.14); outline: 1px solid rgba(0, 160, 96, 0.22); }
+
+@media (prefers-color-scheme: dark) {
+  .asm-pre { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); }
+  .asm-line { color: rgba(255,255,255,0.88); }
+  .asm-comment { color: rgba(255,255,255,0.58); }
+  .asm-head.caller { color: rgba(0, 96, 168, 0.85); }
+  .asm-head.callee { color: rgba(0, 160, 96, 0.85); }
+  .asm-line.current.caller { background: rgba(0, 96, 168, 0.22); outline-color: rgba(0, 96, 168, 0.35); }
+  .asm-line.current.callee { background: rgba(0, 160, 96, 0.22); outline-color: rgba(0, 160, 96, 0.35); }
 }
 </style>
