@@ -43,9 +43,12 @@ import type { HighlightRange, PseudocodeState } from './sequences';
     @reference "@/style.css";
 
     .pseudocode-container {
-        max-width: 100%;
-        overflow: hidden;
-        word-break: break-word;
+        /* Preserve newlines and prevent wrapping; let the sidebar resize. */
+        white-space: pre;
+        display: inline-block;
+        width: max-content;
+        overflow: visible;
+        max-width: none;
     }
 
     .cy-on-disabled {
@@ -101,9 +104,9 @@ import type { HighlightRange, PseudocodeState } from './sequences';
         :class="getAllEnabledClasses(cycle, running)"
     >
         <span v-for="{start, end, cycle: c} of highlightRanges"
-        class="font-mono whitespace-pre-wrap transition-colors break-words overflow-hidden"
+        class="font-mono transition-colors"
         :class="{ [`cy-on-${c}`] : typeof c != 'number' || c >= 0 }"
-        style="display: inline; max-width: 100%; overflow-wrap: anywhere;">
+        style="display: inline;">
             {{ pseudocode.source.slice(start, end) }}
         </span>
     </div>

@@ -1,7 +1,8 @@
 .lc3-tool-root { /* leave space for fixed control panel */
   padding-bottom: 170px; /* >= control panel height */
   font-size: 1.05rem;
-  overflow-x: hidden;
+  /* Allow the page to grow horizontally when child content expands */
+  overflow-x: visible;
   overflow-y: auto;
   background: var(--p-surface-0);
 }
@@ -37,6 +38,8 @@
   flex: 1;
   min-height: 0;
   width: 100%;
+  overflow: visible; /* allow children to extend beyond container */
+  position: relative; /* anchor sidebar to the diagram container */
 }
 
 .lc3-resized { 
@@ -70,28 +73,40 @@ h1 {
 
 .side-col { 
   position: static;
-  width: 100%;
-  max-width: 280px;
+  width: max-content;
+  max-width: 45vw;
   overflow: hidden;
+  flex-shrink: 0; /* ensure it doesn't get crushed if diagram has a min-width */
+  z-index: 30;
+  transition: width 180ms ease, max-width 180ms ease, opacity 180ms ease;
+}
+
+.side-col.collapsed {
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .side-col :deep(.p-card) { 
   margin-left: 0;
+  height: auto;
   max-width: 100%;
-  overflow: hidden; /* Prevent card content from overflowing */
+  overflow: visible;
 }
 
 .side-col :deep(.p-card-body) { 
   padding-left: 0.75rem; 
   padding-right: 0.75rem;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .side-col :deep(.p-card-content) {
   max-width: 100%;
-  overflow: hidden;
-  overflow-wrap: anywhere; /* Break long words */
+  overflow: visible;
+  overflow-wrap: anywhere; /* Break long words when necessary */
   word-break: break-word;
 }
 
@@ -110,6 +125,9 @@ h1 {
   height: 100%;
   width: 100%;
   min-height: 0;
+}
+.diagram-col.has-sidebar {
+  /* padding removed to stop crushing diagram artificially */
 }
 
 .instruction-format-card {

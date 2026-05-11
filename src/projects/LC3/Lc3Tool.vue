@@ -29,7 +29,11 @@ const wireActivationHistory = ref<Map<string, number[]>>(new Map());
 const loopId = ref<number>();
 const running = computed(() => typeof loopId.value !== 'undefined');
 const isLoopDone = computed(() => wireState.value.step >= wireState.value.wires.length);
+const canStepBack = computed(() => wireState.value.step > 0);
 const macroCycleCount = computed(() => wireState.value.macro ? SEQUENCE_DATA[wireState.value.macro].sequence.length : undefined);
+const showPseudocode = ref(true);
+const showInstructionFormat = ref(true);
+const hasSidebar = computed(() => showPseudocode.value && !!currentSequence.value?.pseudocode);
 // Derive current sequence entry (typed as any fallback) to simplify template typing
 const currentSequence = computed(() => wireState.value.macro ? (SEQUENCE_DATA as any)[wireState.value.macro] : undefined);
 const currentFormat = computed(() => {
@@ -144,8 +148,8 @@ function activateMacro(key: string) {
       </div>
     </header>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
-      <div class="diagram-col">
-        <Card v-if="currentFormat" class="instruction-format-card">
+      <div class="diagram-col" :class="{ 'has-sidebar': hasSidebar }">
+        <Card v-if="currentFormat && showInstructionFormat" class="instruction-format-card">
           <template #title>
             <div class="w-full flex items-baseline gap-2">
               <span>Instruction Format:</span>
@@ -162,11 +166,20 @@ function activateMacro(key: string) {
         </Card>
         <div class="diagram-with-pseudocode">
           <LC3 ref="lc3Diagram" class="lc3-resized" />
-          <div class="side-col" v-if="currentSequence?.pseudocode">
+          <div
+            class="side-col"
+            v-if="currentSequence?.pseudocode"
+            :class="{ collapsed: !showPseudocode }"
+          >
             <Card>
               <template #title>{{ currentSequence.label }} Pseudocode</template>
               <template #content>
-                <Pseudocode :pseudocode="currentSequence.pseudocode" :cycle="wireState.cycle" :running />
+                <Pseudocode
+                  v-show="showPseudocode"
+                  :pseudocode="currentSequence.pseudocode"
+                  :cycle="wireState.cycle"
+                  :running
+                />
               </template>
             </Card>
           </div>
@@ -175,6 +188,28 @@ function activateMacro(key: string) {
     </div>
   <div class="control-panel">
       <div class="flex items-stretch gap-2 py-2 justify-center">
+        <div class="flex items-center gap-2">
+          Panels
+          <Button
+            :disabled="!currentSequence?.pseudocode"
+            @click="showPseudocode = !showPseudocode"
+            v-tooltip.top="showPseudocode ? 'Hide pseudocode' : 'Show pseudocode'"
+            :severity="showPseudocode ? 'primary' : 'secondary'"
+            outlined
+          >
+            Pseudocode
+          </Button>
+          <Button
+            :disabled="!currentFormat"
+            @click="showInstructionFormat = !showInstructionFormat"
+            v-tooltip.top="showInstructionFormat ? 'Hide instruction format' : 'Show instruction format'"
+            :severity="showInstructionFormat ? 'primary' : 'secondary'"
+            outlined
+          >
+            Instruction Format
+          </Button>
+        </div>
+        <Divider layout="vertical" />
         <div class="flex items-center gap-2">
           Speed:
           <Slider v-model="speedScale" class="w-56" />
@@ -189,7 +224,7 @@ function activateMacro(key: string) {
         <div class="flex gap-2 items-center">
           Step
           <div class="flex gap-0.5">
-            <Button aria-label="Step Backward" v-tooltip.top="'Step Backward'" @click="() => { pauseDiagramLoop(); stepBack(); }" :dt="{ root: { borderRadius: '{form.field.border.radius} 0 0 {form.field.border.radius}' } }">
+            <Button :disabled="!canStepBack" aria-label="Step Backward" v-tooltip.top="'Step Backward'" @click="() => { pauseDiagramLoop(); stepBack(); }" :dt="{ root: { borderRadius: '{form.field.border.radius} 0 0 {form.field.border.radius}' } }">
               <mdi-step-backward />
             </Button>
             <Button :disabled="isLoopDone" aria-label="Step Forward" v-tooltip.top="'Step Forward'" @click="() => { pauseDiagramLoop(); stepFwd(); }" :dt="{ root: { borderRadius: '0 {form.field.border.radius} {form.field.border.radius} 0' } }">
