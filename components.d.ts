@@ -19,6 +19,7 @@ declare module 'vue' {
     Menubar: typeof import('primevue/menubar')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
     SiteNav: typeof import('./src/components/SiteNav.vue')['default']
     Slider: typeof import('primevue/slider')['default']
   }
