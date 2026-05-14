@@ -80,21 +80,27 @@ const steps: ReadonlyArray<{
     actor: 'callee'
   },
   {
-    title: 'Callee sets new frame pointer',
-    asm: 'ADD R5, R6, #-1',
-    detail: 'R5 now points at the first local. After locals are removed, the saved old R5 will be on top of the stack for an easy POP.',
+    title: 'Callee sets frame pointer & allocates locals',
+    asm: 'ADD R5, R6, #-1\nADD R6, R6, -numLocals',
+    detail: 'R5 is set to point to the first local variable. Space for locals is then allocated.',
     actor: 'callee'
   },
   {
-    title: 'Callee allocates locals',
-    asm: 'ADD R6, R6, #-numLocals',
-    detail: 'Space for locals is made by decrementing the stack pointer.',
+    title: 'Callee saves registers',
+    asm: 'STR Rx, R6, #0',
+    detail: 'Registers used by the function body are saved so they can be restored later.',
     actor: 'callee'
   },
   {
-    title: 'Callee does work (stores return value)',
+    title: 'Callee does work (function body)',
     asm: 'STR Rx, R5, #3',
     detail: 'Return value is written into the reserved slot at address (R5 + 3).',
+    actor: 'callee'
+  },
+  {
+    title: 'Callee restores registers',
+    asm: 'LDR Rx, R6, #0',
+    detail: 'Saved registers are restored.',
     actor: 'callee'
   },
   {
@@ -152,7 +158,16 @@ const examples = [
     argNames: ['a', 'b'],
     localNames: ['sum'],
     returnValue: 'x0003',
-    calleeName: 'add'
+    calleeName: 'add',
+    usedRegs: ['R0', 'R1'],
+    bodyAsm: [
+      '; --- Body ---',
+      'LDR R0, R5, #4    ; load a',
+      'LDR R1, R5, #5    ; load b',
+      'ADD R0, R0, R1    ; a + b',
+      'STR R0, R5, #0    ; store sum',
+      '; ------------'
+    ]
   },
   {
     id: 'factorial',
@@ -164,7 +179,22 @@ const examples = [
     argNames: ['n'],
     localNames: ['temp'],
     returnValue: 'x0018',
-    calleeName: 'fact'
+    calleeName: 'fact',
+    usedRegs: ['R0', 'R1'],
+    bodyAsm: [
+      '; --- Body ---',
+      'LDR R0, R5, #4    ; load n',
+      'ADD R1, R0, #-1',
+      'BRp RECURSE',
+      'AND R0, R0, #0',
+      'ADD R0, R0, #1    ; base case return 1',
+      'BRnzp DONE',
+      'RECURSE:',
+      '                 ; (omitted fact(n-1) call)',
+      'DONE:',
+      'STR R0, R5, #0    ; store temp',
+      '; ------------'
+    ]
   },
   {
     id: 'void_func',
@@ -176,7 +206,15 @@ const examples = [
     argNames: ['id'],
     localNames: ['status'],
     returnValue: 'x0000',
-    calleeName: 'print_msg'
+    calleeName: 'print_msg',
+    usedRegs: ['R0'],
+    bodyAsm: [
+      '; --- Body ---',
+      'AND R0, R0, #0    ; status = 0',
+      'STR R0, R5, #0    ; store status',
+      '                 ; (omitted print)',
+      '; ------------'
+    ]
   },
   {
     id: 'many_args',
@@ -188,7 +226,20 @@ const examples = [
     argNames: ['a', 'b', 'c', 'd'],
     localNames: ['s1', 's2'],
     returnValue: 'x000A',
-    calleeName: 'sum4'
+    calleeName: 'sum4',
+    usedRegs: ['R0', 'R1'],
+    bodyAsm: [
+      '; --- Body ---',
+      'LDR R0, R5, #4    ; load a',
+      'LDR R1, R5, #5    ; load b',
+      'ADD R0, R0, R1    ; a + b',
+      'STR R0, R5, #0    ; store s1',
+      'LDR R0, R5, #6    ; load c',
+      'LDR R1, R5, #7    ; load d',
+      'ADD R0, R0, R1    ; c + d',
+      'STR R0, R5, #-1   ; store s2',
+      '; ------------'
+    ]
   }
 ];
 
@@ -202,6 +253,8 @@ const argValues = computed(() => selectedExample.value.argValues);
 const argNames = computed(() => selectedExample.value.argNames);
 const localNames = computed(() => selectedExample.value.localNames);
 const calleeName = computed(() => selectedExample.value.calleeName);
+const usedRegs = computed(() => selectedExample.value.usedRegs);
+const bodyAsm = computed(() => selectedExample.value.bodyAsm);
 const RETURN_VALUE = computed(() => selectedExample.value.returnValue);
 
 watch(selectedExampleId, () => {
@@ -280,26 +333,16 @@ function simulate(targetStep: number): MachineState {
     push({ kind: 'saved-r5', label: 'saved R5 (old FP)', value: hex16(R5) });
   }
 
-  // Step 5: set new FP
+  // Step 5: set new FP & allocate locals
   if (targetStep >= 5) {
     // After pushing old R5, R6 points to saved old R5.
     // Convention: R5 = R6 - 1 so FP points to first local.
     R5 = clamp16(R6 - 1);
-  }
-
-  // Step 6: allocate locals
-  if (targetStep >= 6) {
     const L = Math.max(0, numLocals.value | 0);
     if (L > 0) {
-      // Locals live at addresses: R5, R5-1, ..., R5-(L-1)
       for (let i = 0; i < L; i++) {
         const addr = clamp16(R5 - i);
-        memory.set(addr, {
-          address: addr,
-          kind: 'local',
-          label: `local${i + 1}`,
-          value: ''
-        });
+        memory.set(addr, { address: addr, kind: 'local', label: `local${i + 1}`, value: '' });
       }
       R6 = clamp16(R6 - L);
       highlightAddrs.clear();
@@ -307,13 +350,23 @@ function simulate(targetStep: number): MachineState {
     }
   }
 
-  // Step 7: do work / store return value at R5 + 3
-  if (targetStep >= 7) {
-    write(R5 + 3, { kind: 'ret-slot', label: 'return value (slot)', value: RETURN_VALUE });
+  // Step 6: save used registers
+  if (targetStep >= 6) {
+    // Conceptual only, visuals in HTML handle R0-R4
   }
 
-  // Step 8: remove locals
+  // Step 7: body work
+  if (targetStep >= 7) {
+    write(R5 + 3, { kind: 'ret-slot', label: 'return value (slot)', value: RETURN_VALUE.value });
+  }
+
+  // Step 8: restore used registers
   if (targetStep >= 8) {
+    // conceptually restore registers here
+  }
+
+  // Step 9: remove locals
+  if (targetStep >= 9) {
     const L = Math.max(0, numLocals.value | 0);
     if (L > 0) {
       R6 = clamp16(R6 + L);
@@ -322,14 +375,13 @@ function simulate(targetStep: number): MachineState {
     }
   }
 
-  // Step 9: POP R5
-  if (targetStep >= 9) {
+  // Step 10: POP R5
+  if (targetStep >= 10) {
     const cell = memory.get(R6);
     if (cell?.kind === 'saved-r5' && typeof cell.value === 'string' && cell.value.startsWith('x')) {
       const parsed = parseInt(cell.value.slice(1), 16);
       if (!Number.isNaN(parsed)) R5 = clamp16(parsed);
     } else {
-      // fallback to the known initial FP label/value
       R5 = initialFP;
     }
     highlightAddrs.clear();
@@ -337,8 +389,8 @@ function simulate(targetStep: number): MachineState {
     R6 = clamp16(R6 + 1);
   }
 
-  // Step 10: POP R7
-  if (targetStep >= 10) {
+  // Step 11: POP R7
+  if (targetStep >= 11) {
     const cell = memory.get(R6);
     if (cell?.kind === 'saved-r7' && typeof cell.value === 'string' && cell.value.startsWith('x')) {
       const parsed = parseInt(cell.value.slice(1), 16);
@@ -349,26 +401,25 @@ function simulate(targetStep: number): MachineState {
     R6 = clamp16(R6 + 1);
   }
 
-  // Step 11: RET (no stack change)
-  if (targetStep >= 11) {
-    // no-op for visualization
+  // Step 12: RET
+  if (targetStep >= 12) {
   }
 
-  // Step 12: caller pops return value
-  if (targetStep >= 12) {
+  // Step 13: caller pops return value
+  if (targetStep >= 13) {
     highlightAddrs.clear();
     highlightAddrs.add(R6);
     R6 = clamp16(R6 + 1);
   }
 
-  // Step 13: caller removes parameters
-  if (targetStep >= 13) {
+  // Step 14: caller removes parameters
+  if (targetStep >= 14) {
     R6 = clamp16(R6 + (Math.max(0, numParams.value | 0)));
     highlightAddrs.clear();
     highlightAddrs.add(R6);
   }
 
-  // Step 14: caller continues (no-op)
+  // Step 15: caller continues (no-op)
 
   return { R6, R5, R7, memory, highlightAddrs };
 }
@@ -481,43 +532,101 @@ function splitAsmComment(text: string): { code: string; comment: string } {
 
 const stepAsmLines = computed<string[]>(() => (steps[stepIndex.value]?.asm ?? '').split('\n'));
 
-const callerAsm = computed<AsmLine[]>(() => [
-  { text: '.ORIG x3000', step: -1 },
-  { text: 'ADD R6, R6, #-1', step: 0 },
-  { text: `STR R0, R6, #0     ; push arg ${argNames.value[argNames.value.length - 1] || 'N/A'}`, step: 0 },
-  { text: '', step: -1 },
-  { text: '...              ; push remaining args', step: 0 },
-  { text: `JSR ${calleeName.value}`, step: 1 },
-  { text: '', step: -1 },
-  { text: 'LDR R0, R6, #0     ; read return value', step: 12 },
-  { text: 'ADD R6, R6, #1     ; pop return value', step: 12 },
-  { text: `ADD R6, R6, #${numParams.value}     ; pop parameters`, step: 13 }
-]);
+const callerAsm = computed<AsmLine[]>(() => {
+  const pushLines: AsmLine[] = [];
+  // Push arguments right-to-left (last arg pushed first)
+  for (let i = argNames.value.length - 1; i >= 0; i--) {
+    pushLines.push({ text: 'ADD R6, R6, #-1', step: 0 });
+    // Show pushing from a register placeholder; comment labels the argument name
+    pushLines.push({ text: `STR R${i}, R6, #0     ; push arg ${argNames.value[i]}`, step: 0 });
+  }
 
-const calleeAsm = computed<AsmLine[]>(() => [
-  { text: `${calleeName.value}`, step: -1 },
-  { text: 'ADD R6, R6, #-1    ; reserve return slot', step: 2 },
-  { text: '', step: -1 },
-  { text: 'ADD R6, R6, #-1', step: 3 },
-  { text: 'STR R7, R6, #0    ; save return address', step: 3 },
-  { text: '', step: -1 },
-  { text: 'ADD R6, R6, #-1', step: 4 },
-  { text: 'STR R5, R6, #0    ; save old FP', step: 4 },
-  { text: '', step: -1 },
-  { text: 'ADD R5, R6, #-1   ; set new FP', step: 5 },
-  { text: `ADD R6, R6, #${-numLocals.value}     ; reserve space for locals`, step: 6 },
-  { text: '...              ; body', step: 7 },
-  { text: 'STR R0, R5, #3    ; store return value', step: 7 },
-  { text: `ADD R6, R6, #${numLocals.value}     ; pop locals`, step: 8 },
-  { text: '', step: -1 },
-  { text: 'LDR R5, R6, #0    ; restore old FP', step: 9 },
-  { text: 'ADD R6, R6, #1', step: 9 },
-  { text: '', step: -1 },
-  { text: 'LDR R7, R6, #0    ; restore return addr', step: 10 },
-  { text: 'ADD R6, R6, #1', step: 10 },
-  { text: '', step: -1 },
-  { text: 'RET', step: 11 }
-]);
+  const popLines: AsmLine[] = [];
+  // Caller can drop parameters by adjusting SP; no need to LDR each one
+  for (let i = 0; i < numParams.value; i++) {
+    popLines.push({ text: 'ADD R6, R6, #1     ; pop parameter', step: 14 });
+  }
+
+  return [
+    { text: '.ORIG x3000', step: -1 },
+    ...pushLines,
+    { text: '', step: -1 },
+    { text: `JSR ${calleeName.value}`, step: 1 },
+    { text: '', step: -1 },
+    { text: 'LDR R0, R6, #0     ; read return value', step: 13 },
+    { text: 'ADD R6, R6, #1     ; pop return value', step: 13 },
+    { text: '', step: -1 },
+    ...popLines
+  ];
+});
+
+const calleeAsm = computed<AsmLine[]>(() => {
+  const saveRegs: AsmLine[] = [];
+  const restoreRegs: AsmLine[] = [];
+
+  // Conditionally generate save/restore for registers used by the function body
+  if (usedRegs.value.length > 0) {
+    for (let i = 0; i < usedRegs.value.length; i++) {
+      saveRegs.push({ text: 'ADD R6, R6, #-1', step: 6 });
+      saveRegs.push({ text: `STR ${usedRegs.value[i]}, R6, #0    ; save ${usedRegs.value[i]}`, step: 6 });
+    }
+
+    // Restores happen after the body; restore each register in reverse order
+    for (let i = usedRegs.value.length - 1; i >= 0; i--) {
+      restoreRegs.push({ text: `LDR ${usedRegs.value[i]}, R6, #0    ; restore ${usedRegs.value[i]}`, step: 8 });
+      restoreRegs.push({ text: 'ADD R6, R6, #1', step: 8 });
+    }
+    restoreRegs.push({ text: '', step: -1 });
+  }
+
+  const lines: AsmLine[] = [
+    { text: `${calleeName.value}`, step: -1 },
+    { text: 'ADD R6, R6, #-1    ; reserve return slot', step: 2 },
+    { text: '', step: -1 },
+    { text: 'ADD R6, R6, #-1', step: 3 },
+    { text: 'STR R7, R6, #0     ; save return address', step: 3 },
+    { text: '', step: -1 },
+    { text: 'ADD R6, R6, #-1', step: 4 },
+    { text: 'STR R5, R6, #0     ; save old FP', step: 4 },
+    { text: '', step: -1 },
+    { text: 'ADD R5, R6, #-1    ; set new FP', step: 5 },
+    { text: `ADD R6, R6, #${-numLocals.value}     ; reserve space for locals`, step: 5 },
+    { text: '', step: -1 },
+    ...saveRegs,
+    // map body to the dedicated body step
+    ...bodyAsm.value.map(line => ({ text: line, step: 7 })),
+    ...restoreRegs,
+    { text: `ADD R6, R6, #${numLocals.value}     ; pop locals`, step: 9 },
+    { text: '', step: -1 },
+    { text: 'LDR R5, R6, #0     ; restore old FP', step: 10 },
+    { text: 'ADD R6, R6, #1', step: 10 },
+    { text: '', step: -1 },
+    { text: 'LDR R7, R6, #0     ; restore return addr', step: 11 },
+    { text: 'ADD R6, R6, #1', step: 11 },
+    { text: '', step: -1 },
+    { text: 'RET', step: 12 }
+  ];
+  return lines;
+});
+
+// Arrow key support
+import { onMounted, onUnmounted } from 'vue';
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'ArrowRight') {
+    nextStep();
+  } else if (e.key === 'ArrowLeft') {
+    prevStep();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown);
+});
 
 function nextStep() {
   stepIndex.value = Math.min(stepIndex.value + 1, steps.length - 1);
@@ -533,7 +642,7 @@ function reset() {
 </script>
 
 <template>
-  <div class="px-4 py-3 max-w-350 mx-auto">
+  <div class="px-4 py-3 max-w-[1600px] w-full mx-auto overflow-x-hidden">
     <header class="mb-3">
       <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-surface-900 dark:text-surface-50">
         LC-3 Calling Convention Visualizer
@@ -544,12 +653,13 @@ function reset() {
       </p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-3">
-      <Card class="cc-sticky">
-        <template #title>Controls</template>
-        <template #content>
-          <div class="flex flex-col gap-3">
-            <label class="flex flex-col gap-1">
+    <div class="grid grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr] gap-4">
+      <div class="flex flex-col gap-3 cc-sticky">
+        <Card>
+          <template #title>Controls</template>
+          <template #content>
+            <div class="flex flex-col gap-3">
+              <label class="flex flex-col gap-1">
               <span class="text-sm font-semibold text-surface-700 dark:text-surface-200">Select C Example</span>
               <Select v-model="selectedExampleId" :options="examples" optionLabel="name" optionValue="id" class="w-full text-left" />
             </label>
@@ -600,34 +710,13 @@ function reset() {
             </Card>
           </div>
         </template>
-      </Card>
+        </Card>
+
+        
+      </div>
 
       <div class="cc-right">
         <div class="flex flex-col gap-3">
-          <Card>
-            <template #title>Registers</template>
-            <template #content>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <div class="reg" :class="{ changed: registerChanged.R6 }">
-                  <div class="reg-k">R6 (SP)</div>
-                  <div class="reg-v font-mono">{{ hex16(current.R6) }}</div>
-                </div>
-                <div class="reg" :class="{ changed: registerChanged.R5 }">
-                  <div class="reg-k">R5 (FP)</div>
-                  <div class="reg-v font-mono">{{ hex16(current.R5) }}</div>
-                </div>
-                <div class="reg" :class="{ changed: registerChanged.R7 }">
-                  <div class="reg-k">R7</div>
-                  <div class="reg-v font-mono">{{ hex16(current.R7) }}</div>
-                </div>
-              </div>
-              <div class="mt-3 text-xs text-surface-600 dark:text-surface-300">
-                Convention-specific: return value slot is at <span class="font-mono">R5 + 3</span>, and locals live at
-                <span class="font-mono">R5, R5-1, ...</span>.
-              </div>
-            </template>
-          </Card>
-
           <Card>
             <template #title>Calling Convention Steps</template>
             <template #content>
@@ -641,27 +730,29 @@ function reset() {
                   </ol>
                   <div class="mt-3 font-semibold">Then, Callee:</div>
                   <ol class="list-decimal list-inside ml-1 space-y-1" start="3">
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex >= 2 && stepIndex <= 4}]">Save space for return value, push R7, push R5</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 5}]">Set R5 (frame pointer) to first local (R6 - 1)</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 6}]">Allocates space for local variables</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 7}]">Saves R0-R4</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 2}]">Save space for return value</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 3}]">Save return address (R7)</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 4}]">Save old frame pointer (R5)</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 5}]">Set R5 &amp; Allocate locals</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 6}]">Saves Registers</li>
                   </ol>
                 </div>
                 <div>
                   <h3 class="font-bold mb-1 border-b border-surface-200 dark:border-surface-700 pb-1">Teardown</h3>
                   <div class="mt-2 font-semibold">Callee:</div>
-                  <ol class="list-decimal list-inside ml-1 space-y-1" start="7">
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 7}]">Stores result in return value slot</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 7}]">Restores R0-R4</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 8}]">Pops all local variables</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 9}]">Restores R5</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 10}]">Restores R7</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 11}]">RET</li>
+                  <ol class="list-decimal list-inside ml-1 space-y-1" start="8">
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 7}]">Execute Body / Stores result</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 8}]">Restores Registers</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 9}]">Pops all local variables</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 10}]">Restores R5</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 11}]">Restores R7</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 12}]">RET</li>
                   </ol>
                   <div class="mt-3 font-semibold">Then, Caller:</div>
-                  <ol class="list-decimal list-inside ml-1 space-y-1" start="13">
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 12}]">Loads return value</li>
-                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 13}]">Pops return value and arguments</li>
+                  <ol class="list-decimal list-inside ml-1 space-y-1" start="14">
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 13}]">Loads return value</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 14}]">Pops return value and arguments</li>
+                    <li :class="['transition-colors', {'font-bold text-primary dark:text-primary-400': stepIndex === 15}]">Continue</li>
                   </ol>
                 </div>
               </div>
@@ -673,48 +764,56 @@ function reset() {
             <template #content>
               <div class="stack-diagram w-full font-mono text-[13px] sm:text-sm shadow-sm flex flex-col mx-auto max-w-sm">
                 <!-- R0-R4 -->
-                <div :class="['flex items-center border border-surface-300 dark:border-surface-600 transition-colors', stepIndex === 7 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-100 dark:bg-surface-800']">
-                  <div class="w-12 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-opacity" :class="stepIndex === 7 ? 'opacity-100' : 'opacity-0'">R6 &rarr;</div>
+                <div class="transition-all duration-300 ease-in-out flex items-center border border-surface-300 dark:border-surface-600 bg-surface-100 dark:bg-surface-800">
+                  <div class="w-14 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400">&nbsp;</div>
                   <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">R0-R4</div>
                   <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono text-surface-500"></div>
                 </div>
+                <!-- Saved Registers -->
+                <template v-for="(regName, i) in [...usedRegs].reverse()" :key="'saved-reg-'+i">
+                  <div :class="['transition-all duration-300 ease-in-out flex items-center border-x border-b border-surface-300 dark:border-surface-600', stepIndex === 6 || stepIndex === 8 ? 'bg-primary-50 dark:bg-primary-900/20' : 'bg-surface-50 dark:bg-surface-900']">
+                    <div class="w-14 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-all duration-300 ease-in-out" :class="stepIndex === 6 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
+                    <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">{{ regName }} Saved</div>
+                    <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono" :class="stepIndex >= 6 ? 'text-surface-900 dark:text-surface-50' : 'text-surface-300 dark:text-surface-600'">{{ stepIndex >= 6 && stepIndex <= 8 ? `Old ${regName}` : (stepIndex > 8 ? '????' : '????') }}</div>
+                  </div>
+                </template>
                 <!-- Locals -->
                 <template v-for="(localName, i) in [...localNames].reverse()" :key="'local-'+i">
-                  <div :class="['flex items-center border-x border-b border-surface-300 dark:border-surface-600 transition-colors', stepIndex >= 6 && stepIndex <= 7 ? 'bg-primary-50 dark:bg-primary-900/20' : 'bg-surface-200 dark:bg-surface-700']">
-                    <div class="w-12 pr-2 py-2 text-right font-bold transition-opacity flex flex-col justify-center" :class="(stepIndex >= 5 && stepIndex <= 9 && i === numLocals - 1) || (stepIndex === 6 && i === 0) ? 'opacity-100' : 'opacity-0'">
-                      <span v-if="i === 0" class="text-orange-600 dark:text-orange-400 transition-opacity" :class="stepIndex === 6 ? 'opacity-100' : 'opacity-0'">R6 &rarr;</span>
-                      <span v-if="i === numLocals - 1" class="text-emerald-600 dark:text-emerald-400 transition-opacity" :class="stepIndex >= 5 && stepIndex <= 9 ? 'opacity-100' : 'opacity-0'">R5 &rarr;</span>
+                  <div :class="['transition-all duration-300 ease-in-out flex items-center border-x border-b border-surface-300 dark:border-surface-600', stepIndex === 5 ? 'bg-primary-50 dark:bg-primary-900/20' : 'bg-surface-200 dark:bg-surface-700']">
+                    <div class="w-14 pr-2 py-1 text-right font-bold flex flex-col justify-center items-end gap-1">
+                      <span v-if="i === 0" class="text-orange-600 dark:text-orange-400 transition-all duration-300 ease-in-out" :class="stepIndex === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</span>
+                      <span v-if="i === numLocals - 1" class="text-emerald-600 dark:text-emerald-400 transition-all duration-300 ease-in-out" :class="stepIndex >= 5 && stepIndex <= 10 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'">R5 &rarr;</span>
                     </div>
                     <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">Local: {{ localName }}</div>
-                    <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono text-surface-500"></div>
+                    <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono text-surface-500">????</div>
                   </div>
                 </template>
                 <!-- Old R5 -->
-                <div :class="['flex items-center border-x border-b border-surface-300 dark:border-surface-600 transition-colors', stepIndex === 4 || stepIndex === 9 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-50 dark:bg-surface-900']">
-                  <div class="w-12 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-opacity" :class="(stepIndex >= 4 && stepIndex <= 5) || stepIndex === 8 ? 'opacity-100' : 'opacity-0'">R6 &rarr;</div>
+                <div :class="['transition-all duration-300 ease-in-out flex items-center border-x border-b border-surface-300 dark:border-surface-600', stepIndex === 4 || stepIndex === 10 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-50 dark:bg-surface-900']">
+                  <div class="w-14 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-all duration-300 ease-in-out" :class="(stepIndex >= 4 && stepIndex <= 5) || stepIndex === 9 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
                   <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">Old R5</div>
-                  <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono text-surface-500">xFE10</div>
+                  <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono" :class="stepIndex >= 4 ? 'text-surface-900 dark:text-surface-50' : 'text-surface-300 dark:text-surface-600'">{{ stepIndex >= 4 ? 'xFE10' : '????' }}</div>
                 </div>
                 <!-- Return Address -->
-                <div :class="['flex items-center border-x border-b border-surface-300 dark:border-surface-600 transition-colors', stepIndex === 3 || stepIndex === 10 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-50 dark:bg-surface-900']">
-                  <div class="w-12 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-opacity" :class="stepIndex === 3 || stepIndex === 9 ? 'opacity-100' : 'opacity-0'">R6 &rarr;</div>
+                <div :class="['transition-all duration-300 ease-in-out flex items-center border-x border-b border-surface-300 dark:border-surface-600', stepIndex === 3 || stepIndex === 11 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-50 dark:bg-surface-900']">
+                  <div class="w-14 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-all duration-300 ease-in-out" :class="stepIndex === 3 || stepIndex === 10 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
                   <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">Return Address (old R7)</div>
-                  <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono text-surface-500">x3001</div>
+                  <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono" :class="stepIndex >= 3 ? 'text-surface-900 dark:text-surface-50' : 'text-surface-300 dark:text-surface-600'">{{ stepIndex >= 3 ? 'x3001' : '????' }}</div>
                 </div>
                 <!-- Return Value -->
-                <div :class="['flex items-center border-x border-b border-surface-300 dark:border-surface-600 transition-colors', stepIndex === 2 || stepIndex === 12 || stepIndex === 7 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-50 dark:bg-surface-900']">
-                  <div class="w-12 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-opacity" :class="stepIndex === 2 || stepIndex === 10 || stepIndex === 11 ? 'opacity-100' : 'opacity-0'">R6 &rarr;</div>
+                <div :class="['transition-all duration-300 ease-in-out flex items-center border-x border-b border-surface-300 dark:border-surface-600', stepIndex === 2 || stepIndex === 13 || stepIndex === 7 ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-500 z-10' : 'bg-surface-50 dark:bg-surface-900']">
+                  <div class="w-14 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-all duration-300 ease-in-out" :class="stepIndex === 2 || stepIndex === 11 || stepIndex === 12 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
                   <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">Return Value</div>
-                  <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono" :class="stepIndex >= 7 && stepIndex <= 12 ? 'text-surface-900 dark:text-surface-50' : 'text-surface-300 dark:text-surface-600'">{{ stepIndex >= 7 ? RETURN_VALUE : '????' }}</div>
+                  <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono" :class="stepIndex >= 7 && stepIndex <= 13 ? 'text-surface-900 dark:text-surface-50' : 'text-surface-300 dark:text-surface-600'">{{ stepIndex >= 7 ? RETURN_VALUE : '????' }}</div>
                 </div>
                 <!-- Arguments -->
                 <template v-for="(argName, i) in argNames" :key="'arg-'+i">
-                  <div :class="['flex items-center border-x border-b border-surface-300 dark:border-surface-600 transition-colors', stepIndex === 0 || stepIndex === 13 ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-500 z-10' : 'bg-yellow-50 dark:bg-yellow-900/20']">
-                    <div class="w-12 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-opacity" :class="(i === 0 && (stepIndex === 1 || stepIndex === 0 || stepIndex === 12)) || (stepIndex >= 13 && i === numParams - 1) ? 'opacity-100' : 'opacity-0'">
+                  <div :class="['transition-all duration-300 ease-in-out flex items-center border-x border-b border-surface-300 dark:border-surface-600', stepIndex === 0 || stepIndex === 14 ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-500 z-10' : 'bg-yellow-50 dark:bg-yellow-900/20']">
+                    <div class="w-14 pr-2 py-2 text-right font-bold text-orange-600 dark:text-orange-400 transition-all duration-300 ease-in-out" :class="(i === 0 && (stepIndex === 1 || stepIndex === 0 || stepIndex === 13)) || (stepIndex >= 14 && i === numParams - 1) ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">
                       R6 &rarr;
                     </div>
                     <div class="flex-1 p-2 text-center border-l border-surface-300 dark:border-surface-600">Arg: {{ argName }}</div>
-                    <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono">{{ argValues[i] || 'N/A' }}</div>
+                    <div class="w-20 p-2 text-center border-l border-surface-300 dark:border-surface-600 font-mono" :class="stepIndex >= 0 ? 'text-surface-900 dark:text-surface-50' : 'text-surface-300 dark:text-surface-600'">{{ stepIndex >= 0 ? (argValues[i] || 'N/A') : '????' }}</div>
                   </div>
                 </template>
               </div>
@@ -801,7 +900,7 @@ function reset() {
 
 .cc-right { display: grid; grid-template-columns: 1fr; gap: .75rem; }
 @media (min-width: 1280px) {
-  .cc-right { grid-template-columns: 560px 1fr; align-items: start; }
+  .cc-right { grid-template-columns: 420px 1fr; align-items: start; }
 }
 
 .cc-sticky { align-self: start; }
@@ -956,9 +1055,15 @@ function reset() {
   .actor-chip.callee { border-color: rgba(0, 160, 96, 0.55); background: rgba(0, 160, 96, 0.22); }
 }
 
-.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; min-width: 0; }
 @media (min-width: 640px) {
-  .asm { grid-template-columns: 1fr 1fr; }
+  .asm { grid-template-columns: 0.85fr 1.15fr; }
+}
+
+.asm-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .asm-head {
@@ -976,10 +1081,11 @@ function reset() {
   border: 1px solid rgba(0,0,0,0.12);
   background: rgba(255,255,255,0.7);
   padding: .6rem .7rem;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-height: 550px;
 }
 
 .asm-line {
