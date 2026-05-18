@@ -50,7 +50,7 @@ const filtered = computed(() => projects);
 /* Hero */
 .gt-hero { background: linear-gradient(140deg, #003057 0%, #00243f 55%, #001729 100%); color: #fff; padding: 4.5rem 1.25rem 3.5rem; position: relative; /* overflow removed to prevent card hover clipping */ }
 .gt-hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 75% 35%, rgba(255,255,255,0.08), transparent 70%); pointer-events: none; }
-.gt-hero .inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
+.gt-hero .inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; text-align: center; }
 .gt-hero h1.main-title { font-size: clamp(1.6rem, 2.6vw, 2.4rem); line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: 0.3px; white-space: normal; position: relative; }
 .gt-hero .info-btn { 
   color: rgba(255,255,255,0.8); 
