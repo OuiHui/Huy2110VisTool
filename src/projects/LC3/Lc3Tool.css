@@ -62,12 +62,31 @@ h1 {
 }
 
 @media (max-width: 1300px) { 
+  .lc3-grid {
+    height: auto;
+    min-height: auto;
+    align-items: flex-start;
+  }
   .diagram-with-pseudocode {
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  .diagram-col {
+    align-items: flex-start;
   }
   .side-col { 
     order: 2;
     margin-left: 0;
+    max-width: none !important;
+    width: max-content;
+    overflow: visible;
+  }
+  .lc3-resized {
+    height: auto;
+    max-width: 100%;
+    min-width: 0px;
+    width: 600px;
   }
 }
 
@@ -92,7 +111,9 @@ h1 {
 .side-col :deep(.p-card) { 
   margin-left: 0;
   height: auto;
-  max-width: 100%;
+  max-width: none !important;
+  width: max-content;
+  min-width: 0;
   overflow: visible;
 }
 

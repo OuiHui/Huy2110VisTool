@@ -51,7 +51,7 @@ const filtered = computed(() => projects);
 .gt-hero { background: linear-gradient(140deg, #003057 0%, #00243f 55%, #001729 100%); color: #fff; padding: 4.5rem 1.25rem 3.5rem; position: relative; /* overflow removed to prevent card hover clipping */ }
 .gt-hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 75% 35%, rgba(255,255,255,0.08), transparent 70%); pointer-events: none; }
 .gt-hero .inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
-.gt-hero h1.main-title { font-size: clamp(1.6rem, 2.6vw, 2.4rem); line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; position: relative; }
+.gt-hero h1.main-title { font-size: clamp(1.6rem, 2.6vw, 2.4rem); line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: 0.3px; white-space: normal; position: relative; }
 .gt-hero .info-btn { 
   color: rgba(255,255,255,0.8); 
   background: rgba(255,255,255,0.1);
@@ -98,6 +98,31 @@ const filtered = computed(() => projects);
 .open-btn { align-self: flex-start; background: #003057; color: #fff; font-size: 0.7rem; letter-spacing: 0.5px; padding: 0.4rem 0.65rem 0.38rem; border-radius: 0.5rem; font-weight: 600; transition: background 0.3s, transform 0.3s; }
 .project-card:hover .open-btn { background: #00223c; }
 .project-card:active .open-btn { transform: translateY(1px); }
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .gt-hero { padding: 2.5rem 1rem 2rem; }
+  .gt-hero h1.main-title { font-size: clamp(1.2rem, 4vw, 1.6rem); line-height: 1.2; }
+  .gt-hero .accent-bar { width: 100px; margin: 0 auto 1rem; }
+  .projects-section { padding: 0 0.75rem; }
+  .projects-row { flex-wrap: wrap; gap: 1rem; overflow-x: visible; }
+  .project-card { flex: 1 1 calc(50% - 0.5rem); max-width: none; min-width: 150px; }
+  .card-body { padding: 1rem; gap: 0.5rem; }
+  .card-title { font-size: 0.95rem; }
+  .card-desc { font-size: 0.8rem; line-height: 1.3; }
+}
+
+@media (max-width: 480px) {
+  .home-root { gap: 2rem; }
+  .gt-hero { padding: 2rem 0.75rem 1.5rem; }
+  .gt-hero h1.main-title { font-size: 1.1rem; line-height: 1.25; }
+  .gt-hero .accent-bar { width: 80px; margin: 0 auto 0.75rem; height: 4px; }
+  .projects-row { gap: 0.75rem; padding: 0; }
+  .project-card { flex: 1 1 100%; }
+  .card-body { padding: 0.875rem; gap: 0.4rem; }
+  .card-title { font-size: 0.9rem; }
+  .card-desc { font-size: 0.75rem; }
+}
 
 /* Empty state */
 .empty { grid-column: 1 / -1; text-align: center; padding: 2rem 0 1rem; font-size: 0.95rem; color: #4b5c68; }
