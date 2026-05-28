@@ -244,12 +244,12 @@ function activateMacro(key: string) {
           </div>
           <Button :disabled="isLoopDone || running" @click="startDiagramLoop('cycle')" class="whitespace-nowrap px-3 py-2">Next<span class="max-md:hidden">&nbsp;Cycle</span></Button>
         </div>
-        <Divider layout="vertical" class="hidden lg:block lg:ml-auto" />
-        <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop()" class="whitespace-nowrap max-sm:px-3 max-sm:py-2" outlined>Reset<span class="max-md:hidden">&nbsp;Wires</span></Button>
+        <Divider layout="vertical" class="hidden xl:block" />
+        <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop()" class="whitespace-nowrap px-3 py-2">Reset<span class="max-md:hidden">&nbsp;Wires</span></Button>
       </div>
       <Divider class="my-0 max-sm:block hidden" />
-      <div class="flex justify-start lg:justify-center overflow-x-auto w-full py-2 px-1 align-middle" style="scrollbar-width: none;">
-        <div class="flex gap-1.5 items-center w-max pb-1 mb-1">
+      <div class="w-full overflow-x-auto py-2 px-1 text-center" style="scrollbar-width: auto; scrollbar-color: var(--p-surface-400) transparent;">
+        <div class="inline-flex gap-1.5 items-center pb-1 mb-1">
           <a
             v-for="([key, val]) in (Object.entries(SEQUENCE_DATA) as [string, any][])"
             :key="key"
