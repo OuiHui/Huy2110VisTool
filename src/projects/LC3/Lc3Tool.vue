@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 // Adjusted paths: all LC3 tool resources are now siblings inside projects/LC3
 // Use the canonical LC3 diagram component from the shared components directory
 import LC3 from '../../components/LC3.vue';
@@ -34,12 +34,42 @@ const macroCycleCount = computed(() => wireState.value.macro ? SEQUENCE_DATA[wir
 const showPseudocode = ref(true);
 const showInstructionFormat = ref(false);
 const hasSidebar = computed(() => showPseudocode.value && !!currentSequence.value?.pseudocode);
+const formatCardRef = ref<HTMLElement | null>(null);
+const formatOffset = ref(0);
+const diagramColRef = ref<HTMLElement | null>(null);
 // Derive current sequence entry (typed as any fallback) to simplify template typing
 const currentSequence = computed(() => wireState.value.macro ? (SEQUENCE_DATA as any)[wireState.value.macro] : undefined);
 const currentFormat = computed(() => {
   if (!wireState.value.macro) return undefined;
   return INSTRUCTION_FORMATS_BY_MACRO[wireState.value.macro];
 });
+const cycleDescriptions = computed(() => {
+  const descriptions = currentSequence.value?.cycleDescriptions;
+  if (!descriptions || descriptions.length === 0) return [];
+  return descriptions.map((text, index) => ({
+    index: index + 1,
+    text,
+  }));
+});
+function getCycleClass(cycleIndex: number) {
+  if (cycleIndex !== wireState.value.cycle) return [];
+  return ['is-current', `cycle-${cycleIndex}`];
+}
+function updateFormatOffset() {
+  if (!showInstructionFormat.value || !currentFormat.value) {
+    formatOffset.value = 0;
+    return;
+  }
+  nextTick(() => {
+    const cardRect = formatCardRef.value?.getBoundingClientRect();
+    const colRect = diagramColRef.value?.getBoundingClientRect();
+    if (!cardRect || !colRect) {
+      formatOffset.value = 0;
+      return;
+    }
+    formatOffset.value = Math.max(0, cardRect.bottom - colRect.top);
+  });
+}
 let lastWireActivate = 0;
 function handleKeydown(event: KeyboardEvent) {
   if (event.code === 'Escape') (document.activeElement as HTMLElement)?.blur();
@@ -67,10 +97,12 @@ function handleKeydown(event: KeyboardEvent) {
 // Use capture phase so we intercept before PrimeVue Menubar key handlers
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown, true);
+  updateFormatOffset();
 });
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown, true);
 });
+watch([showInstructionFormat, currentFormat], () => updateFormatOffset());
 function stepBack() {
   if (wireState.value.step <= 0) return;
   wireState.value.step--;
@@ -148,42 +180,63 @@ function activateMacro(key: string) {
       </div>
     </header>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
-      <div class="diagram-col" :class="{ 'has-sidebar': hasSidebar }">
-        <Card v-if="currentFormat && showInstructionFormat" class="instruction-format-card">
-          <template #title>
-            <div class="w-full flex items-baseline gap-2">
-              <span>Instruction Format:</span>
-              <span class="font-mono text-sm text-surface-600 dark:text-surface-300">
-                {{ currentSequence?.label ?? currentFormat.title }}
-              </span>
-            </div>
-          </template>
-          <template #content>
-            <div class="pt-2">
-              <InstructionFormat :format="currentFormat" />
-            </div>
-          </template>
-        </Card>
-        <div class="diagram-with-pseudocode">
-          <LC3 ref="lc3Diagram" class="lc3-resized" />
-          <div
-            class="side-col"
-            v-if="currentSequence?.pseudocode"
-            :class="{ collapsed: !showPseudocode }"
-          >
-            <Card :pt="{ root: { class: 'break-inside-avoid w-max max-w-none', style: 'overflow: visible;' }, body: { style: 'overflow: visible;' }, content: { style: 'overflow: visible;' } }">
-              <template #title>{{ currentSequence.label }} Pseudocode</template>
-              <template #content>
+      <div class="diagram-col" ref="diagramColRef">
+        <div ref="formatCardRef" class="instruction-format-wrap">
+          <Card v-if="currentFormat && showInstructionFormat" class="instruction-format-card">
+            <template #title>
+              <div class="w-full flex items-baseline gap-2">
+                <span>Instruction Format:</span>
+                <span class="font-mono text-sm text-surface-600 dark:text-surface-300">
+                  {{ currentSequence?.label ?? currentFormat.title }}
+                </span>
+              </div>
+            </template>
+            <template #content>
+              <div class="pt-2">
+                <InstructionFormat :format="currentFormat" />
+              </div>
+            </template>
+          </Card>
+        </div>
+        <div class="lc3-main">
+          <div class="lc3-diagram-area">
+            <LC3
+              ref="lc3Diagram"
+              class="lc3-resized"
+              :topInset="showInstructionFormat ? formatOffset + 16 : 0"
+            />
+          </div>
+        </div>
+        <aside
+          class="lc3-sidepanel"
+          v-if="currentSequence?.pseudocode"
+          :class="{ collapsed: !showPseudocode }"
+          :style="{ top: `${formatOffset + 24}px` }"
+        >
+          <Card :pt="{ root: { class: 'lc3-sidepanel-card' }, body: { class: 'lc3-sidepanel-body' }, content: { class: 'lc3-sidepanel-content' } }">
+            <template #title>{{ currentSequence.label }} Pseudocode</template>
+            <template #content>
+              <div class="lc3-codebox">
                 <Pseudocode
                   v-show="showPseudocode"
                   :pseudocode="currentSequence.pseudocode"
                   :cycle="wireState.cycle"
                   :running
                 />
-              </template>
-            </Card>
-          </div>
-        </div>
+              </div>
+              <div class="lc3-cycle-list">
+                <div class="lc3-cycle-title">Cycle Details</div>
+                <div v-if="cycleDescriptions.length">
+                  <div v-for="cycle in cycleDescriptions" :key="cycle.index" :class="['lc3-cycle-row', getCycleClass(cycle.index - 1)]">
+                    <div class="lc3-cycle-label">Cycle {{ cycle.index }}</div>
+                    <div class="lc3-cycle-text">{{ cycle.text }}</div>
+                  </div>
+                </div>
+                <div v-else class="lc3-cycle-empty">No cycle descriptions available yet.</div>
+              </div>
+            </template>
+          </Card>
+        </aside>
       </div>
     </div>
   <div class="control-panel">

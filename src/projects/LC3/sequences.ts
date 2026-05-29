@@ -13,7 +13,11 @@ interface MacroData {
      * Each element consists of a single cycle, 
      * which consists of an array of signals in the cycle.
      */
-    sequence: string[][]
+    sequence: string[][],
+    /**
+     * Human-readable summary per cycle, aligned with the sequence order.
+     */
+    cycleDescriptions?: string[]
 }
 export interface HighlightRange {
     /**
@@ -151,6 +155,11 @@ const sequences: Record<string, MacroData> = {
                 "IR selector",
                 "IR (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Place PC on the bus, load MAR, and increment PC.",
+            "Read memory at MAR into MDR.",
+            "Load IR from MDR."
         ]
     },
     "DECODE": {
@@ -161,6 +170,9 @@ const sequences: Record<string, MacroData> = {
                 "IR to FSM (2)",
                 "FSM (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Decode opcode and update control state."
         ]
     },
     "ADD_REG": {
@@ -221,6 +233,9 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Read SR1 and SR2, add in ALU, write to DR, update CC."
         ]
         
 
@@ -285,6 +300,9 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Read SR1 and imm5, add in ALU, write to DR, update CC."
         ]
     },
     "AND_IMM": {
@@ -347,6 +365,9 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Read SR1 and imm5, AND in ALU, write to DR, update CC."
         ]
     },
     "AND_REG": {
@@ -407,6 +428,9 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Read SR1 and SR2, AND in ALU, write to DR, update CC."
         ]
     },
     "NOT": {
@@ -457,6 +481,9 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Read SR1, bitwise NOT in ALU, write to DR, update CC."
         ]
     },
     "LD": {
@@ -552,6 +579,11 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute PC-relative address and load MAR.",
+            "Read memory into MDR.",
+            "Write MDR to DR and update CC."
         ]
     },
     "LDI": {
@@ -672,6 +704,13 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute PC-relative address and load MAR.",
+            "Read memory into MDR.",
+            "Load MAR with pointer from MDR.",
+            "Read memory at pointer into MDR.",
+            "Write MDR to DR and update CC."
         ]
     },
     "LDR": {
@@ -774,6 +813,11 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute BaseR + offset and load MAR.",
+            "Read memory into MDR.",
+            "Write MDR to DR and update CC."
         ]
     },
     "ST": {
@@ -860,6 +904,11 @@ const sequences: Record<string, MacroData> = {
                 "MDR to MEMORY",
                 "Memory (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute PC-relative address and load MAR.",
+            "Move SR onto bus and load MDR.",
+            "Write MDR to memory at MAR."
         ]
     },
     "STI": {
@@ -970,6 +1019,13 @@ const sequences: Record<string, MacroData> = {
                 "MDR to MEMORY",
                 "Memory (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute PC-relative address and load MAR.",
+            "Read memory into MDR.",
+            "Load MAR with pointer from MDR.",
+            "Move SR onto bus and load MDR.",
+            "Write MDR to memory at MAR."
         ]
     },
     "STR": {
@@ -1061,6 +1117,11 @@ const sequences: Record<string, MacroData> = {
                 "MDR to MEMORY",
                 "Memory (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute BaseR + offset and load MAR.",
+            "Move SR onto bus and load MDR.",
+            "Write MDR to memory at MAR."
         ]
     },
     "LEA": {
@@ -1116,6 +1177,9 @@ const sequences: Record<string, MacroData> = {
                 "LD.REG selector",
                 "Register File (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Compute PC-relative address and write to DR."
         ]
     },
     "BR": {
@@ -1160,6 +1224,9 @@ const sequences: Record<string, MacroData> = {
                 "PC selector",
                 "PC (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Add PCoffset to PC and update PC (branch taken)."
         ]
     },
     "JMP": {
@@ -1204,6 +1271,9 @@ const sequences: Record<string, MacroData> = {
                 "PC selector",
                 "PC (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Load PC from BaseR."
         ]
     },
     "JSR": {
@@ -1262,6 +1332,9 @@ const sequences: Record<string, MacroData> = {
                 "PC selector",
                 "PC (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Save PC to R7, compute PC-relative target, and update PC."
         ]
     },
     "JSRR": {
@@ -1322,8 +1395,10 @@ const sequences: Record<string, MacroData> = {
                 "PC selector",
                 "PC (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Save PC to R7, load PC from BaseR."
         ]
-
     },
     "TRAP": {
         "label": "TRAP (simplified)",
@@ -1389,6 +1464,11 @@ const sequences: Record<string, MacroData> = {
                 "PC selector",
                 "PC (shape)"
             ]
+        ],
+        "cycleDescriptions": [
+            "Zero-extend trap vector and load MAR.",
+            "Read vector from memory into MDR.",
+            "Load PC from MDR (trap handler address)."
         ]
     },
 

@@ -43,12 +43,13 @@ import type { HighlightRange, PseudocodeState } from './sequences';
     @reference "@/style.css";
 
     .pseudocode-container {
-        /* Preserve newlines and prevent wrapping; let the sidebar resize. */
-        white-space: pre;
-        display: inline-block;
-        width: max-content;
-        overflow: visible;
-        max-width: none;
+        /* Preserve newlines while allowing wrapping to fit the side panel. */
+        white-space: pre-wrap;
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        overflow-wrap: anywhere;
     }
 
     .cy-on-disabled {

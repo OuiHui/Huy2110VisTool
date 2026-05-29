@@ -2,6 +2,7 @@
 import { useTemplateRef, onMounted, nextTick, onUnmounted, ref } from 'vue';
 
     const top = useTemplateRef<HTMLDivElement>("top");
+    const { topInset = 0 } = defineProps<{ topInset?: number }>();
     const svgEl = useTemplateRef<SVGSVGElement>('lc3Svg');
     const panZoomEl = useTemplateRef<HTMLDivElement>('panZoom');
     const scale = ref(1);
@@ -83,10 +84,11 @@ import { useTemplateRef, onMounted, nextTick, onUnmounted, ref } from 'vue';
         const scaledWidth = baseWidth.value * scale.value;
         const scaledHeight = baseHeight.value * scale.value;
         const pad = 80;
+        const padTop = pad + topInset;
         const minX = Math.min(pad, container.clientWidth - scaledWidth - pad);
         const minY = Math.min(pad, container.clientHeight - scaledHeight - pad);
         const maxX = pad;
-        const maxY = pad;
+        const maxY = padTop;
 
         if (scaledWidth < container.clientWidth) {
             nextX = (container.clientWidth - scaledWidth) / 2;
