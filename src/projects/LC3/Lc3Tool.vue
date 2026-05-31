@@ -203,6 +203,7 @@ function activateMacro(key: string) {
             <LC3
               ref="lc3Diagram"
               class="lc3-resized"
+              :class="{ 'lc3-resized-full': !hasSidebar }"
               :topInset="showInstructionFormat ? formatOffset + 16 : 0"
             />
           </div>
