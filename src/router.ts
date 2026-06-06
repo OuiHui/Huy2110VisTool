@@ -12,8 +12,6 @@ const routes: RouteRecordRaw[] = [
   { path: '/', component: Home, meta: { title: 'Home' } },
   { path: '/lc3', component: Lc3Tool, meta: { title: 'LC-3 Datapath' } },
   { path: '/calling-convention', component: Lc3CallingConvention, meta: { title: 'LC-3 Calling Convention' } },
-  // Back-compat: old nested path
-  { path: '/lc3/calling-convention', redirect: '/calling-convention' },
   { path: '/ieee', component: IeeeApp, meta: { title: 'IEEE' } },
   { path: '/kmap', component: KmapApp, meta: { title: 'Kmap' } },
   { path: '/:pathMatch(.*)*', component: () => import('./pages/NotFound.vue'), meta: { title: 'Not Found' } }
