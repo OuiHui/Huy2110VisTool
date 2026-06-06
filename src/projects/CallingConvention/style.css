@@ -1,0 +1,111 @@
+.cc-input {
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.9);
+  border-radius: .6rem;
+  padding: .48rem .65rem;
+  outline: none;
+}
+
+.cc-readonly {
+  user-select: text;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cc-input {
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.92);
+  }
+}
+
+.cc-right { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+@media (min-width: 1280px) {
+  .cc-right { grid-template-columns: 420px 1fr; align-items: start; }
+}
+
+.cc-sticky { align-self: start; }
+@media (min-width: 1024px) {
+  .cc-sticky { position: sticky; top: 76px; }
+}
+
+.actor-chip {
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .22rem .5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.12);
+  color: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.04);
+}
+
+.actor-chip.caller { border-color: rgba(0, 96, 168, 0.35); background: rgba(0, 96, 168, 0.12); }
+.actor-chip.callee { border-color: rgba(0, 160, 96, 0.35); background: rgba(0, 160, 96, 0.12); }
+
+@media (prefers-color-scheme: dark) {
+  .actor-chip { border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.06); }
+  .actor-chip.caller { border-color: rgba(0, 96, 168, 0.55); background: rgba(0, 96, 168, 0.22); }
+  .actor-chip.callee { border-color: rgba(0, 160, 96, 0.55); background: rgba(0, 160, 96, 0.22); }
+}
+
+.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; min-width: 0; }
+@media (min-width: 640px) {
+  .asm { grid-template-columns: 0.85fr 1.15fr; }
+}
+
+.asm-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.asm-head {
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 950;
+  margin-bottom: .4rem;
+}
+.asm-head.caller { color: rgba(0, 96, 168, 0.9); }
+.asm-head.callee { color: rgba(0, 160, 96, 0.9); }
+
+.asm-pre {
+  border-radius: .75rem;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.7);
+  padding: .6rem .7rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 550px;
+}
+
+.asm-line {
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: .85rem;
+  color: rgba(0,0,0,0.72);
+  padding: .2rem .3rem;
+  border-radius: .45rem;
+}
+
+.asm-code { color: inherit; }
+.asm-comment { color: rgba(0,0,0,0.48); }
+.asm-blank { display: inline-block; min-width: 1px; }
+
+.asm-mini-line { line-height: 1.2; }
+
+.asm-line.current.caller { background: rgba(0, 96, 168, 0.14); outline: 1px solid rgba(0, 96, 168, 0.22); }
+.asm-line.current.callee { background: rgba(0, 160, 96, 0.14); outline: 1px solid rgba(0, 160, 96, 0.22); }
+
+@media (prefers-color-scheme: dark) {
+  .asm-pre { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); }
+  .asm-line { color: rgba(255,255,255,0.88); }
+  .asm-comment { color: rgba(255,255,255,0.58); }
+  .asm-head.caller { color: rgba(0, 96, 168, 0.85); }
+  .asm-head.callee { color: rgba(0, 160, 96, 0.85); }
+  .asm-line.current.caller { background: rgba(0, 96, 168, 0.22); outline-color: rgba(0, 96, 168, 0.35); }
+  .asm-line.current.callee { background: rgba(0, 160, 96, 0.22); outline-color: rgba(0, 160, 96, 0.35); }
+}

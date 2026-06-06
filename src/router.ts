@@ -4,7 +4,7 @@ import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
 // Lazy pages
 const Home = () => import('./pages/Home.vue');
 const Lc3Tool = () => import('./projects/LC3/Lc3Tool.vue');
-const Lc3CallingConvention = () => import('./projects/LC3/CallingConvention.vue');
+const Lc3CallingConvention = () => import('./projects/CallingConvention/CallingConvention.vue');
 const IeeeApp = () => import('./projects/IEEE/App.vue');
 const KmapApp = () => import('./projects/Kmap/App.vue');
 
