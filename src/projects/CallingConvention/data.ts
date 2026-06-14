@@ -32,9 +32,15 @@ export const steps: ReadonlyArray<StepDefinition> = [
     actor: 'callee'
   },
   {
-    title: 'Callee sets frame pointer & allocates locals',
-    asm: 'ADD R5, R6, #-1\nADD R6, R6, -numLocals',
-    detail: 'R5 is set to point to the first local variable. Space for locals is then allocated.',
+    title: 'Callee sets frame pointer',
+    asm: 'ADD R5, R6, #-1',
+    detail: 'R5 is set to point to the first local variable.',
+    actor: 'callee'
+  },
+  {
+    title: 'Callee allocates locals',
+    asm: 'ADD R6, R6, -numLocals',
+    detail: 'Space for locals is allocated on the stack.',
     actor: 'callee'
   },
   {
@@ -89,12 +95,6 @@ export const steps: ReadonlyArray<StepDefinition> = [
     title: 'Caller removes parameters',
     asm: 'ADD R6, R6, #numParams',
     detail: 'Caller cleans up parameters by incrementing SP past them.',
-    actor: 'caller'
-  },
-  {
-    title: 'Caller continues',
-    asm: '(continue)',
-    detail: 'Stack and registers are back to the caller’s pre-call state (modulo the return value now in a register).',
     actor: 'caller'
   }
 ];

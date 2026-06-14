@@ -96,6 +96,9 @@ export function useCallingConvention() {
 
     if (targetStep >= 5) {
       R5 = clamp16(R6 - 1);
+    }
+
+    if (targetStep >= 6) {
       const locals = Math.max(0, numLocals.value | 0);
       if (locals > 0) {
         for (let i = 0; i < locals; i++) {
@@ -109,10 +112,25 @@ export function useCallingConvention() {
     }
 
     if (targetStep >= 7) {
+      for (let i = 0; i < usedRegs.value.length; i++) {
+        push({ kind: 'saved-reg', label: `saved ${usedRegs.value[i]}`, value: '' });
+      }
+    }
+
+    if (targetStep >= 8) {
       write(R5 + 3, { kind: 'ret-slot', label: 'return value (slot)', value: returnValue.value });
     }
 
     if (targetStep >= 9) {
+      const numRegs = usedRegs.value.length;
+      if (numRegs > 0) {
+        R6 = clamp16(R6 + numRegs);
+        highlightAddrs.clear();
+        highlightAddrs.add(R6);
+      }
+    }
+
+    if (targetStep >= 10) {
       const locals = Math.max(0, numLocals.value | 0);
       if (locals > 0) {
         R6 = clamp16(R6 + locals);
@@ -121,7 +139,7 @@ export function useCallingConvention() {
       }
     }
 
-    if (targetStep >= 10) {
+    if (targetStep >= 11) {
       const cell = memory.get(R6);
       if (cell?.kind === 'saved-r5' && typeof cell.value === 'string' && cell.value.startsWith('x')) {
         const parsed = Number.parseInt(cell.value.slice(1), 16);
@@ -134,7 +152,7 @@ export function useCallingConvention() {
       R6 = clamp16(R6 + 1);
     }
 
-    if (targetStep >= 11) {
+    if (targetStep >= 12) {
       const cell = memory.get(R6);
       if (cell?.kind === 'saved-r7' && typeof cell.value === 'string' && cell.value.startsWith('x')) {
         const parsed = Number.parseInt(cell.value.slice(1), 16);
@@ -145,13 +163,13 @@ export function useCallingConvention() {
       R6 = clamp16(R6 + 1);
     }
 
-    if (targetStep >= 13) {
+    if (targetStep >= 14) {
       highlightAddrs.clear();
       highlightAddrs.add(R6);
       R6 = clamp16(R6 + 1);
     }
 
-    if (targetStep >= 14) {
+    if (targetStep >= 15) {
       R6 = clamp16(R6 + Math.max(0, numParams.value | 0));
       highlightAddrs.clear();
       highlightAddrs.add(R6);
@@ -186,7 +204,7 @@ export function useCallingConvention() {
 
     const popLines: AsmLine[] = [];
     for (let i = 0; i < numParams.value; i++) {
-      popLines.push({ text: 'ADD R6, R6, #1     ; pop parameter', step: 14 });
+      popLines.push({ text: 'ADD R6, R6, #1     ; pop parameter', step: 15 });
     }
 
     return [
@@ -195,8 +213,8 @@ export function useCallingConvention() {
       { text: '', step: -1 },
       { text: `JSR ${calleeName.value}`, step: 1 },
       { text: '', step: -1 },
-      { text: 'LDR R0, R6, #0     ; read return value', step: 13 },
-      { text: 'ADD R6, R6, #1     ; pop return value', step: 13 },
+      { text: 'LDR R0, R6, #0     ; read return value', step: 14 },
+      { text: 'ADD R6, R6, #1     ; pop return value', step: 14 },
       { text: '', step: -1 },
       ...popLines
     ];
@@ -208,13 +226,13 @@ export function useCallingConvention() {
 
     if (usedRegs.value.length > 0) {
       for (let i = 0; i < usedRegs.value.length; i++) {
-        saveRegs.push({ text: 'ADD R6, R6, #-1', step: 6 });
-        saveRegs.push({ text: `STR ${usedRegs.value[i]}, R6, #0    ; save ${usedRegs.value[i]}`, step: 6 });
+        saveRegs.push({ text: 'ADD R6, R6, #-1', step: 7 });
+        saveRegs.push({ text: `STR ${usedRegs.value[i]}, R6, #0    ; save ${usedRegs.value[i]}`, step: 7 });
       }
 
       for (let i = usedRegs.value.length - 1; i >= 0; i--) {
-        restoreRegs.push({ text: `LDR ${usedRegs.value[i]}, R6, #0    ; restore ${usedRegs.value[i]}`, step: 8 });
-        restoreRegs.push({ text: 'ADD R6, R6, #1', step: 8 });
+        restoreRegs.push({ text: `LDR ${usedRegs.value[i]}, R6, #0    ; restore ${usedRegs.value[i]}`, step: 9 });
+        restoreRegs.push({ text: 'ADD R6, R6, #1', step: 9 });
       }
       restoreRegs.push({ text: '', step: -1 });
     }
@@ -230,20 +248,20 @@ export function useCallingConvention() {
       { text: 'STR R5, R6, #0     ; save old FP', step: 4 },
       { text: '', step: -1 },
       { text: 'ADD R5, R6, #-1    ; set new FP', step: 5 },
-      { text: `ADD R6, R6, #${-numLocals.value}     ; reserve space for locals`, step: 5 },
+      { text: `ADD R6, R6, #${-numLocals.value}     ; reserve space for locals`, step: 6 },
       { text: '', step: -1 },
       ...saveRegs,
-      ...bodyAsm.value.map((line) => ({ text: line, step: 7 })),
+      ...bodyAsm.value.map((line) => ({ text: line, step: 8 })),
       ...restoreRegs,
-      { text: `ADD R6, R6, #${numLocals.value}     ; pop locals`, step: 9 },
+      { text: `ADD R6, R6, #${numLocals.value}     ; pop locals`, step: 10 },
       { text: '', step: -1 },
-      { text: 'LDR R5, R6, #0     ; restore old FP', step: 10 },
-      { text: 'ADD R6, R6, #1', step: 10 },
-      { text: '', step: -1 },
-      { text: 'LDR R7, R6, #0     ; restore return addr', step: 11 },
+      { text: 'LDR R5, R6, #0     ; restore old FP', step: 11 },
       { text: 'ADD R6, R6, #1', step: 11 },
       { text: '', step: -1 },
-      { text: 'RET', step: 12 }
+      { text: 'LDR R7, R6, #0     ; restore return addr', step: 12 },
+      { text: 'ADD R6, R6, #1', step: 12 },
+      { text: '', step: -1 },
+      { text: 'RET', step: 13 }
     ];
   });
 

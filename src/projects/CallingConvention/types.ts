@@ -3,6 +3,7 @@ export type CellKind =
   | 'ret-slot'
   | 'saved-r7'
   | 'saved-r5'
+  | 'saved-reg'
   | 'local'
   | 'other';
 
