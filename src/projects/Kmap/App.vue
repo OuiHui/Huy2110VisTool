@@ -3,7 +3,7 @@
     <div class="container">
     <header>
       <h1>Boolean Logic Simplifier</h1>
-      <p class="subtitle">Advanced Karnaugh Map Visualization & Analysis Tool</p>
+      <p class="subtitle">Karnaugh Map Visualization & Analysis Tool</p>
     </header>
 
     <div class="controls">

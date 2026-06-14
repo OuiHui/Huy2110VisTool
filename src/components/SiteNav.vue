@@ -7,7 +7,7 @@ const links = [
   { to: '/ieee', label: 'IEEE 754' },
   { to: '/kmap', label: 'K-Map' },
   { to: '/lc3', label: 'LC-3' },
-  { to: '/calling-convention', label: 'LC-3 Calling Conv' },
+  { to: '/calling-convention', label: 'Calling Convention' },
 ];
 
 function isActive(to: string) {

@@ -4,7 +4,7 @@ const projects = [
   { path: '/ieee', title: 'IEEE 754 Floating Point', desc: 'Visualize the mathematics and representation of floating point conversion' },
   { path: '/kmap', title: 'Boolean Logic & K-Maps', desc: 'Visualize different logical expressions and their simplifications using Karnaugh maps.' },
    { path: '/lc3', title: 'LC-3 Datapath', desc: 'Step through the fetch / decode / execute cycles and see control & data flow.' },
-  { path: '/calling-convention', title: 'LC-3 Calling Convention', desc: 'Visualize stack frames: arguments, saved R7/R5, locals, return value slot, and cleanup.' },
+  { path: '/calling-convention', title: 'Calling Convention', desc: 'Visualize stack frames: arguments, saved R7/R5, locals, return value slot, and cleanup.' },
 ];
 
 const filtered = computed(() => projects);

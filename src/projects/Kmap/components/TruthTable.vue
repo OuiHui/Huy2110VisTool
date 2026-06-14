@@ -15,7 +15,7 @@
           <td 
             :style="{ 
               fontWeight: '600', 
-              color: row.output === '1' ? '#059669' : '#dc2626' 
+              color: row.output === '1' ? '#10B981' : '#EF4444' 
             }"
           >
             {{ row.output }}
