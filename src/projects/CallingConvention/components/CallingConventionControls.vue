@@ -56,7 +56,7 @@ const stepIndexModel = computed({
 
         <div class="flex flex-col gap-2">
           <div class="flex items-baseline justify-between">
-            <div class="text-sm font-semibold text-surface-700 dark:text-surface-200">Step {{ stepIndex + 1 }} / {{ steps.length }}</div>
+            <div class="text-sm font-semibold text-surface-700 dark:text-surface-200 shrink-0 whitespace-nowrap">Step {{ stepIndex + 1 }} / {{ steps.length }}</div>
             <div class="text-xs text-surface-500 font-mono text-right">
               <div v-for="(l, i) in stepAsmLines" :key="i" class="asm-mini-line">
                 <template v-if="l.trim().length">
@@ -72,19 +72,15 @@ const stepIndexModel = computed({
           <Slider v-model="stepIndexModel" :min="0" :max="steps.length - 1" :step="1" />
         </div>
 
-        <Card class="mt-1" :dt="{ root: { background: 'transparent' } }">
-          <template #title>
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-base">{{ steps[stepIndex].title }}</span>
-              <span class="actor-chip" :class="currentActor">{{ currentActor }}</span>
-            </div>
-          </template>
-          <template #content>
-            <p class="text-sm text-surface-600 dark:text-surface-300">
-              {{ steps[stepIndex].detail }}
-            </p>
-          </template>
-        </Card>
+        <div class="mt-2 flex flex-col gap-2 pt-2 border-t border-surface-200 dark:border-surface-800">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm font-semibold text-surface-800 dark:text-surface-100">{{ steps[stepIndex].title }}</span>
+            <span class="actor-chip" :class="currentActor">{{ currentActor }}</span>
+          </div>
+          <p class="text-xs text-surface-600 dark:text-surface-300 leading-relaxed">
+            {{ steps[stepIndex].detail }}
+          </p>
+        </div>
       </div>
     </template>
   </Card>

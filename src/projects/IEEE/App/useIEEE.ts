@@ -285,13 +285,14 @@ export function useIEEE() {
         
         <div class="calc-section">
           <div class="calc-title">Exponent
-            <button type="button" class="help-btn bias-info-btn" title="Why bias is 127?" onclick="const p=this.parentElement.parentElement.querySelector('.bias-popup'); p.classList.toggle('open'); event.stopPropagation();">?</button>
-          </div>
-          <div class="bias-popup">
-            <div><strong>Why 127?</strong> 8 bits can hold numbers <code>[0, 255]</code></div><br>
-            <div><strong>We want both negative & positive powers around 0:</strong> use bias of 2<sup>7</sup>-1 = <code>127</code> which is in between -126 and +127.</div><br>
-            <div><strong>Why not 2's complement:</strong> Easier to read. With biased exponents, larger exponents always mean larger magnitudes when comparing floating point numbers (ignoring sign). </div>
-
+            <div class="bias-info-container">
+              <button type="button" class="help-btn bias-info-btn">?</button>
+              <div class="bias-popup">
+                <div><strong>Why 127?</strong> 8 bits can hold numbers <code>[0, 255]</code></div><br>
+                <div><strong>We want both negative & positive powers around 0:</strong> use bias of 2<sup>7</sup>-1 = <code>127</code> which is in between -126 and +127.</div><br>
+                <div><strong>Why not 2's complement:</strong> Easier to read. With biased exponents, larger exponents always mean larger magnitudes when comparing floating point numbers (ignoring sign). </div>
+              </div>
+            </div>
           </div>
           <div class="calc-step">Bits: ${exponentBits}</div>
           <div class="calc-step">Biased: ${biasedExponent}</div>
