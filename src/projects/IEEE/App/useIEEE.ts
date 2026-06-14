@@ -237,19 +237,22 @@ export function useIEEE() {
           </div>
         </div>
         
-        <div class="bit-labels">
-          ${bitLabels.map(label => `<div class="bit-label">${label}</div>`).join('')}
-        </div>
-        
-        <div class="bit-display" data-role="bit-display">
-          <div class="bit sign-bit" data-index="31" title="Sign Bit: ${sign === 0 ? 'Positive' : 'Negative'}">${signBit}</div>
-          ${exponentBits.split('').map((bit, index) => `<div class="bit exponent-bit" data-index="${30-index}" title="Exponent Bit ${7-index}">${bit}</div>`).join('')}
-          ${mantissaBits.split('').map((bit, index) => `<div class="bit mantissa-bit" data-index="${22-index}" title="Mantissa Bit ${22-index}">${bit}</div>`).join('')}
-        </div>
-        <div class="bit-brackets">
-          <div class="bracket-segment sign" style="width:3.125%">Sign<br><small>${sign}</small></div>
-          <div class="bracket-segment exponent" style="width:25%">Exponent<br><small>${biasedExponent} (biased)</small></div>
-          <div class="bracket-segment mantissa" style="width:71.875%">Mantissa<br><small>${mantissaBits.slice(0,8)}…</small></div>
+        <div class="bits-wrapper">
+          <div class="bit-labels">
+            ${bitLabels.map(label => `<div class="bit-label">${label}</div>`).join('')}
+          </div>
+          
+          <div class="bit-display" data-role="bit-display">
+            <div class="bit sign-bit" data-index="31" title="Sign Bit: ${sign === 0 ? 'Positive' : 'Negative'}">${signBit}</div>
+            ${exponentBits.split('').map((bit, index) => `<div class="bit exponent-bit" data-index="${30-index}" title="Exponent Bit ${7-index}">${bit}</div>`).join('')}
+            ${mantissaBits.split('').map((bit, index) => `<div class="bit mantissa-bit" data-index="${22-index}" title="Mantissa Bit ${22-index}">${bit}</div>`).join('')}
+          </div>
+          
+          <div class="bit-brackets">
+            <div class="bracket-segment sign" style="width:3.125%">Sign<br><small>${sign}</small></div>
+            <div class="bracket-segment exponent" style="width:25%">Exponent<br><small>${biasedExponent} (biased)</small></div>
+            <div class="bracket-segment mantissa" style="width:71.875%">Mantissa<br><small>${mantissaBits.slice(0,8)}…</small></div>
+          </div>
         </div>
         <div class="normalized-breakdown">
           <div><span class="piece-label">Normalized:</span> <code>${normalized.norm}</code> × 2<sup>${normalized.exponent}</sup></div>

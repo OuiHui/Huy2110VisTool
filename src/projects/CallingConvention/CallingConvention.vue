@@ -22,19 +22,16 @@ const {
 </script>
 
 <template>
-  <div class="px-4 py-3 max-w-400 w-full mx-auto overflow-x-hidden">
-    <header class="mb-3">
-      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-surface-900 dark:text-surface-50">
+  <div class="cc-page-shell">
+    <header class="cc-page-header">
+      <h1 class="text-xl font-bold tracking-tight text-center text-surface-900 dark:text-surface-50">
         LC-3 Calling Convention Visualizer
       </h1>
-      <p class="mt-1 text-sm md:text-base text-surface-700 dark:text-surface-200 max-w-[90ch]">
-        Step through the stack-frame lifecycle (caller → callee → caller) using the exact sequence you provided.
-        In this view, addresses decrease upward so pushes visually build upward (R6 still decrements).
-      </p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr] gap-4">
-      <div class="flex flex-col gap-3 cc-sticky">
+    <div class="cc-main-layout">
+      <!-- LEFT: Controls sidebar -->
+      <div class="cc-sidebar">
         <CallingConventionControls
           :examples="examples"
           :selectedExampleId="selectedExampleId"
@@ -51,18 +48,20 @@ const {
         />
       </div>
 
-      <div class="cc-right">
-        <div class="flex flex-col gap-3">
+      <!-- RIGHT: Guide on top, Assembly below -->
+      <div class="cc-right-col">
+        <div class="cc-guide-row">
           <CallingConventionGuide :selectedExample="selectedExample" :stepIndex="stepIndex" />
         </div>
-
-        <CallingConventionAssembly
-          :selectedExample="selectedExample"
-          :stepIndex="stepIndex"
-          :currentActor="currentActor"
-          :callerAsm="callerAsm"
-          :calleeAsm="calleeAsm"
-        />
+        <div class="cc-asm-row">
+          <CallingConventionAssembly
+            :selectedExample="selectedExample"
+            :stepIndex="stepIndex"
+            :currentActor="currentActor"
+            :callerAsm="callerAsm"
+            :calleeAsm="calleeAsm"
+          />
+        </div>
       </div>
     </div>
   </div>

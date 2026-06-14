@@ -18,14 +18,87 @@
   }
 }
 
-.cc-right { display: grid; grid-template-columns: 1fr; gap: .75rem; }
-@media (min-width: 1280px) {
-  .cc-right { grid-template-columns: 420px 1fr; align-items: start; }
+/* ── Viewport-height shell ── */
+.cc-page-shell {
+  position: fixed;
+  top: 56px;   /* height of SiteNav */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: .5rem 1rem;
+  box-sizing: border-box;
 }
 
-.cc-sticky { align-self: start; }
-@media (min-width: 1024px) {
-  .cc-sticky { position: sticky; top: 76px; }
+.cc-page-header {
+  flex-shrink: 0;
+  margin-bottom: .5rem;
+}
+
+/* 2-column: narrow sidebar + right content */
+.cc-main-layout {
+  flex: 1;
+  display: flex;
+  gap: .75rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cc-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Right column: Guide on top (compact), Assembly below (fills) */
+.cc-right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cc-guide-row {
+  flex-shrink: 0;
+}
+
+.cc-asm-row {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make PrimeVue Cards inside asm-row fill height */
+.cc-asm-row > .p-card {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-asm-row > .p-card > .p-card-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-asm-row > .p-card > .p-card-body > .p-card-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .actor-chip {
@@ -49,13 +122,15 @@
   .actor-chip.callee { border-color: rgba(0, 160, 96, 0.55); background: rgba(0, 160, 96, 0.22); }
 }
 
-.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; min-width: 0; }
+.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; min-width: 0; flex: 1; min-height: 0; overflow: hidden; }
 @media (min-width: 640px) {
   .asm { grid-template-columns: 0.85fr 1.15fr; }
 }
 
 .asm-col {
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -74,20 +149,23 @@
   border-radius: .75rem;
   border: 1px solid rgba(0,0,0,0.12);
   background: rgba(255,255,255,0.7);
-  padding: .6rem .7rem;
-  overflow: auto;
+  padding: .4rem .5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 550px;
+  flex: 1;
+  min-height: 0;
 }
 
 .asm-line {
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-all;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: .85rem;
+  font-size: .78rem;
   color: rgba(0,0,0,0.72);
-  padding: .2rem .3rem;
+  padding: .15rem .25rem;
   border-radius: .45rem;
 }
 
