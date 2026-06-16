@@ -47,10 +47,18 @@
 }
 
 .cc-sidebar {
-  width: 260px;
+  width: 360px;
   flex-shrink: 0;
-  overflow-y: auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: .75rem;
   min-height: 0;
+  overflow: hidden;
+}
+
+.cc-sidebar > * {
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* Right column: Guide on top (compact), Assembly below (fills) */

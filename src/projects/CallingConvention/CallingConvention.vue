@@ -2,6 +2,7 @@
 import CallingConventionAssembly from './components/CallingConventionAssembly.vue';
 import CallingConventionControls from './components/CallingConventionControls.vue';
 import CallingConventionGuide from './components/CallingConventionGuide.vue';
+import CallingConventionStackFrame from './components/CallingConventionStackFrame.vue';
 import { useCallingConvention } from './useCallingConvention.ts';
 import './style.css';
 
@@ -15,6 +16,7 @@ const {
   currentActor,
   callerAsm,
   calleeAsm,
+  returnAddr,
   nextStep,
   prevStep,
   reset
@@ -30,7 +32,7 @@ const {
     </header>
 
     <div class="cc-main-layout">
-      <!-- LEFT: Controls sidebar -->
+      <!-- LEFT: Controls + Stack Frame below -->
       <div class="cc-sidebar">
         <CallingConventionControls
           :examples="examples"
@@ -46,12 +48,17 @@ const {
           @next="nextStep"
           @reset="reset"
         />
+        <CallingConventionStackFrame
+          :selectedExample="selectedExample"
+          :stepIndex="stepIndex"
+          :returnAddr="returnAddr"
+        />
       </div>
 
-      <!-- RIGHT: Guide on top, Assembly below -->
+      <!-- RIGHT: Guide steps (compact, shrink-0) + Assembly (fills) -->
       <div class="cc-right-col">
         <div class="cc-guide-row">
-          <CallingConventionGuide :selectedExample="selectedExample" :stepIndex="stepIndex" />
+          <CallingConventionGuide :stepIndex="stepIndex" />
         </div>
         <div class="cc-asm-row">
           <CallingConventionAssembly

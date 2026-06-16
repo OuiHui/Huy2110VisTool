@@ -36,28 +36,28 @@ const stepIndexModel = computed({
   <Card>
     <template #title>Controls</template>
     <template #content>
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-2.5">
         <label class="flex flex-col gap-1">
-          <span class="text-sm font-semibold text-surface-700 dark:text-surface-200">Select C Example</span>
+          <span class="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide">Example</span>
           <Select v-model="selectedExampleIdModel" :options="examples" optionLabel="name" optionValue="id" class="w-full text-left" />
         </label>
 
-        <div class="cc-input font-mono cc-readonly text-xs overflow-x-auto whitespace-pre bg-surface-50 dark:bg-surface-900/50">
+        <div class="cc-input font-mono cc-readonly text-xs overflow-x-auto whitespace-pre bg-surface-50 dark:bg-surface-900/50 min-h-[9.5rem]">
 {{ selectedExample.cCode }}
         </div>
 
-        <Divider />
+        <Divider class="!my-0" />
 
         <div class="flex items-center gap-2">
-          <Button @click="$emit('prev')" :disabled="stepIndex === 0">Prev</Button>
-          <Button @click="$emit('next')" :disabled="stepIndex === steps.length - 1">Next</Button>
-          <Button severity="secondary" @click="$emit('reset')">Reset</Button>
+          <Button size="small" @click="$emit('prev')" :disabled="stepIndex === 0">Prev</Button>
+          <Button size="small" @click="$emit('next')" :disabled="stepIndex === steps.length - 1">Next</Button>
+          <Button size="small" severity="secondary" @click="$emit('reset')">Reset</Button>
         </div>
 
-        <div class="flex flex-col gap-2">
-          <div class="flex items-baseline justify-between">
-            <div class="text-sm font-semibold text-surface-700 dark:text-surface-200 shrink-0 whitespace-nowrap">Step {{ stepIndex + 1 }} / {{ steps.length }}</div>
-            <div class="text-xs text-surface-500 font-mono text-right">
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-sm font-semibold text-surface-700 dark:text-surface-200 tabular-nums whitespace-nowrap pt-0.5">Step {{ stepIndex + 1 }} / {{ steps.length }}</span>
+            <div class="text-[11px] text-surface-400 dark:text-surface-500 font-mono text-right min-h-[2.4rem] leading-[1.35]">
               <div v-for="(l, i) in stepAsmLines" :key="i" class="asm-mini-line">
                 <template v-if="l.trim().length">
                   <span class="asm-code">{{ splitAsmComment(l).code }}</span>
@@ -72,16 +72,16 @@ const stepIndexModel = computed({
           <Slider v-model="stepIndexModel" :min="0" :max="steps.length - 1" :step="1" />
         </div>
 
-        <div class="mt-2 flex flex-col gap-2 pt-2 border-t border-surface-200 dark:border-surface-800">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-sm font-semibold text-surface-800 dark:text-surface-100">{{ steps[stepIndex].title }}</span>
-            <span class="actor-chip" :class="currentActor">{{ currentActor }}</span>
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-surface-200 dark:border-surface-800">
+          <div class="flex items-start justify-between gap-2 min-h-[2.5rem]">
+            <span class="text-base font-semibold text-surface-800 dark:text-surface-100 leading-snug">{{ steps[stepIndex].title }}</span>
+            <span class="actor-chip shrink-0 mt-1" :class="currentActor">{{ currentActor }}</span>
           </div>
-          <p class="text-xs text-surface-600 dark:text-surface-300 leading-relaxed">
+          <p class="text-sm text-surface-600 dark:text-surface-300 leading-relaxed min-h-[6rem]">
             {{ steps[stepIndex].detail }}
           </p>
         </div>
       </div>
     </template>
   </Card>
-</template>
+</template>

@@ -72,33 +72,33 @@ export function useCallingConvention() {
       highlightAddrs.add(addr);
     };
 
-    if (targetStep >= 0) {
+    if (targetStep >= 1) {
       for (let i = numParams.value; i >= 1; i--) {
         push({ kind: 'arg', label: `arg${i}`, value: argValues.value[i - 1] ?? '' });
       }
     }
 
-    if (targetStep >= 1) {
-      R7 = clamp16(initialPC + 1);
-    }
-
     if (targetStep >= 2) {
-      push({ kind: 'ret-slot', label: 'return value (slot)', value: '' });
+      R7 = clamp16(initialPC + numParams.value * 2 + 1);
     }
 
     if (targetStep >= 3) {
-      push({ kind: 'saved-r7', label: 'saved R7 (return addr)', value: hex16(R7) });
+      push({ kind: 'ret-slot', label: 'return value (slot)', value: '' });
     }
 
     if (targetStep >= 4) {
-      push({ kind: 'saved-r5', label: 'saved R5 (old FP)', value: hex16(R5) });
+      push({ kind: 'saved-r7', label: 'saved R7 (return addr)', value: hex16(R7) });
     }
 
     if (targetStep >= 5) {
-      R5 = clamp16(R6 - 1);
+      push({ kind: 'saved-r5', label: 'saved R5 (old FP)', value: hex16(R5) });
     }
 
     if (targetStep >= 6) {
+      R5 = clamp16(R6 - 1);
+    }
+
+    if (targetStep >= 7) {
       const locals = Math.max(0, numLocals.value | 0);
       if (locals > 0) {
         for (let i = 0; i < locals; i++) {
@@ -111,17 +111,17 @@ export function useCallingConvention() {
       }
     }
 
-    if (targetStep >= 7) {
+    if (targetStep >= 8) {
       for (let i = 0; i < usedRegs.value.length; i++) {
         push({ kind: 'saved-reg', label: `saved ${usedRegs.value[i]}`, value: '' });
       }
     }
 
-    if (targetStep >= 8) {
+    if (targetStep >= 9) {
       write(R5 + 3, { kind: 'ret-slot', label: 'return value (slot)', value: returnValue.value });
     }
 
-    if (targetStep >= 9) {
+    if (targetStep >= 10) {
       const numRegs = usedRegs.value.length;
       if (numRegs > 0) {
         R6 = clamp16(R6 + numRegs);
@@ -130,7 +130,7 @@ export function useCallingConvention() {
       }
     }
 
-    if (targetStep >= 10) {
+    if (targetStep >= 11) {
       const locals = Math.max(0, numLocals.value | 0);
       if (locals > 0) {
         R6 = clamp16(R6 + locals);
@@ -139,7 +139,7 @@ export function useCallingConvention() {
       }
     }
 
-    if (targetStep >= 11) {
+    if (targetStep >= 12) {
       const cell = memory.get(R6);
       if (cell?.kind === 'saved-r5' && typeof cell.value === 'string' && cell.value.startsWith('x')) {
         const parsed = Number.parseInt(cell.value.slice(1), 16);
@@ -152,7 +152,7 @@ export function useCallingConvention() {
       R6 = clamp16(R6 + 1);
     }
 
-    if (targetStep >= 12) {
+    if (targetStep >= 13) {
       const cell = memory.get(R6);
       if (cell?.kind === 'saved-r7' && typeof cell.value === 'string' && cell.value.startsWith('x')) {
         const parsed = Number.parseInt(cell.value.slice(1), 16);
@@ -163,13 +163,13 @@ export function useCallingConvention() {
       R6 = clamp16(R6 + 1);
     }
 
-    if (targetStep >= 14) {
+    if (targetStep >= 15) {
       highlightAddrs.clear();
       highlightAddrs.add(R6);
       R6 = clamp16(R6 + 1);
     }
 
-    if (targetStep >= 15) {
+    if (targetStep >= 16) {
       R6 = clamp16(R6 + Math.max(0, numParams.value | 0));
       highlightAddrs.clear();
       highlightAddrs.add(R6);
@@ -196,72 +196,101 @@ export function useCallingConvention() {
   const stepAsmLines = computed(() => (steps[stepIndex.value]?.asm ?? '').split('\n'));
 
   const callerAsm = computed<AsmLine[]>(() => {
-    const pushLines: AsmLine[] = [];
+    let currentAddr = 0x3000;
+    const formatAddr = (addr: number) => 'x' + clamp16(addr).toString(16).toUpperCase().padStart(4, '0');
+
+    const lines: AsmLine[] = [{ text: '.ORIG x3000', step: -1 }];
+
+    // Push args right-to-left
     for (let i = argNames.value.length - 1; i >= 0; i--) {
-      pushLines.push({ text: 'ADD R6, R6, #-1', step: 0 });
-      pushLines.push({ text: `STR R${i}, R6, #0     ; push arg ${argNames.value[i]}`, step: 0 });
+      lines.push({ text: 'ADD R6, R6, #-1', step: 1, addr: formatAddr(currentAddr++) });
+      lines.push({ text: `STR R${i}, R6, #0     ; push arg ${argNames.value[i]}`, step: 1, addr: formatAddr(currentAddr++) });
     }
 
-    const popLines: AsmLine[] = [];
+    lines.push({ text: '', step: -1 });
+    lines.push({ text: `JSR ${calleeName.value}`, step: 2, addr: formatAddr(currentAddr++) });
+    lines.push({ text: '', step: -1 });
+    lines.push({ text: 'LDR R0, R6, #0     ; read return value', step: 15, addr: formatAddr(currentAddr++) });
+    lines.push({ text: 'ADD R6, R6, #1     ; pop return value', step: 15, addr: formatAddr(currentAddr++) });
+    lines.push({ text: '', step: -1 });
+
     for (let i = 0; i < numParams.value; i++) {
-      popLines.push({ text: 'ADD R6, R6, #1     ; pop parameter', step: 15 });
+      lines.push({ text: 'ADD R6, R6, #1     ; pop parameter', step: 16, addr: formatAddr(currentAddr++) });
     }
 
-    return [
-      { text: '.ORIG x3000', step: -1 },
-      ...pushLines,
-      { text: '', step: -1 },
-      { text: `JSR ${calleeName.value}`, step: 1 },
-      { text: '', step: -1 },
-      { text: 'LDR R0, R6, #0     ; read return value', step: 14 },
-      { text: 'ADD R6, R6, #1     ; pop return value', step: 14 },
-      { text: '', step: -1 },
-      ...popLines
-    ];
+    return lines;
+  });
+
+  // Return address is the instruction right after JSR: 0x3000 + (numParams * 2 instructions) + 1 (for JSR)
+  const returnAddr = computed(() => {
+    const jsrAddr = 0x3000 + numParams.value * 2;
+    return 'x' + clamp16(jsrAddr + 1).toString(16).toUpperCase().padStart(4, '0');
   });
 
   const calleeAsm = computed<AsmLine[]>(() => {
+    let currentAddr = 0x3300;
+    const formatAddr = (addr: number) => 'x' + clamp16(addr).toString(16).toUpperCase().padStart(4, '0');
+
     const saveRegs: AsmLine[] = [];
     const restoreRegs: AsmLine[] = [];
 
     if (usedRegs.value.length > 0) {
       for (let i = 0; i < usedRegs.value.length; i++) {
-        saveRegs.push({ text: 'ADD R6, R6, #-1', step: 7 });
-        saveRegs.push({ text: `STR ${usedRegs.value[i]}, R6, #0    ; save ${usedRegs.value[i]}`, step: 7 });
+        saveRegs.push({ text: 'ADD R6, R6, #-1', step: 8, addr: formatAddr(currentAddr++) });
+        saveRegs.push({ text: `STR ${usedRegs.value[i]}, R6, #0    ; save ${usedRegs.value[i]}`, step: 8, addr: formatAddr(currentAddr++) });
       }
 
       for (let i = usedRegs.value.length - 1; i >= 0; i--) {
-        restoreRegs.push({ text: `LDR ${usedRegs.value[i]}, R6, #0    ; restore ${usedRegs.value[i]}`, step: 9 });
-        restoreRegs.push({ text: 'ADD R6, R6, #1', step: 9 });
+        restoreRegs.push({ text: `LDR ${usedRegs.value[i]}, R6, #0    ; restore ${usedRegs.value[i]}`, step: 10, addr: formatAddr(currentAddr++) });
+        restoreRegs.push({ text: 'ADD R6, R6, #1', step: 10, addr: formatAddr(currentAddr++) });
       }
       restoreRegs.push({ text: '', step: -1 });
     }
 
+    const prologue: AsmLine[] = [
+      { text: 'ADD R6, R6, #-1    ; reserve return slot', step: 3, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+      { text: 'ADD R6, R6, #-1', step: 4, addr: formatAddr(currentAddr++) },
+      { text: 'STR R7, R6, #0     ; save return address', step: 4, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+      { text: 'ADD R6, R6, #-1', step: 5, addr: formatAddr(currentAddr++) },
+      { text: 'STR R5, R6, #0     ; save old FP', step: 5, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+      { text: 'ADD R5, R6, #-1    ; set new FP', step: 6, addr: formatAddr(currentAddr++) },
+      { text: `ADD R6, R6, #${-numLocals.value}     ; reserve space for locals`, step: 7, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+    ];
+
+    const bodyLines: AsmLine[] = [];
+    for (const line of bodyAsm.value) {
+      if (line.trim() === '' || line.trim().startsWith(';')) {
+        bodyLines.push({ text: line, step: 9 });
+      } else if (line.endsWith(':')) {
+        bodyLines.push({ text: line, step: 9 });
+      } else {
+        bodyLines.push({ text: line, step: 9, addr: formatAddr(currentAddr++) });
+      }
+    }
+
+    const epilogue: AsmLine[] = [
+      { text: `ADD R6, R6, #${numLocals.value}     ; pop locals`, step: 11, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+      { text: 'LDR R5, R6, #0     ; restore old FP', step: 12, addr: formatAddr(currentAddr++) },
+      { text: 'ADD R6, R6, #1', step: 12, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+      { text: 'LDR R7, R6, #0     ; restore return addr', step: 13, addr: formatAddr(currentAddr++) },
+      { text: 'ADD R6, R6, #1', step: 13, addr: formatAddr(currentAddr++) },
+      { text: '', step: -1 },
+      { text: 'RET', step: 14, addr: formatAddr(currentAddr++) }
+    ];
+
     return [
       { text: `${calleeName.value}`, step: -1 },
-      { text: 'ADD R6, R6, #-1    ; reserve return slot', step: 2 },
-      { text: '', step: -1 },
-      { text: 'ADD R6, R6, #-1', step: 3 },
-      { text: 'STR R7, R6, #0     ; save return address', step: 3 },
-      { text: '', step: -1 },
-      { text: 'ADD R6, R6, #-1', step: 4 },
-      { text: 'STR R5, R6, #0     ; save old FP', step: 4 },
-      { text: '', step: -1 },
-      { text: 'ADD R5, R6, #-1    ; set new FP', step: 5 },
-      { text: `ADD R6, R6, #${-numLocals.value}     ; reserve space for locals`, step: 6 },
-      { text: '', step: -1 },
+      ...prologue,
       ...saveRegs,
-      ...bodyAsm.value.map((line) => ({ text: line, step: 8 })),
+      ...bodyLines,
       ...restoreRegs,
-      { text: `ADD R6, R6, #${numLocals.value}     ; pop locals`, step: 10 },
-      { text: '', step: -1 },
-      { text: 'LDR R5, R6, #0     ; restore old FP', step: 11 },
-      { text: 'ADD R6, R6, #1', step: 11 },
-      { text: '', step: -1 },
-      { text: 'LDR R7, R6, #0     ; restore return addr', step: 12 },
-      { text: 'ADD R6, R6, #1', step: 12 },
-      { text: '', step: -1 },
-      { text: 'RET', step: 13 }
+      ...epilogue
     ];
   });
 
@@ -308,6 +337,7 @@ export function useCallingConvention() {
     usedRegs,
     bodyAsm,
     returnValue,
+    returnAddr,
     current,
     previous,
     registerChanged,

@@ -49,4 +49,5 @@ export type CallingConventionExample = {
 export type AsmLine = {
   text: string;
   step: number;
+  addr?: string;
 };

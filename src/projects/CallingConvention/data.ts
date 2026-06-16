@@ -2,6 +2,12 @@ import type { CallingConventionExample, StepDefinition } from './types';
 
 export const steps: ReadonlyArray<StepDefinition> = [
   {
+    title: 'Initial State',
+    asm: '',
+    detail: 'The stack pointer (R6) sits below the caller\'s current frame. The calling convention begins when the caller starts pushing arguments.',
+    actor: 'caller'
+  },
+  {
     title: 'Caller pushes arguments (right → left)',
     asm: 'ADD/STR args (right→left)',
     detail: 'Right-to-left means the last argument is pushed first, so arg1 ends up closest to the callee.',
@@ -28,7 +34,7 @@ export const steps: ReadonlyArray<StepDefinition> = [
   {
     title: 'Callee saves old frame pointer',
     asm: 'ADD R6, R6, #-1\nSTR R5, R6, #0',
-    detail: 'Save caller’s frame pointer so we can restore it before returning.',
+    detail: 'Save caller\u2019s frame pointer so we can restore it before returning.',
     actor: 'callee'
   },
   {
@@ -70,7 +76,7 @@ export const steps: ReadonlyArray<StepDefinition> = [
   {
     title: 'Callee restores old frame pointer',
     asm: 'LDR R5, R6, #0\nADD R6, R6, #1',
-    detail: 'Restore caller’s R5.',
+    detail: 'Restore caller\u2019s R5.',
     actor: 'callee'
   },
   {
@@ -82,7 +88,7 @@ export const steps: ReadonlyArray<StepDefinition> = [
   {
     title: 'Callee returns',
     asm: 'RET',
-    detail: 'RET jumps to the address in R7 (the caller’s next instruction).',
+    detail: 'RET jumps to the address in R7 (the caller\u2019s next instruction).',
     actor: 'callee'
   },
   {
@@ -103,14 +109,14 @@ export const examples: CallingConventionExample[] = [
   {
     id: 'add',
     name: 'Add Two Numbers',
-    cCode: `int add(int a, int b) {\n  int sum = a + b;\n  return sum;\n}\n\n// caller\nint result = add(1, 2);`,
+    cCode: `int ADD_FUNCTION(int a, int b) {\n  int sum = a + b;\n  return sum;\n}\n\n// caller\nint result = ADD_FUNCTION(1, 2);`,
     numParams: 2,
     numLocals: 1,
     argValues: ['x0001', 'x0002'],
     argNames: ['a', 'b'],
     localNames: ['sum'],
     returnValue: 'x0003',
-    calleeName: 'add',
+    calleeName: 'ADD_FUNCTION',
     usedRegs: ['R0', 'R1'],
     bodyAsm: [
       '; --- Body ---',
@@ -124,14 +130,14 @@ export const examples: CallingConventionExample[] = [
   {
     id: 'factorial',
     name: 'Factorial (Recursive)',
-    cCode: `int fact(int n) {\n  if (n <= 1) return 1;\n  int temp = fact(n - 1);\n  return n * temp;\n}\n\n// caller\nint result = fact(4);`,
+    cCode: `int FACTORIAL(int n) {\n  if (n <= 1) return 1;\n  int temp = FACTORIAL(n - 1);\n  return n * temp;\n}\n\n// caller\nint result = FACTORIAL(4);`,
     numParams: 1,
     numLocals: 1,
     argValues: ['x0004'],
     argNames: ['n'],
     localNames: ['temp'],
     returnValue: 'x0018',
-    calleeName: 'fact',
+    calleeName: 'FACTORIAL',
     usedRegs: ['R0', 'R1'],
     bodyAsm: [
       '; --- Body ---',
@@ -142,7 +148,7 @@ export const examples: CallingConventionExample[] = [
       'ADD R0, R0, #1    ; base case return 1',
       'BRnzp DONE',
       'RECURSE:',
-      '                 ; (omitted fact(n-1) call)',
+      '                 ; (omitted FACTORIAL(n-1) call)',
       'DONE:',
       'STR R0, R5, #0    ; store temp',
       '; ------------'
@@ -151,14 +157,14 @@ export const examples: CallingConventionExample[] = [
   {
     id: 'void_func',
     name: 'Void Function (No Return)',
-    cCode: `void print_msg(int id) {\n  int status = 0;\n  // ...\n}\n\n// caller\nprint_msg(5);`,
+    cCode: `void PRINT_MSG(int id) {\n  int status = 0;\n  // ...\n}\n\n// caller\nPRINT_MSG(5);`,
     numParams: 1,
     numLocals: 1,
     argValues: ['x0005'],
     argNames: ['id'],
     localNames: ['status'],
     returnValue: 'x0000',
-    calleeName: 'print_msg',
+    calleeName: 'PRINT_MSG',
     usedRegs: ['R0'],
     bodyAsm: [
       '; --- Body ---',
@@ -171,14 +177,14 @@ export const examples: CallingConventionExample[] = [
   {
     id: 'many_args',
     name: 'Many Arguments',
-    cCode: `int sum4(int a, int b, int c, int d) {\n  int s1 = a + b;\n  int s2 = c + d;\n  return s1 + s2;\n}\n\n// caller\nint result = sum4(1, 2, 3, 4);`,
+    cCode: `int SUM(int a, int b, int c, int d) {\n  int s1 = a + b;\n  int s2 = c + d;\n  return s1 + s2;\n}\n\n// caller\nint result = SUM(1, 2, 3, 4);`,
     numParams: 4,
     numLocals: 2,
     argValues: ['x0001', 'x0002', 'x0003', 'x0004'],
     argNames: ['a', 'b', 'c', 'd'],
     localNames: ['s1', 's2'],
     returnValue: 'x000A',
-    calleeName: 'sum4',
+    calleeName: 'SUM',
     usedRegs: ['R0', 'R1'],
     bodyAsm: [
       '; --- Body ---',
