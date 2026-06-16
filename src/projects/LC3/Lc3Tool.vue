@@ -286,10 +286,10 @@ function activateMacro(key: string) {
             <span class="font-mono" v-if="wireState.macro">{{ macroCycleCount ?? '-' }}</span>
             <span class="font-mono" v-else>-</span>
           </div>
-          <Button :disabled="isLoopDone || running" @click="startDiagramLoop('cycle')" class="whitespace-nowrap px-3 py-2">Next<span class="max-md:hidden">&nbsp;Cycle</span></Button>
+          <Button :disabled="isLoopDone || running" @click="startDiagramLoop('cycle')" class="whitespace-nowrap px-3 py-2"><span>Next<span class="max-md:hidden">&nbsp;Cycle</span></span></Button>
         </div>
         <Divider layout="vertical" class="hidden xl:block" />
-        <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop(true)" class="whitespace-nowrap px-3 py-2">Reset<span class="max-md:hidden">&nbsp;Wires</span></Button>
+        <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop(true)" class="whitespace-nowrap px-3 py-2"><span>Reset<span class="max-md:hidden">&nbsp;Wires</span></span></Button>
       </div>
       <Divider class="my-0 max-sm:block hidden" />
       <div class="w-full overflow-x-auto py-2 px-1 text-center" style="scrollbar-width: auto; scrollbar-color: var(--p-surface-400) transparent;">
