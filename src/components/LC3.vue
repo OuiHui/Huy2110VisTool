@@ -85,22 +85,25 @@ import { useTemplateRef, onMounted, nextTick, onUnmounted, ref } from 'vue';
         const scaledHeight = baseHeight.value * scale.value;
         const pad = 80;
         const padTop = pad + topInset;
-        const minX = Math.min(pad, container.clientWidth - scaledWidth - pad);
-        const minY = Math.min(pad, container.clientHeight - scaledHeight - pad);
-        const maxX = pad;
-        const maxY = padTop;
-
+        let minX, maxX;
         if (scaledWidth < container.clientWidth) {
-            nextX = (container.clientWidth - scaledWidth) / 2;
+            minX = -pad;
+            maxX = container.clientWidth - scaledWidth + pad;
         } else {
-            nextX = Math.min(Math.max(nextX, minX), maxX);
+            minX = container.clientWidth - scaledWidth - pad;
+            maxX = pad;
         }
+        nextX = Math.min(Math.max(nextX, minX), maxX);
 
+        let minY, maxY;
         if (scaledHeight < container.clientHeight) {
-            nextY = (container.clientHeight - scaledHeight) / 2;
+            minY = -pad;
+            maxY = container.clientHeight - scaledHeight + padTop;
         } else {
-            nextY = Math.min(Math.max(nextY, minY), maxY);
+            minY = container.clientHeight - scaledHeight - pad;
+            maxY = padTop;
         }
+        nextY = Math.min(Math.max(nextY, minY), maxY);
 
         return { x: nextX, y: nextY };
     }

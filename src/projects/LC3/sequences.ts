@@ -162,19 +162,6 @@ const sequences: Record<string, MacroData> = {
             "Load IR from MDR."
         ]
     },
-    "DECODE": {
-        "label": "Decode",
-        "sequence": [
-            [
-                "IR to FSM (1)",
-                "IR to FSM (2)",
-                "FSM (shape)"
-            ]
-        ],
-        "cycleDescriptions": [
-            "Decode opcode and update control state."
-        ]
-    },
     "ADD_REG": {
         "label": "ADD (reg)",
         "pseudocode": pseudocode`

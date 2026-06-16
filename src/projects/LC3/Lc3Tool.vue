@@ -34,9 +34,7 @@ const macroCycleCount = computed(() => wireState.value.macro ? SEQUENCE_DATA[wir
 const showPseudocode = ref(true);
 const showInstructionFormat = ref(false);
 const hasSidebar = computed(() => showPseudocode.value && !!currentSequence.value?.pseudocode);
-const formatCardRef = ref<HTMLElement | null>(null);
-const formatOffset = ref(0);
-const diagramColRef = ref<HTMLElement | null>(null);
+
 // Derive current sequence entry (typed as any fallback) to simplify template typing
 const currentSequence = computed(() => wireState.value.macro ? (SEQUENCE_DATA as any)[wireState.value.macro] : undefined);
 const currentFormat = computed(() => {
@@ -52,24 +50,13 @@ const cycleDescriptions = computed(() => {
   }));
 });
 function getCycleClass(cycleIndex: number) {
-  if (cycleIndex !== wireState.value.cycle) return [];
+  if (wireState.value.step === 0) return [];
+  const isEnd = wireState.value.step >= wireState.value.wires.length;
+  const currentCycle = isEnd ? wireState.value.cycle - 1 : wireState.value.cycle;
+  if (cycleIndex !== currentCycle) return [];
   return ['is-current', `cycle-${cycleIndex}`];
 }
-function updateFormatOffset() {
-  if (!showInstructionFormat.value || !currentFormat.value) {
-    formatOffset.value = 0;
-    return;
-  }
-  nextTick(() => {
-    const cardRect = formatCardRef.value?.getBoundingClientRect();
-    const colRect = diagramColRef.value?.getBoundingClientRect();
-    if (!cardRect || !colRect) {
-      formatOffset.value = 0;
-      return;
-    }
-    formatOffset.value = Math.max(0, cardRect.bottom - colRect.top);
-  });
-}
+
 let lastWireActivate = 0;
 function handleKeydown(event: KeyboardEvent) {
   if (event.code === 'Escape') (document.activeElement as HTMLElement)?.blur();
@@ -97,12 +84,11 @@ function handleKeydown(event: KeyboardEvent) {
 // Use capture phase so we intercept before PrimeVue Menubar key handlers
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown, true);
-  updateFormatOffset();
 });
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown, true);
 });
-watch([showInstructionFormat, currentFormat], () => updateFormatOffset());
+
 function stepBack() {
   if (wireState.value.step <= 0) return;
   wireState.value.step--;
@@ -152,10 +138,16 @@ function pauseDiagramLoop() {
     lastWireActivate = 0;
   }
 }
-function resetDiagramLoop() {
+function resetDiagramLoop(keepMacro = false) {
   pauseDiagramLoop();
   lc3Diagram.value?.resetWires();
-  wireState.value = { wires: [], step: 0, stop: 0, cycle: 0, macro: undefined };
+  if (keepMacro) {
+    wireState.value.step = 0;
+    wireState.value.cycle = 0;
+    wireState.value.stop = wireState.value.wires.length;
+  } else {
+    wireState.value = { wires: [], step: 0, stop: 0, cycle: 0, macro: undefined };
+  }
   wireActivationHistory.value.clear();
 }
 function toggleDiagramLoop() { running.value ? pauseDiagramLoop() : startDiagramLoop(); }
@@ -180,9 +172,9 @@ function activateMacro(key: string) {
       </div>
     </header>
   <div class="lc3-grid grow px-4" style="margin-top:0;">
-      <div class="diagram-col" ref="diagramColRef">
-        <div ref="formatCardRef" class="instruction-format-wrap">
-          <Card v-if="currentFormat && showInstructionFormat" class="instruction-format-card">
+      <div class="diagram-col">
+        <div class="instruction-format-wrap" :class="{ collapsed: !showInstructionFormat || !currentFormat }">
+          <Card v-if="currentFormat" class="instruction-format-card">
             <template #title>
               <div class="w-full flex items-baseline gap-2">
                 <span>Instruction Format:</span>
@@ -204,16 +196,13 @@ function activateMacro(key: string) {
               ref="lc3Diagram"
               class="lc3-resized"
               :class="{ 'lc3-resized-full': !hasSidebar }"
-              :topInset="showInstructionFormat ? formatOffset + 16 : 0"
             />
           </div>
-        </div>
-        <aside
-          class="lc3-sidepanel"
-          v-if="currentSequence?.pseudocode"
-          :class="{ collapsed: !showPseudocode }"
-          :style="{ top: `${formatOffset + 24}px` }"
-        >
+          <aside
+            class="lc3-sidepanel"
+            v-if="currentSequence?.pseudocode"
+            :class="{ collapsed: !showPseudocode }"
+          >
           <Card :pt="{ root: { class: 'lc3-sidepanel-card' }, body: { class: 'lc3-sidepanel-body' }, content: { class: 'lc3-sidepanel-content' } }">
             <template #title>{{ currentSequence.label }} Pseudocode</template>
             <template #content>
@@ -227,7 +216,7 @@ function activateMacro(key: string) {
               </div>
               <div class="lc3-cycle-list">
                 <div class="lc3-cycle-title">Cycle Details</div>
-                <div v-if="cycleDescriptions.length">
+                <div v-if="cycleDescriptions.length" class="flex flex-col gap-2">
                   <div v-for="cycle in cycleDescriptions" :key="cycle.index" :class="['lc3-cycle-row', getCycleClass(cycle.index - 1)]">
                     <div class="lc3-cycle-label">Cycle {{ cycle.index }}</div>
                     <div class="lc3-cycle-text">{{ cycle.text }}</div>
@@ -238,6 +227,7 @@ function activateMacro(key: string) {
             </template>
           </Card>
         </aside>
+        </div>
       </div>
     </div>
   <div class="control-panel">
@@ -299,7 +289,7 @@ function activateMacro(key: string) {
           <Button :disabled="isLoopDone || running" @click="startDiagramLoop('cycle')" class="whitespace-nowrap px-3 py-2">Next<span class="max-md:hidden">&nbsp;Cycle</span></Button>
         </div>
         <Divider layout="vertical" class="hidden xl:block" />
-        <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop()" class="whitespace-nowrap px-3 py-2">Reset<span class="max-md:hidden">&nbsp;Wires</span></Button>
+        <Button :disabled="wireState.wires.length == 0" @click="resetDiagramLoop(true)" class="whitespace-nowrap px-3 py-2">Reset<span class="max-md:hidden">&nbsp;Wires</span></Button>
       </div>
       <Divider class="my-0 max-sm:block hidden" />
       <div class="w-full overflow-x-auto py-2 px-1 text-center" style="scrollbar-width: auto; scrollbar-color: var(--p-surface-400) transparent;">
