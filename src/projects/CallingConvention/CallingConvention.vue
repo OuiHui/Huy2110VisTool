@@ -25,49 +25,51 @@ const {
 
 <template>
   <div class="cc-page-shell">
-    <header class="cc-page-header">
-      <h1 class="text-xl font-bold tracking-tight text-center text-surface-900 dark:text-surface-50">
-        LC-3 Calling Convention Visualizer
-      </h1>
-    </header>
+    <div class="cc-page-inner">
+      <header class="cc-page-header">
+        <h1 class="text-2xl font-bold tracking-tight text-center text-surface-900 dark:text-surface-50">
+          LC-3 Calling Convention Visualizer
+        </h1>
+      </header>
 
-    <div class="cc-main-layout">
-      <!-- LEFT: Controls + Stack Frame below -->
-      <div class="cc-sidebar">
-        <CallingConventionControls
-          :examples="examples"
-          :selectedExampleId="selectedExampleId"
-          :selectedExample="selectedExample"
-          :stepIndex="stepIndex"
-          :steps="steps"
-          :stepAsmLines="stepAsmLines"
-          :currentActor="currentActor"
-          @update:selectedExampleId="selectedExampleId = $event"
-          @update:stepIndex="stepIndex = $event"
-          @prev="prevStep"
-          @next="nextStep"
-          @reset="reset"
-        />
-        <CallingConventionStackFrame
-          :selectedExample="selectedExample"
-          :stepIndex="stepIndex"
-          :returnAddr="returnAddr"
-        />
-      </div>
-
-      <!-- RIGHT: Guide steps (compact, shrink-0) + Assembly (fills) -->
-      <div class="cc-right-col">
-        <div class="cc-guide-row">
-          <CallingConventionGuide :stepIndex="stepIndex" />
-        </div>
-        <div class="cc-asm-row">
-          <CallingConventionAssembly
+      <div class="cc-main-layout">
+        <!-- LEFT: Controls + Stack Frame below -->
+        <div class="cc-sidebar">
+          <CallingConventionControls
+            :examples="examples"
+            :selectedExampleId="selectedExampleId"
             :selectedExample="selectedExample"
             :stepIndex="stepIndex"
+            :steps="steps"
+            :stepAsmLines="stepAsmLines"
             :currentActor="currentActor"
-            :callerAsm="callerAsm"
-            :calleeAsm="calleeAsm"
+            @update:selectedExampleId="selectedExampleId = $event"
+            @update:stepIndex="stepIndex = $event"
+            @prev="prevStep"
+            @next="nextStep"
+            @reset="reset"
           />
+          <CallingConventionStackFrame
+            :selectedExample="selectedExample"
+            :stepIndex="stepIndex"
+            :returnAddr="returnAddr"
+          />
+        </div>
+
+        <!-- RIGHT: Guide steps (compact, shrink-0) + Assembly (fills) -->
+        <div class="cc-right-col">
+          <div class="cc-guide-row">
+            <CallingConventionGuide :stepIndex="stepIndex" />
+          </div>
+          <div class="cc-asm-row">
+            <CallingConventionAssembly
+              :selectedExample="selectedExample"
+              :stepIndex="stepIndex"
+              :currentActor="currentActor"
+              :callerAsm="callerAsm"
+              :calleeAsm="calleeAsm"
+            />
+          </div>
         </div>
       </div>
     </div>
