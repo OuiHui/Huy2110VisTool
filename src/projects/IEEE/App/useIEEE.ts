@@ -4,8 +4,6 @@ export function useIEEE() {
   const inputValue = ref('100.001')
   const visualizationHtml = ref('')
   const currentFormat = ref(32)
-  const showHelp = ref(false)
-  const inputMode = ref('binary') // 'binary' or 'decimal'
   const signToggle = ref('+')
   const currentBits = ref(0)
 
@@ -369,46 +367,20 @@ export function useIEEE() {
     const char = (event as any).key
     const currentValue = (event.target as HTMLInputElement).value
     const cursorPosition = (event.target as HTMLInputElement).selectionStart || 0
-    if (inputMode.value === 'binary') {
-      const allowedBinaryChars = /^[01.\-infan]$/i;
-      if (!allowedBinaryChars.test(char)) {
+    const allowedBinaryChars = /^[01.\-infan]$/i;
+    if (!allowedBinaryChars.test(char)) {
+      (event as any).preventDefault();
+      return;
+    }
+    if (char === '.') {
+      if (currentValue.includes('.')) {
         (event as any).preventDefault();
         return;
       }
-      if (char === '.') {
-        if (currentValue.includes('.')) {
-          (event as any).preventDefault();
-          return;
-        }
-      } else if (char === '-') {
-        if (cursorPosition !== 0 || currentValue.includes('-')) {
-          (event as any).preventDefault();
-          return;
-        }
-      }
-    } else {
-      const allowedDecimalChars = /^[0-9.\-einfan]$/i;
-      if (!allowedDecimalChars.test(char)) {
+    } else if (char === '-') {
+      if (cursorPosition !== 0 || currentValue.includes('-')) {
         (event as any).preventDefault();
         return;
-      }
-      if (char === '.') {
-        if (currentValue.includes('.')) {
-          (event as any).preventDefault();
-          return;
-        }
-      } else if (char === '-') {
-        const beforeCursor = currentValue.substring(0, cursorPosition);
-        const lastChar = beforeCursor[beforeCursor.length - 1];
-        if (cursorPosition !== 0 && lastChar !== 'e' && lastChar !== 'E') {
-          (event as any).preventDefault();
-          return;
-        }
-      } else if ((char as string).toLowerCase() === 'e') {
-        if (currentValue.toLowerCase().includes('e')) {
-          (event as any).preventDefault();
-          return;
-        }
       }
     }
   }
@@ -416,22 +388,13 @@ export function useIEEE() {
   const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement
     let value = target.value
-    if (inputMode.value === 'binary') {
-      value = value.replace(/[^01.\-infan]/gi, '')
-    } else {
-      value = value.replace(/[^0-9.\-einfan]/gi, '')
-    }
+    value = value.replace(/[^01.\-infan]/gi, '')
     if (value !== target.value) {
       inputValue.value = value
       setTimeout(() => {
         target.setSelectionRange(value.length, value.length)
       }, 0)
     }
-    updateVisualization()
-  }
-
-  const setInputMode = (mode: string) => {
-    inputMode.value = mode
     updateVisualization()
   }
 
@@ -442,47 +405,27 @@ export function useIEEE() {
       return
     }
 
-    if (inputMode.value === 'decimal') {
-      const decimalMatch = inputValue.value.trim().match(/^-?\d+(\.\d+)?$/)
-      if (decimalMatch) {
-        const decimalNumber = parseFloat(inputValue.value)
-        visualizationHtml.value = generateFloat32Visualization(decimalNumber, `${inputValue.value} (decimal)`)
-        return
-      } else if (inputValue.value.trim() !== '') {
-        visualizationHtml.value = `
-          <div class="calc-section" style="text-align: center; background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1)); border: 1px solid rgba(220, 38, 38, 0.3);">
-            <div class="calc-title" style="color: #FCA5A5;">⚠ Invalid Decimal Input</div>
-            <div style="color: var(--text-secondary); margin-top: 12px;">
-              Please enter a valid decimal number: <code style="color: var(--gt-gold);">-5.25</code>, <code style="color: var(--gt-gold);">123.456</code><br>
-              or special values: <code style="color: var(--gt-gold);">inf</code>, <code style="color: var(--gt-gold);">-inf</code>, <code style="color: var(--gt-gold);">nan</code>
-            </div>
+    const raw = inputValue.value.trim()
+    const neg = raw.startsWith('-')
+    const core = raw.replace(/^[+-]/,'')
+    const binaryString = core.replace(/[^01.]/g, '')
+    if (binaryString && isValidBinary(binaryString)) {
+      let number = binaryToDecimal(binaryString)
+      if (neg) number = -number
+      visualizationHtml.value = generateFloat32Visualization(number, (neg?'-':'+') + binaryString)
+      nextTick(() => attachBitHandlers())
+      return
+    } else if (raw !== '') {
+      visualizationHtml.value = `
+        <div class="calc-section" style="text-align: center; background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1)); border: 1px solid rgba(220, 38, 38, 0.3);">
+          <div class="calc-title" style="color: #FCA5A5;">⚠ Invalid Binary Input</div>
+          <div style="color: var(--text-secondary); margin-top: 12px;">
+            Please enter a valid binary number: <code style="color: var(--gt-gold);">100.001</code>, <code style="color: var(--gt-gold);">1101</code><br>
+            or special values: <code style="color: var(--gt-gold);">inf</code>, <code style="color: var(--gt-gold);">-inf</code>, <code style="color: var(--gt-gold);">nan</code>
           </div>
-        `
-        return
-      }
-    } else {
-      const raw = inputValue.value.trim()
-      const neg = raw.startsWith('-')
-      const core = raw.replace(/^[+-]/,'')
-      const binaryString = core.replace(/[^01.]/g, '')
-      if (binaryString && isValidBinary(binaryString)) {
-        let number = binaryToDecimal(binaryString)
-        if (neg) number = -number
-        visualizationHtml.value = generateFloat32Visualization(number, (neg?'-':'+') + binaryString)
-        nextTick(() => attachBitHandlers())
-        return
-      } else if (raw !== '') {
-        visualizationHtml.value = `
-          <div class="calc-section" style="text-align: center; background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1)); border: 1px solid rgba(220, 38, 38, 0.3);">
-            <div class="calc-title" style="color: #FCA5A5;">⚠ Invalid Binary Input</div>
-            <div style="color: var(--text-secondary); margin-top: 12px;">
-              Please enter a valid binary number: <code style="color: var(--gt-gold);">100.001</code>, <code style="color: var(--gt-gold);">1101</code><br>
-              or special values: <code style="color: var(--gt-gold);">inf</code>, <code style="color: var(--gt-gold);">-inf</code>, <code style="color: var(--gt-gold);">nan</code>
-            </div>
-          </div>
-        `
-        return
-      }
+        </div>
+      `
+      return
     }
 
     if (inputValue.value.trim() === '') {
@@ -505,17 +448,14 @@ export function useIEEE() {
     const dv = new DataView(buf)
     dv.setUint32(0, bits)
     const val = dv.getFloat32(0)
-    if (inputMode.value === 'decimal') {
-      inputValue.value = String(val)
-    } else {
-      const exp = (bits >>> 23) & 0xFF
-      const man = bits & 0x7FFFFF
-      const actual = exp - 127
-      const manStr = man.toString(2).padStart(23,'0')
-      const sub = exp === 0 && man !== 0
-      const plain = buildPlainBinaryFromFields(bits >>> 31, actual, manStr, sub)
-      inputValue.value = formatBinaryLiteral(plain)
-    }
+    
+    const exp = (bits >>> 23) & 0xFF
+    const man = bits & 0x7FFFFF
+    const actual = exp - 127
+    const manStr = man.toString(2).padStart(23,'0')
+    const sub = exp === 0 && man !== 0
+    const plain = buildPlainBinaryFromFields(bits >>> 31, actual, manStr, sub)
+    inputValue.value = formatBinaryLiteral(plain)
     updateVisualization()
   }
 
@@ -537,18 +477,16 @@ export function useIEEE() {
         const dv = new DataView(buf)
         dv.setUint32(0, bits)
         const val = dv.getFloat32(0)
-        if (inputMode.value === 'decimal') {
-          inputValue.value = String(val)
-        } else {
-          const sign = (bits >>> 31) & 1
-          const exp = (bits >>> 23) & 0xFF
-          const man = bits & 0x7FFFFF
-          const actual = exp - 127
-          const manStr = man.toString(2).padStart(23,'0')
-          const sub = exp === 0 && man !== 0
-          const plain = buildPlainBinaryFromFields(sign, actual, manStr, sub)
-          inputValue.value = formatBinaryLiteral(plain)
-        }
+        
+        const sign = (bits >>> 31) & 1
+        const exp = (bits >>> 23) & 0xFF
+        const man = bits & 0x7FFFFF
+        const actual = exp - 127
+        const manStr = man.toString(2).padStart(23,'0')
+        const sub = exp === 0 && man !== 0
+        const plain = buildPlainBinaryFromFields(sign, actual, manStr, sub)
+        inputValue.value = formatBinaryLiteral(plain)
+        
         updateVisualization()
       })
       ;(container as any).__attached = true
@@ -559,9 +497,6 @@ export function useIEEE() {
     inputValue,
     visualizationHtml,
     updateVisualization,
-    showHelp,
-    inputMode,
-    setInputMode,
     handleKeypress,
     handleInput,
     setSign

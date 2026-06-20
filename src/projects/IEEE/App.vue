@@ -5,11 +5,7 @@
     
     <IeeeControls
       v-model="inputValue"
-      :inputMode="inputMode"
-      :showHelp="showHelp"
-      @set-input-mode="setInputMode"
       @set-sign="setSign"
-      @toggle-help="showHelp = !showHelp"
       @input="updateVisualization"
       @keypress="handleKeypress"
     />
@@ -30,9 +26,6 @@ const {
   inputValue,
   visualizationHtml,
   updateVisualization,
-  showHelp,
-  inputMode,
-  setInputMode,
   handleKeypress,
   handleInput,
   setSign
