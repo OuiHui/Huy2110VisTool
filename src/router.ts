@@ -17,9 +17,6 @@ const routes: RouteRecordRaw[] = [
   { path: '/:pathMatch(.*)*', component: () => import('./pages/NotFound.vue'), meta: { title: 'Not Found' } }
 ];
 
-// IMPORTANT: use Vite's configured base (import.meta.env.BASE_URL) so that when the app
-// is served under a sub-path like /2110VisTool/ the root route '/' still resolves
-// correctly instead of appearing as an unknown '/2110VisTool/' path and hitting 404.
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,

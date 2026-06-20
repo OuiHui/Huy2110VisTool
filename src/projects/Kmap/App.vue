@@ -2,8 +2,8 @@
   <div class="kmap-root">
     <div class="container">
     <header>
-      <h1>Boolean Logic Simplifier</h1>
-      <p class="subtitle">Karnaugh Map Visualization & Analysis Tool</p>
+      <h1>Karnaugh Map Simplifier</h1>
+      <p class="subtitle">Click cells to toggle values — groupings and expressions update automatically.</p>
     </header>
 
     <div class="controls">
@@ -39,8 +39,7 @@
           @toggle-cell="toggleCell"
         />
         <p class="kmap-instructions">
-          Click cells to toggle between 0 and 1<br>
-          <small>K-map groupings will automatically appear below once you add values</small>
+          Click any cell to toggle between 0 and 1.
         </p>
 
         <!-- K-map Groupings Section moved here -->
@@ -170,6 +169,5 @@ export default {
 </script>
 
 <style>
-/* Import Kmap styles (scoped via kmap-root wrapper) */
 @import url('./style.css');
 </style>

@@ -15,7 +15,6 @@ function isActive(to: string) {
   if (to === '/') return false;
   if (!route.path.startsWith(to + '/')) return false;
 
-  // If we're on a nested route, prefer highlighting the most specific matching link.
   const hasMoreSpecificMatch = links.some((l) => {
     if (l.to === to) return false;
     const matches = route.path === l.to || (l.to !== '/' && route.path.startsWith(l.to + '/'));
