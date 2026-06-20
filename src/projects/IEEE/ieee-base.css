@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+.ieee-root {
+    --gt-navy: #003057;
+    --gt-gold: #B3A369;
+    --gt-light-gold: #E8D5A3;
+    --gt-dark-navy: #001a33;
+    --gt-accent: #d4a847;
+    --surface: rgba(0, 48, 87, 0.95);
+    --surface-raised: rgba(255, 255, 255, 0.04);
+    --text-primary: #f0eee9;
+    --text-secondary: #c8b98a;
+    --text-muted: rgba(200, 185, 138, 0.55);
+    --border-color: rgba(179, 163, 105, 0.2);
+    --border-strong: rgba(179, 163, 105, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 26, 51, 0.5);
+    --bit-gap: 2px;
+    --bit-font-size: 13px;
+    --label-font-size: 9.5px;
+}
+
+.ieee-root * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.ieee-root {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gt-dark-navy);
+    min-height: 100vh;
+    color: var(--text-primary);
+}
+
+.ieee-root .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem 2rem;
+}

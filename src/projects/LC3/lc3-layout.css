@@ -1,0 +1,125 @@
+.lc3-tool-root { /* leave space for fixed control panel */
+  padding-top: 12px;
+  padding-bottom: 170px; /* >= control panel height */
+  font-size: 1.05rem;
+  /* Allow the page to grow horizontally when child content expands */
+  overflow-x: visible;
+  overflow-y: auto;
+  background: var(--p-surface-0);
+  width: 100%;
+}
+
+.lc3-tool-root > header {
+  position: relative;
+  z-index: 30;
+}
+
+@media (prefers-color-scheme: dark) {
+  .lc3-tool-root {
+    background: var(--p-surface-950);
+  }
+}
+
+/* Add extra padding only on narrow screens where buttons wrap */
+@media (max-width: 1100px) {
+  .lc3-tool-root {
+    padding-bottom: 230px; /* Extra space for wrapping controls */
+  }
+}
+
+.lc3-grid { 
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 14px 20px 0;
+  height: calc(100vh - 170px);
+  min-height: 500px;
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .lc3-grid {
+    height: calc(100vh - 230px);
+  }
+}
+
+.lc3-main {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.lc3-diagram-area {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lc3-resized { 
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.lc3-resized-full {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  max-width: none;
+}
+
+.lc3-diagram-area:has(.lc3-resized-full) {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+h1 { 
+  margin: 0; 
+  line-height: 1.1; 
+}
+
+@media (max-width: 1500px) and (min-width: 1101px) { 
+  .lc3-grid { 
+    height: calc(100vh - 220px);
+  } 
+}
+
+.lc3-sidepanel {
+  position: relative;
+  width: max-content;
+  max-width: 55vw;
+  min-width: 0;
+  z-index: 35;
+  transition: max-width 200ms ease, opacity 200ms ease, margin-left 200ms ease;
+  flex-shrink: 0;
+}
+
+.lc3-sidepanel.collapsed {
+  max-width: 0;
+  opacity: 0;
+  margin-left: -16px; /* Negate the gap */
+  pointer-events: none;
+}
+
+.diagram-col { 
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+}
+.diagram-col.has-sidebar {
+  /* padding removed to stop crushing diagram artificially */
+}
