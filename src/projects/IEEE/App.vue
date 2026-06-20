@@ -1,9 +1,7 @@
 <template>
   <div class="ieee-root">
     <div class="container">
-      <h1>
-        IEEE 754 Floating Point Visualizer
-      </h1>
+      <h1>IEEE 754 Floating Point Visualizer</h1>
     
     <IeeeControls
       v-model="inputValue"
