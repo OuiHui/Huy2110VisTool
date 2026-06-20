@@ -55,7 +55,6 @@ Test it out: [https://ouihui.github.io/Huy2110VisTool/](https://ouihui.github.io
 ```
 src/
 ├── components/          # Reusable Vue components
-│   ├── LC3.vue         # LC-3 datapath SVG component
 │   └── SiteNav.vue     # Navigation component
 ├── pages/              # Page components
 │   ├── Home.vue        # Landing page with project cards

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 // Adjusted paths: all LC3 tool resources are now siblings inside projects/LC3
-// Use the canonical LC3 diagram component from the shared components directory
-import LC3 from '../../components/LC3.vue';
+// Use the canonical LC3 datapath SVG component from the projects/LC3 directory
+import LC3 from './LC3.vue';
 import Pseudocode from './Pseudocode.vue';
 import InstructionFormat from './InstructionFormat.vue';
 import SEQUENCE_DATA from './sequences';
