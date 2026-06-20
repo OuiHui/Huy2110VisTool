@@ -1,3 +1,40 @@
+/* ─── Wire color overrides ─────────────────────────────────────────────────
+   These must be global (not scoped) because the SVG elements live inside
+   Lc3SvgContent.vue — a child component that scoped CSS cannot reach.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Recolor wires that were authored as white so they stay visible in light mode */
+.wire[stroke="white"],
+.wire[stroke="#fff"],
+.wire[stroke="#FFF"],
+.wire[stroke="#ffffff"],
+.wire[stroke="#FFFFFF"] {
+    stroke: var(--lc3-wire-color, #444444);
+}
+
+.wire[fill="white"],
+.wire[fill="#fff"],
+.wire[fill="#FFF"],
+.wire[fill="#ffffff"],
+.wire[fill="#FFFFFF"] {
+    fill: var(--lc3-wire-color, #444444);
+}
+
+/* Active / highlighted wire states */
+.wire.active {
+    fill: var(--p-surface-500, #888888);
+    stroke: var(--p-surface-500, #888888);
+}
+.wire.active.active-0 { fill: #ef4444; stroke: #ef4444; } /* red-500    */
+.wire.active.active-1 { fill: #f97316; stroke: #f97316; } /* orange-500 */
+.wire.active.active-2 { fill: #eab308; stroke: #eab308; } /* yellow-500 */
+.wire.active.active-3 { fill: #22c55e; stroke: #22c55e; } /* green-500  */
+.wire.active.active-4 { fill: #3b82f6; stroke: #3b82f6; } /* blue-500   */
+.wire.active.active-5 { fill: #a855f7; stroke: #a855f7; } /* purple-500 */
+.wire.active.active-6 { fill: #ec4899; stroke: #ec4899; } /* pink-500   */
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 .lc3-sidepanel-card {
   height: 100%;
   width: fit-content;
@@ -185,9 +222,6 @@
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 -4px 16px -4px rgba(0, 0, 0, 0.4);
   }
-}
-
-@media (prefers-color-scheme: dark) {
   .lc3-sidepanel-card,
   .instruction-format-card {
     background: rgba(20, 20, 24, 0.7);

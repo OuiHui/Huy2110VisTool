@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import Lc3SvgContent from './Lc3SvgContent.vue';
 
-import { useTemplateRef, onMounted, nextTick, onUnmounted, ref } from 'vue';
+import { useTemplateRef, onMounted, nextTick, onUnmounted, ref, computed } from 'vue';
 
     const top = useTemplateRef<HTMLDivElement>("top");
     const { topInset = 0 } = defineProps<{ topInset?: number }>();
-    const svgEl = useTemplateRef<SVGSVGElement>('lc3Svg');
+    const lc3SvgComponent = useTemplateRef<{ svgEl: SVGSVGElement | null }>('lc3SvgComponent');
+    const svgEl = computed(() => lc3SvgComponent.value?.svgEl || null);
     const panZoomEl = useTemplateRef<HTMLDivElement>('panZoom');
     const scale = ref(1);
     const translateX = ref(0);
@@ -230,57 +231,6 @@ import { useTemplateRef, onMounted, nextTick, onUnmounted, ref } from 'vue';
             --lc3-wire-color: var(--p-surface-200, #dddddd);
         }
     }
-
-    /* Only override wires that were authored as white. This avoids recoloring boxes/text that have their own colors. */
-    .wire[stroke="white"],
-    .wire[stroke="#fff"],
-    .wire[stroke="#FFF"],
-    .wire[stroke="#ffffff"],
-    .wire[stroke="#FFFFFF"] {
-        stroke: var(--lc3-wire-color);
-    }
-
-    .wire[fill="white"],
-    .wire[fill="#fff"],
-    .wire[fill="#FFF"],
-    .wire[fill="#ffffff"],
-    .wire[fill="#FFFFFF"] {
-        fill: var(--lc3-wire-color);
-    }
-
-    .wire.active {
-        fill: var(--p-surface-500, #888888);
-        stroke: var(--p-surface-500, #888888);
-        animation: wire-pulse 1s infinite;
-    }
-    .wire.active.active-0 { /* red-500 */
-        fill: #ef4444; stroke: #ef4444;
-    }
-    .wire.active.active-1 { /* orange-500 */
-        fill: #f97316; stroke: #f97316;
-    }
-    .wire.active.active-2 { /* yellow-500 */
-        fill: #eab308; stroke: #eab308;
-    }
-    .wire.active.active-3 { /* green-500 */
-        fill: #22c55e; stroke: #22c55e;
-    }
-    .wire.active.active-4 { /* blue-500 */
-        fill: #3b82f6; stroke: #3b82f6;
-    }
-    .wire.active.active-5 { /* purple-500 */
-        fill: #a855f7; stroke: #a855f7;
-    }
-    .wire.active.active-6 { /* pink-500 */
-        fill: #ec4899; stroke: #ec4899;
-    }
-/*
-    @keyframes wire-pulse {
-        0% { stroke-opacity: 1; }
-        50% { stroke-opacity: 0.5; }
-        100% { stroke-opacity: 1; }
-    }
-        */
     .lc3-container {
         padding: 0;
         line-height: 0;
@@ -317,17 +267,11 @@ import { useTemplateRef, onMounted, nextTick, onUnmounted, ref } from 'vue';
             @pointerup="stopPan"
             @pointerleave="stopPan"
         >
-            <svg
-                ref="lc3Svg"
+            <Lc3SvgContent
+                ref="lc3SvgComponent"
                 class="lc3-svg"
                 :style="{ transform: `translate(${translateX}px, ${translateY}px) scale(${scale})` }"
-                width="100%"
-                viewBox="0 0 1650 1671"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-            <Lc3SvgContent />
-            </svg>
+            />
         </div>
     </div>
 </template>

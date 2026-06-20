@@ -1,4 +1,11 @@
 <template>
+  <svg
+    ref="svgRef"
+    width="100%"
+    viewBox="0 0 1650 1671"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
 <g id="Bus">
                 <path class="wire" id="Low Arrow" d="M195 1241L270 1284.3V1197.7L195 1241ZM1643 1233.5L262.5 1233.5V1248.5L1643 1248.5V1233.5Z" fill="white"/>
                 <path class="wire" id="Mid Arrow" d="M1635 1241.01L1635 49.9967" stroke="white" stroke-width="15"/>
@@ -448,4 +455,11 @@
             <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
             </filter>
             </defs>
+  </svg>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+const svgRef = ref<SVGSVGElement | null>(null);
+defineExpose({ svgEl: svgRef });
+</script>
