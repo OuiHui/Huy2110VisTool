@@ -42,6 +42,12 @@
 }
 
 /* ── K-Map grid ──────────────────────────────────────── */
+.kmap-root .kmap-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
 .kmap-root .kmap {
     display: grid;
     gap: 1px;
@@ -168,27 +174,102 @@
 }
 
 .kmap-root .group-item {
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 4px;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.6rem;
     border-left: 3px solid var(--gt-gold);
     background: rgba(179, 163, 105, 0.06);
     font-size: 0.83rem;
     line-height: 1.5;
+    transition: background 0.15s, opacity 0.2s;
+    user-select: none;
+}
+
+/* Button reset for <button> group items */
+.kmap-root .group-item-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+    outline: none;
 }
 
 .kmap-root .group-item:last-child {
     margin-bottom: 0;
 }
 
-.kmap-root .group-item strong {
+.kmap-root .group-item-btn:hover {
+    background: rgba(179, 163, 105, 0.12);
+}
+
+.kmap-root .group-item--hidden {
+    opacity: 0.38;
+}
+
+.kmap-root .group-item--hidden:hover {
+    opacity: 0.65;
+}
+
+.kmap-root .group-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.15rem;
+}
+
+.kmap-root .group-color-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.kmap-root .group-item-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.kmap-root .group-item-title strong {
     color: var(--text-secondary);
     font-weight: 600;
+}
+
+.kmap-root .group-eye-icon {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+
+.kmap-root .group-eye-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Eye is colored (gold) when the group is actively visible on the map */
+.kmap-root button.group-item-btn:hover .group-eye-icon,
+.kmap-root .group-item-btn:focus-visible .group-eye-icon {
+    color: var(--text-secondary);
+}
+
+/* Bright gold eye only when this group is actively shown on the map */
+.kmap-root .group-item--visible .group-eye-icon {
+    color: var(--gt-gold);
 }
 
 .kmap-root .group-item em {
     color: var(--text-muted);
     font-style: normal;
+    padding-left: 1.4rem;
 }
 
 .kmap-root .group-item.no-groupings {
