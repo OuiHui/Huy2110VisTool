@@ -33,12 +33,12 @@ watch(() => props.stepIndex, async () => {
           <div class="asm-pre" role="list" aria-label="Caller assembly">
             <div v-for="(line, idx) in callerAsm" :key="idx" :class="['asm-line', 'caller', { current: stepIndex === line.step }]" role="listitem">
               <template v-if="line.text.trim().length">
-                <span v-if="line.addr" class="text-surface-400 dark:text-surface-500 mr-3 select-none inline-block w-10">{{ line.addr }}</span>
-                <span v-else class="inline-block w-10 mr-3"></span>
+                <span v-if="line.addr" class="text-surface-400 dark:text-surface-500 mr-3 select-none inline-block w-12">{{ line.addr }}</span>
+                <span v-else class="inline-block w-12 mr-3"></span>
                 <span class="asm-code">{{ splitAsmComment(line.text).code }}</span><span v-if="splitAsmComment(line.text).comment" class="asm-comment"> {{ splitAsmComment(line.text).comment }}</span>
               </template>
               <template v-else>
-                <span class="inline-block w-10 mr-3"></span>
+                <span class="inline-block w-12 mr-3"></span>
                 <span class="asm-blank">&nbsp;</span>
               </template>
             </div>
@@ -49,12 +49,12 @@ watch(() => props.stepIndex, async () => {
           <div ref="calleeContainer" class="asm-pre" role="list" aria-label="Callee assembly">
             <div v-for="(line, idx) in calleeAsm" :key="idx" :class="['asm-line', 'callee', { current: stepIndex === line.step && currentActor === 'callee' }]" role="listitem">
               <template v-if="line.text.trim().length">
-                <span v-if="line.addr" class="text-surface-400 dark:text-surface-500 mr-3 select-none inline-block w-10">{{ line.addr }}</span>
-                <span v-else class="inline-block w-10 mr-3"></span>
+                <span v-if="line.addr" class="text-surface-400 dark:text-surface-500 mr-3 select-none inline-block w-12">{{ line.addr }}</span>
+                <span v-else class="inline-block w-12 mr-3"></span>
                 <span class="asm-code">{{ splitAsmComment(line.text).code }}</span><span v-if="splitAsmComment(line.text).comment" class="asm-comment"> {{ splitAsmComment(line.text).comment }}</span>
               </template>
               <template v-else>
-                <span class="inline-block w-10 mr-3"></span>
+                <span class="inline-block w-12 mr-3"></span>
                 <span class="asm-blank">&nbsp;</span>
               </template>
             </div>

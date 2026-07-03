@@ -42,7 +42,7 @@ const stepIndexModel = computed({
           <Select v-model="selectedExampleIdModel" :options="examples" optionLabel="name" optionValue="id" class="w-full text-left" />
         </label>
 
-        <div class="cc-input font-mono cc-readonly text-xs overflow-x-auto whitespace-pre bg-surface-50 dark:bg-surface-900/50 min-h-[9.5rem]">
+        <div class="cc-input font-mono cc-readonly bg-surface-50 dark:bg-surface-900/50 min-h-[9.5rem]">
 {{ selectedExample.cCode }}
         </div>
 
@@ -57,7 +57,7 @@ const stepIndexModel = computed({
         <div class="flex flex-col gap-1.5">
           <div class="flex items-start justify-between gap-2">
             <span class="text-sm font-semibold text-surface-700 dark:text-surface-200 tabular-nums whitespace-nowrap pt-0.5">Step {{ stepIndex + 1 }} / {{ steps.length }}</span>
-            <div class="text-[11px] text-surface-400 dark:text-surface-500 font-mono text-right min-h-[2.4rem] leading-[1.35]">
+            <div class="text-xs text-surface-400 dark:text-surface-500 font-mono text-right min-h-[2.4rem] leading-[1.35]">
               <div v-for="(l, i) in stepAsmLines" :key="i" class="asm-mini-line">
                 <template v-if="l.trim().length">
                   <span class="asm-code">{{ splitAsmComment(l).code }}</span>

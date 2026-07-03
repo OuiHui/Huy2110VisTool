@@ -50,6 +50,8 @@ import type { HighlightRange, PseudocodeState } from './sequences';
         max-width: 100%;
         overflow: hidden;
         overflow-wrap: anywhere;
+        font-size: 0.88rem;
+        line-height: 1.45;
     }
 
     .cy-on-disabled {

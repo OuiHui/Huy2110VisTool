@@ -4,6 +4,10 @@
   border-radius: .6rem;
   padding: .48rem .65rem;
   outline: none;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .cc-readonly {
@@ -179,9 +183,10 @@
 
 .asm-line {
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: .78rem;
+  font-size: 0.88rem;
   color: rgba(0,0,0,0.72);
   padding: .15rem .25rem;
   border-radius: .45rem;
