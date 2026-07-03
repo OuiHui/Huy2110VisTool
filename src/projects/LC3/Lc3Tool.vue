@@ -53,8 +53,12 @@ function getCycleClass(cycleIndex: number) {
   if (wireState.value.step === 0) return [];
   const isEnd = wireState.value.step >= wireState.value.wires.length;
   const currentCycle = isEnd ? wireState.value.cycle - 1 : wireState.value.cycle;
-  if (cycleIndex !== currentCycle) return [];
-  return ['is-current', `cycle-${cycleIndex}`];
+  if (cycleIndex > currentCycle) return [];
+  const classes = [`cycle-${cycleIndex}`, 'is-active'];
+  if (cycleIndex === currentCycle) {
+    classes.push('is-current');
+  }
+  return classes;
 }
 
 let lastWireActivate = 0;
@@ -161,6 +165,28 @@ function activateMacro(key: string) {
   // Remove focus from the menu item so global arrow key listener handles stepping
   (document.activeElement as HTMLElement | null)?.blur();
 }
+function goToCycle(targetCycle: number) {
+  if (targetCycle < 0 || !wireState.value.macro) return;
+  pauseDiagramLoop();
+  resetDiagramLoop(true);
+  
+  // Find the step index of the targetCycle-th CYCLE_BREAK to stop just before processing it.
+  let breakCount = 0;
+  let targetStep = wireState.value.wires.length;
+  for (let i = 0; i < wireState.value.wires.length; i++) {
+    if (wireState.value.wires[i] === CYCLE_BREAK) {
+      if (breakCount === targetCycle) {
+        targetStep = i;
+        break;
+      }
+      breakCount++;
+    }
+  }
+
+  while (wireState.value.step < targetStep) {
+    stepFwd();
+  }
+}
 </script>
 <template>
   <div class="flex flex-col h-full lc3-tool-root">
@@ -217,7 +243,7 @@ function activateMacro(key: string) {
               <div class="lc3-cycle-list">
                 <div class="lc3-cycle-title">Cycle Details</div>
                 <div v-if="cycleDescriptions.length" class="flex flex-col gap-2">
-                  <div v-for="cycle in cycleDescriptions" :key="cycle.index" :class="['lc3-cycle-row', getCycleClass(cycle.index - 1)]">
+                  <div v-for="cycle in cycleDescriptions" :key="cycle.index" :class="['lc3-cycle-row', getCycleClass(cycle.index - 1)]" @click="goToCycle(cycle.index - 1)">
                     <div class="lc3-cycle-label">Cycle {{ cycle.index }}</div>
                     <div class="lc3-cycle-text">{{ cycle.text }}</div>
                   </div>

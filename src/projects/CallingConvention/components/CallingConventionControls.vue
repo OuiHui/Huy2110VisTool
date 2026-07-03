@@ -49,8 +49,12 @@ const stepIndexModel = computed({
         <Divider class="!my-0" />
 
         <div class="flex items-center gap-2">
-          <Button size="small" @click="$emit('prev')" :disabled="stepIndex === 0">Prev</Button>
-          <Button size="small" @click="$emit('next')" :disabled="stepIndex === steps.length - 1">Next</Button>
+          <Button size="small" aria-label="Step Backward" v-tooltip.top="'Step Backward'" @click="$emit('prev')" :disabled="stepIndex === 0">
+            <mdi-step-backward />
+          </Button>
+          <Button size="small" aria-label="Step Forward" v-tooltip.top="'Step Forward'" @click="$emit('next')" :disabled="stepIndex === steps.length - 1">
+            <mdi-step-forward />
+          </Button>
           <Button size="small" severity="secondary" @click="$emit('reset')">Reset</Button>
         </div>
 
@@ -84,4 +88,4 @@ const stepIndexModel = computed({
       </div>
     </template>
   </Card>
-</template>
+</template>

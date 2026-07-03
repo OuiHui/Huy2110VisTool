@@ -89,60 +89,67 @@
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lc3-cycle-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .lc3-cycle-row.is-current {
   border-width: 1px 1px 1px 4px;
 }
 
-.lc3-cycle-row.is-current.cycle-0 {
+.lc3-cycle-row.is-active.cycle-0 {
   border-color: #ef4444;
 }
-.lc3-cycle-row.is-current.cycle-1 {
+.lc3-cycle-row.is-active.cycle-1 {
   border-color: #f97316;
 }
-.lc3-cycle-row.is-current.cycle-2 {
+.lc3-cycle-row.is-active.cycle-2 {
   border-color: #eab308;
 }
-.lc3-cycle-row.is-current.cycle-3 {
+.lc3-cycle-row.is-active.cycle-3 {
   border-color: #22c55e;
 }
-.lc3-cycle-row.is-current.cycle-4 {
+.lc3-cycle-row.is-active.cycle-4 {
   border-color: #3b82f6;
 }
-.lc3-cycle-row.is-current.cycle-5 {
+.lc3-cycle-row.is-active.cycle-5 {
   border-color: #a855f7;
 }
-.lc3-cycle-row.is-current.cycle-6 {
+.lc3-cycle-row.is-active.cycle-6 {
   border-color: #ec4899;
 }
 
-.lc3-cycle-row.is-current.cycle-0 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-0 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-0 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-0 .lc3-cycle-text {
   color: #ef4444;
 }
-.lc3-cycle-row.is-current.cycle-1 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-1 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-1 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-1 .lc3-cycle-text {
   color: #f97316;
 }
-.lc3-cycle-row.is-current.cycle-2 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-2 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-2 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-2 .lc3-cycle-text {
   color: #eab308;
 }
-.lc3-cycle-row.is-current.cycle-3 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-3 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-3 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-3 .lc3-cycle-text {
   color: #22c55e;
 }
-.lc3-cycle-row.is-current.cycle-4 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-4 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-4 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-4 .lc3-cycle-text {
   color: #3b82f6;
 }
-.lc3-cycle-row.is-current.cycle-5 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-5 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-5 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-5 .lc3-cycle-text {
   color: #a855f7;
 }
-.lc3-cycle-row.is-current.cycle-6 .lc3-cycle-label,
-.lc3-cycle-row.is-current.cycle-6 .lc3-cycle-text {
+.lc3-cycle-row.is-active.cycle-6 .lc3-cycle-label,
+.lc3-cycle-row.is-active.cycle-6 .lc3-cycle-text {
   color: #ec4899;
 }
 

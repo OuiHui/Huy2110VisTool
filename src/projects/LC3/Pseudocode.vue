@@ -27,14 +27,11 @@ import type { HighlightRange, PseudocodeState } from './sequences';
 
     /**
      * Determines which classes should be provided in the pseudocode
-     * based on the current cycle number and running state.
+     * based on the current cycle number.
      */
-    function getAllEnabledClasses(cycle: number, running: boolean) {
+    function getAllEnabledClasses(cycle: number) {
         let cls = Array.from({ length: cycle }, (_, i) => `cy-done-${i}`);
-        if (running) {
-            cls.push(`cy-active-${cycle}`);
-        }
-
+        cls.push(`cy-active-${cycle}`);
         return cls;
     }
 </script>
@@ -104,7 +101,7 @@ import type { HighlightRange, PseudocodeState } from './sequences';
 <template>
     <div
         class="pseudocode-container"
-        :class="getAllEnabledClasses(cycle, running)"
+        :class="getAllEnabledClasses(cycle)"
     >
         <span v-for="{start, end, cycle: c} of highlightRanges"
         class="font-mono transition-colors"

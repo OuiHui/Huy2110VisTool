@@ -31,7 +31,7 @@ function isActive(to: string) {
     <div class="nav-inner">
       <RouterLink to="/" class="brand" aria-label="Home">
         <span class="logo">2110</span>
-        <span class="brand-text">Vis Tool</span>
+        <span class="brand-text">Vis-Tool</span>
       </RouterLink>
       <ul class="nav-links" role="list">
         <li v-for="l in links" :key="l.to">

@@ -27,7 +27,7 @@ const {
   <div class="cc-page-shell">
     <div class="cc-page-inner">
       <header class="cc-page-header">
-        <h1 class="text-2xl font-bold tracking-tight text-center text-surface-900 dark:text-surface-50">
+        <h1 class="text-2xl font-bold tracking-tight text-center cc-page-title">
           LC-3 Calling Convention Visualizer
         </h1>
       </header>

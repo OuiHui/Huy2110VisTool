@@ -1,31 +1,36 @@
-.cc-input {
-  border: 1px solid rgba(0,0,0,0.15);
-  background: rgba(255,255,255,0.9);
-  border-radius: .6rem;
-  padding: .48rem .65rem;
-  outline: none;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-}
-
-.cc-readonly {
-  user-select: text;
-}
-
-@media (prefers-color-scheme: dark) {
-  .cc-input {
-    border-color: rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.92);
-  }
-}
-
-/* ── Viewport-height shell ── */
+/* ── Georgia Tech Navy Theme Colors ── */
 .cc-page-shell {
+  --gt-navy: #003057;
+  --gt-gold: #B3A369;
+  --gt-light-gold: #E8D5A3;
+  --gt-dark-navy: #001a33;
+  --gt-accent: #d4a847;
+  --surface: rgba(0, 48, 87, 0.95);
+  --surface-raised: rgba(255, 255, 255, 0.04);
+  --text-primary: #f0eee9;
+  --text-secondary: #c8b98a;
+  --text-muted: rgba(200, 185, 138, 0.55);
+  --border-color: rgba(179, 163, 105, 0.2);
+  --border-strong: rgba(179, 163, 105, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 26, 51, 0.5);
+
+  /* Actor Colors */
+  --caller-color: var(--gt-accent);
+  --caller-border: rgba(212, 168, 71, 0.4);
+  --caller-bg: rgba(212, 168, 71, 0.12);
+  --caller-bg-current: rgba(212, 168, 71, 0.22);
+  --caller-outline: rgba(212, 168, 71, 0.35);
+
+  --callee-color: #4ade80;
+  --callee-border: rgba(74, 222, 128, 0.4);
+  --callee-bg: rgba(74, 222, 128, 0.12);
+  --callee-bg-current: rgba(74, 222, 128, 0.22);
+  --callee-outline: rgba(74, 222, 128, 0.35);
+
   position: fixed;
-  top: 56px;   /* height of SiteNav */
+  top: 56px;
+  /* height of SiteNav */
   left: 0;
   right: 0;
   bottom: 0;
@@ -34,9 +39,29 @@
   overflow: hidden;
   padding: .5rem 1rem;
   box-sizing: border-box;
+  background: var(--gt-dark-navy);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Centered inner container with max-width */
+.cc-input {
+  border: 1px solid var(--border-color) !important;
+  background: rgba(0, 26, 51, 0.4) !important;
+  border-radius: .6rem;
+  padding: .48rem .65rem;
+  outline: none;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  color: var(--text-primary) !important;
+}
+
+.cc-readonly {
+  user-select: text;
+}
+
+/* ── Centered inner container with max-width ── */
 .cc-page-inner {
   width: 100%;
   max-width: 1600px;
@@ -51,7 +76,11 @@
   margin-bottom: .5rem;
 }
 
-/* 2-column: narrow sidebar + right content */
+.cc-page-title {
+  color: var(--gt-light-gold) !important;
+}
+
+/* ── 2-column: narrow sidebar + right content ── */
 .cc-main-layout {
   flex: 1;
   display: flex;
@@ -70,7 +99,7 @@
   overflow: hidden;
 }
 
-.cc-sidebar > * {
+.cc-sidebar>* {
   min-height: 0;
   overflow-y: auto;
 }
@@ -99,7 +128,7 @@
 }
 
 /* Make PrimeVue Cards inside asm-row fill height */
-.cc-asm-row > .p-card {
+.cc-asm-row>.p-card {
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -107,7 +136,7 @@
   flex-direction: column;
 }
 
-.cc-asm-row > .p-card > .p-card-body {
+.cc-asm-row>.p-card>.p-card-body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -115,7 +144,7 @@
   flex-direction: column;
 }
 
-.cc-asm-row > .p-card > .p-card-body > .p-card-content {
+.cc-asm-row>.p-card>.p-card-body>.p-card-content {
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -123,6 +152,104 @@
   flex-direction: column;
 }
 
+/* ── PrimeVue Components Theme Overrides ── */
+.cc-page-shell .p-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.cc-page-shell .p-card-title {
+  color: var(--gt-light-gold) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+}
+
+.cc-page-shell .p-divider {
+  border-color: var(--border-color) !important;
+}
+
+/* Select element */
+.cc-page-shell .p-select {
+  background: rgba(0, 26, 51, 0.5) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.cc-page-shell .p-select-label {
+  color: var(--text-primary) !important;
+  font-size: 0.88rem !important;
+}
+
+.cc-page-shell .p-select-dropdown {
+  color: var(--text-secondary) !important;
+}
+
+/* Select panel overlay */
+.p-select-overlay {
+  background: var(--gt-dark-navy) !important;
+  border: 1px solid var(--border-strong) !important;
+}
+
+.p-select-option {
+  color: var(--text-secondary) !important;
+  font-size: 0.88rem !important;
+}
+
+.p-select-option:hover {
+  background: rgba(179, 163, 105, 0.1) !important;
+  color: var(--gt-light-gold) !important;
+}
+
+.p-select-option.p-select-option-selected {
+  background: var(--gt-gold) !important;
+  color: var(--gt-dark-navy) !important;
+}
+
+/* Buttons */
+.cc-page-shell .p-button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: background 0.15s, border-color 0.15s, color 0.15s !important;
+}
+
+.cc-page-shell .p-button:hover:not(:disabled) {
+  background: rgba(179, 163, 105, 0.1) !important;
+  border-color: var(--gt-gold) !important;
+  color: var(--gt-light-gold) !important;
+}
+
+.cc-page-shell .p-button:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+.cc-page-shell .p-button[data-pc-severity="secondary"] {
+  color: var(--text-muted) !important;
+}
+
+.cc-page-shell .p-button[data-pc-severity="secondary"]:hover:not(:disabled) {
+  color: var(--text-secondary) !important;
+}
+
+/* Slider */
+.cc-page-shell .p-slider {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.cc-page-shell .p-slider-range {
+  background: var(--gt-gold) !important;
+}
+
+.cc-page-shell .p-slider-handle {
+  background: var(--gt-light-gold) !important;
+  border: 2px solid var(--gt-gold) !important;
+}
+
+/* ── Actor Chips ── */
 .actor-chip {
   font-size: .72rem;
   font-weight: 950;
@@ -130,23 +257,57 @@
   text-transform: uppercase;
   padding: .2rem .75rem;
   border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.12);
-  color: rgba(0,0,0,0.75);
-  background: rgba(0,0,0,0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.actor-chip.caller { border-color: rgba(0, 96, 168, 0.35); background: rgba(0, 96, 168, 0.12); }
-.actor-chip.callee { border-color: rgba(0, 160, 96, 0.35); background: rgba(0, 160, 96, 0.12); }
-
-@media (prefers-color-scheme: dark) {
-  .actor-chip { border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.06); }
-  .actor-chip.caller { border-color: rgba(0, 96, 168, 0.55); background: rgba(0, 96, 168, 0.22); }
-  .actor-chip.callee { border-color: rgba(0, 160, 96, 0.55); background: rgba(0, 160, 96, 0.22); }
+.actor-chip.caller {
+  border-color: var(--caller-border) !important;
+  background: var(--caller-bg) !important;
+  color: var(--caller-color) !important;
 }
 
-.asm { display: grid; grid-template-columns: 1fr; gap: .75rem; min-width: 0; flex: 1; min-height: 0; overflow: hidden; }
+.actor-chip.callee {
+  border-color: var(--callee-border) !important;
+  background: var(--callee-bg) !important;
+  color: var(--callee-color) !important;
+}
+
+/* ── Active Guide Steps ── */
+.cc-caller-active {
+  color: var(--caller-color) !important;
+  font-weight: 700 !important;
+}
+
+.cc-callee-active {
+  color: var(--callee-color) !important;
+  font-weight: 700 !important;
+}
+
+.cc-caller-text {
+  color: var(--caller-color) !important;
+}
+
+.cc-callee-text {
+  color: var(--callee-color) !important;
+}
+
+/* ── Assembly Column & Pre Area ── */
+.asm {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .75rem;
+  min-width: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 @media (min-width: 640px) {
-  .asm { grid-template-columns: 0.85fr 1.15fr; }
+  .asm {
+    grid-template-columns: 0.85fr 1.15fr;
+  }
 }
 
 .asm-col {
@@ -164,13 +325,19 @@
   font-weight: 950;
   margin-bottom: .4rem;
 }
-.asm-head.caller { color: rgba(0, 96, 168, 0.9); }
-.asm-head.callee { color: rgba(0, 160, 96, 0.9); }
+
+.asm-head.caller {
+  color: var(--caller-color) !important;
+}
+
+.asm-head.callee {
+  color: var(--callee-color) !important;
+}
 
 .asm-pre {
   border-radius: .75rem;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border-color) !important;
+  background: rgba(0, 26, 51, 0.4) !important;
   padding: .4rem .5rem;
   overflow-y: auto;
   overflow-x: hidden;
@@ -187,26 +354,107 @@
   overflow-wrap: anywhere;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.88rem;
-  color: rgba(0,0,0,0.72);
+  color: var(--text-primary) !important;
   padding: .15rem .25rem;
   border-radius: .45rem;
 }
 
-.asm-code { color: inherit; }
-.asm-comment { color: rgba(0,0,0,0.48); }
-.asm-blank { display: inline-block; min-width: 1px; }
+.asm-code {
+  color: inherit;
+}
 
-.asm-mini-line { line-height: 1.2; }
+.asm-comment {
+  color: var(--text-muted) !important;
+}
 
-.asm-line.current.caller { background: rgba(0, 96, 168, 0.14); outline: 1px solid rgba(0, 96, 168, 0.22); }
-.asm-line.current.callee { background: rgba(0, 160, 96, 0.14); outline: 1px solid rgba(0, 160, 96, 0.22); }
+.asm-blank {
+  display: inline-block;
+  min-width: 1px;
+}
 
-@media (prefers-color-scheme: dark) {
-  .asm-pre { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); }
-  .asm-line { color: rgba(255,255,255,0.88); }
-  .asm-comment { color: rgba(255,255,255,0.58); }
-  .asm-head.caller { color: rgba(0, 96, 168, 0.85); }
-  .asm-head.callee { color: rgba(0, 160, 96, 0.85); }
-  .asm-line.current.caller { background: rgba(0, 96, 168, 0.22); outline-color: rgba(0, 96, 168, 0.35); }
-  .asm-line.current.callee { background: rgba(0, 160, 96, 0.22); outline-color: rgba(0, 160, 96, 0.35); }
+.asm-mini-line {
+  line-height: 1.2;
+}
+
+.asm-line.current.caller {
+  background: var(--caller-bg-current) !important;
+  outline: 1px solid var(--caller-outline) !important;
+}
+
+.asm-line.current.callee {
+  background: var(--callee-bg-current) !important;
+  outline: 1px solid var(--callee-outline) !important;
+}
+
+/* ── Stack Diagram & Slot Items ── */
+.stack-diagram {
+  border-radius: 6px;
+  overflow: hidden;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.stack-item {
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: 1px solid var(--border-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  background: rgba(0, 26, 51, 0.35);
+  color: var(--text-primary);
+}
+
+.stack-item.ellipsis {
+  background: rgba(0, 26, 51, 0.55);
+}
+
+.stack-item.local {
+  background: rgba(0, 26, 51, 0.2);
+}
+
+.stack-item.arg {
+  background: rgba(212, 168, 71, 0.06);
+  border-bottom-color: rgba(212, 168, 71, 0.15) !important;
+}
+
+.stack-item .flex-1 {
+  border-left: 1px solid var(--border-color) !important;
+}
+
+.stack-item .w-20 {
+  border-left: 1px solid var(--border-color) !important;
+  color: var(--text-muted);
+}
+
+.stack-item .value-resolved {
+  color: var(--text-primary) !important;
+}
+
+/* Active highlighting states */
+.stack-item.active-step {
+  background: rgba(179, 163, 105, 0.2) !important;
+  border-bottom-color: var(--gt-gold) !important;
+  box-shadow: inset 0 0 0 1px var(--gt-gold) !important;
+  z-index: 10;
+}
+
+.stack-item.arg.active-step {
+  background: var(--caller-bg-current) !important;
+  border-bottom-color: var(--caller-color) !important;
+}
+
+.stack-item.return-value.active-step,
+.stack-item.return-addr.active-step,
+.stack-item.old-r5.active-step {
+  background: var(--callee-bg-current) !important;
+  border-bottom-color: var(--callee-color) !important;
+}
+
+/* Stack pointer labels */
+.stack-ptr-r6 {
+  color: var(--gt-accent) !important;
+}
+
+.stack-ptr-r5 {
+  color: #4ade80 !important;
 }
