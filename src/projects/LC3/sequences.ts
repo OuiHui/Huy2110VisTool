@@ -75,7 +75,7 @@ const DISABLED = "disabled";
  */
 function pseudocode(parts: TemplateStringsArray | string, ...subs: [string, HighlightRange["cycle"]][]): PseudocodeState {
     if (typeof parts === "string") return { source: dedent(parts), highlights: [] };
-    
+
     let template = dedent(parts.join("{@}"));
     let highlights: HighlightRange[] = [];
 
@@ -127,7 +127,7 @@ const sequences: Record<string, MacroData> = {
                 "1 (LD.PC)",
                 "PC selector",
                 "PC (shape)"
-        ], [
+            ], [
                 "MAR to MEMORY",
                 "0 (RW)",
                 "RW selector",
@@ -144,7 +144,7 @@ const sequences: Record<string, MacroData> = {
                 "1 (LD.MDR)",
                 "MDR selector",
                 "MDR (shape)"
-        ], [
+            ], [
                 "1 (Gate.MDR)",
                 "GateMDR selector",
                 "GateMDR (shape)",
@@ -157,9 +157,9 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Place PC on the bus, load MAR, and increment PC.",
-            "Read memory at MAR into MDR.",
-            "Load IR from MDR."
+            "Move PC value (address) into MAR and increment PC.",
+            "Read instruction using address in MAR into MDR.",
+            "Load IR with instruction from MDR."
         ]
     },
     "ADD_REG": {
@@ -222,9 +222,9 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Read SR1 and SR2, add in ALU, write to DR, update CC."
+            "Register Mode: Add (in ALU), write to DR, set Condition Code."
         ]
-        
+
 
     },
     "ADD_IMM": {
@@ -264,15 +264,15 @@ const sequences: Record<string, MacroData> = {
                 "ALU to BUS",
                 "Low Arrow",
                 "BUS to CC (1)",
-                    "logic (rect)",
-                    "BUS to CC (2)",
-                    "1 (LD.CC)",
-                    "CC selector",
-                    "CC (shape)",
-                    "CC to FSM (1)",
-                    "CC to FSM (2)",
-                    "FSM (shape)",
-                    "Low Arrow",
+                "logic (rect)",
+                "BUS to CC (2)",
+                "1 (LD.CC)",
+                "CC selector",
+                "CC (shape)",
+                "CC to FSM (1)",
+                "CC to FSM (2)",
+                "FSM (shape)",
+                "Low Arrow",
                 "Mid Arrow",
                 "Top Arrow",
                 "Bus to Register",
@@ -289,7 +289,7 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Read SR1 and imm5, add in ALU, write to DR, update CC."
+            "Immediate Mode: Add (in ALU), write to DR, set Condition Code."
         ]
     },
     "AND_IMM": {
@@ -329,15 +329,15 @@ const sequences: Record<string, MacroData> = {
                 "ALU to BUS",
                 "Low Arrow",
                 "BUS to CC (1)",
-                    "logic (rect)",
-                    "BUS to CC (2)",
-                    "1 (LD.CC)",
-                    "CC selector",
-                    "CC (shape)",
-                    "CC to FSM (1)",
-                    "CC to FSM (2)",
-                    "FSM (shape)",
-                    "Low Arrow",
+                "logic (rect)",
+                "BUS to CC (2)",
+                "1 (LD.CC)",
+                "CC selector",
+                "CC (shape)",
+                "CC to FSM (1)",
+                "CC to FSM (2)",
+                "FSM (shape)",
+                "Low Arrow",
                 "Mid Arrow",
                 "Top Arrow",
                 "Bus to Register",
@@ -354,7 +354,7 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Read SR1 and imm5, AND in ALU, write to DR, update CC."
+            "Immediate Mode: AND (in ALU), write to DR, set Condition Code."
         ]
     },
     "AND_REG": {
@@ -417,7 +417,7 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Read SR1 and SR2, AND in ALU, write to DR, update CC."
+            "Register Mode: AND (in ALU), write to DR, set Condition Code."
         ]
     },
     "NOT": {
@@ -445,15 +445,15 @@ const sequences: Record<string, MacroData> = {
                 "ALU to BUS",
                 "Low Arrow",
                 "BUS to CC (1)",
-                    "logic (rect)",
-                    "BUS to CC (2)",
-                    "1 (LD.CC)",
-                    "CC selector",
-                    "CC (shape)",
-                    "CC to FSM (1)",
-                    "CC to FSM (2)",
-                    "FSM (shape)",
-                    "Low Arrow",
+                "logic (rect)",
+                "BUS to CC (2)",
+                "1 (LD.CC)",
+                "CC selector",
+                "CC (shape)",
+                "CC to FSM (1)",
+                "CC to FSM (2)",
+                "FSM (shape)",
+                "Low Arrow",
                 "Mid Arrow",
                 "Top Arrow",
                 "Bus to Register",
@@ -470,7 +470,7 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Read SR1, bitwise NOT in ALU, write to DR, update CC."
+            "Bitwise NOT (in ALU), write to DR, set Condition Code."
         ]
     },
     "LD": {
@@ -483,7 +483,7 @@ const sequences: Record<string, MacroData> = {
             [
                 "IR to ZEXT/SEXT (1)",
                 "IR to ZEXT/SEXT (2)",
-                "Bus to SEXT [8:0]", 
+                "Bus to SEXT [8:0]",
                 "SEXT[8:0] (shape)",
                 "SEXT9 to MUX (1)",
                 "SEXT9 to MUX (2)",
@@ -494,7 +494,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -543,15 +543,15 @@ const sequences: Record<string, MacroData> = {
                 "MDR to BUS",
                 "Low Arrow",
                 "BUS to CC (1)",
-                    "logic (rect)",
-                    "BUS to CC (2)",
-                    "1 (LD.CC)",
-                    "CC selector",
-                    "CC (shape)",
-                    "CC to FSM (1)",
-                    "CC to FSM (2)",
-                    "FSM (shape)",
-                    "Low Arrow",
+                "logic (rect)",
+                "BUS to CC (2)",
+                "1 (LD.CC)",
+                "CC selector",
+                "CC (shape)",
+                "CC to FSM (1)",
+                "CC to FSM (2)",
+                "FSM (shape)",
+                "Low Arrow",
                 "Mid Arrow",
                 "Top Arrow",
                 "Bus to Register",
@@ -569,7 +569,7 @@ const sequences: Record<string, MacroData> = {
         ],
         "cycleDescriptions": [
             "Compute PC-relative address and load MAR.",
-            "Read memory into MDR.",
+            "Read memory value into MDR.",
             "Write MDR to DR and update CC."
         ]
     },
@@ -583,7 +583,7 @@ const sequences: Record<string, MacroData> = {
             [
                 "IR to ZEXT/SEXT (1)",
                 "IR to ZEXT/SEXT (2)",
-                "Bus to SEXT [8:0]", 
+                "Bus to SEXT [8:0]",
                 "SEXT[8:0] (shape)",
                 "SEXT9 to MUX (1)",
                 "SEXT9 to MUX (2)",
@@ -594,7 +594,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -609,7 +609,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR to MARMUX (3)",
                 "1 (MARMUX selector)",
                 "MARMUX selector",
-                "MARMUX (shape)",               
+                "MARMUX (shape)",
                 "1 (GateMARMUX)",
                 "GateMARMUX selector",
                 "GateMARMUX (shape)",
@@ -668,15 +668,15 @@ const sequences: Record<string, MacroData> = {
                 "MDR to BUS",
                 "Low Arrow",
                 "BUS to CC (1)",
-                    "logic (rect)",
-                    "BUS to CC (2)",
-                    "1 (LD.CC)",
-                    "CC selector",
-                    "CC (shape)",
-                    "CC to FSM (1)",
-                    "CC to FSM (2)",
-                    "FSM (shape)",
-                    "Low Arrow",
+                "logic (rect)",
+                "BUS to CC (2)",
+                "1 (LD.CC)",
+                "CC selector",
+                "CC (shape)",
+                "CC to FSM (1)",
+                "CC to FSM (2)",
+                "FSM (shape)",
+                "Low Arrow",
                 "Mid Arrow",
                 "Top Arrow",
                 "Bus to Register",
@@ -693,11 +693,11 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Compute PC-relative address and load MAR.",
-            "Read memory into MDR.",
-            "Load MAR with pointer from MDR.",
-            "Read memory at pointer into MDR.",
-            "Write MDR to DR and update CC."
+            "Compute PC-indirect address (address of address) and load MAR.",
+            "Read memory value (address) into MDR.",
+            "Transfer address from MDR to MAR for reading at this address.",
+            "Read memory (value) into MDR.",
+            "Write MDR (value) into DR and update CC."
         ]
     },
     "LDR": {
@@ -742,7 +742,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR to MARMUX (3)",
                 "1 (MARMUX selector)",
                 "MARMUX selector",
-                "MARMUX (shape)",               
+                "MARMUX (shape)",
                 "1 (GateMARMUX)",
                 "GateMARMUX selector",
                 "GateMARMUX (shape)",
@@ -777,15 +777,15 @@ const sequences: Record<string, MacroData> = {
                 "MDR to BUS",
                 "Low Arrow",
                 "BUS to CC (1)",
-                    "logic (rect)",
-                    "BUS to CC (2)",
-                    "1 (LD.CC)",
-                    "CC selector",
-                    "CC (shape)",
-                    "CC to FSM (1)",
-                    "CC to FSM (2)",
-                    "FSM (shape)",
-                    "Low Arrow",
+                "logic (rect)",
+                "BUS to CC (2)",
+                "1 (LD.CC)",
+                "CC selector",
+                "CC (shape)",
+                "CC to FSM (1)",
+                "CC to FSM (2)",
+                "FSM (shape)",
+                "Low Arrow",
                 "Mid Arrow",
                 "Top Arrow",
                 "Bus to Register",
@@ -803,7 +803,7 @@ const sequences: Record<string, MacroData> = {
         ],
         "cycleDescriptions": [
             "Compute BaseR + offset and load MAR.",
-            "Read memory into MDR.",
+            "Read memory value into.MDR.",
             "Write MDR to DR and update CC."
         ]
     },
@@ -816,7 +816,7 @@ const sequences: Record<string, MacroData> = {
             [
                 "IR to ZEXT/SEXT (1)",
                 "IR to ZEXT/SEXT (2)",
-                "Bus to SEXT [8:0]", 
+                "Bus to SEXT [8:0]",
                 "SEXT[8:0] (shape)",
                 "SEXT9 to MUX (1)",
                 "SEXT9 to MUX (2)",
@@ -827,7 +827,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -907,7 +907,7 @@ const sequences: Record<string, MacroData> = {
             [
                 "IR to ZEXT/SEXT (1)",
                 "IR to ZEXT/SEXT (2)",
-                "Bus to SEXT [8:0]", 
+                "Bus to SEXT [8:0]",
                 "SEXT[8:0] (shape)",
                 "SEXT9 to MUX (1)",
                 "SEXT9 to MUX (2)",
@@ -918,7 +918,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -933,7 +933,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR to MARMUX (3)",
                 "1 (MARMUX selector)",
                 "MARMUX selector",
-                "MARMUX (shape)",               
+                "MARMUX (shape)",
                 "1 (GateMARMUX)",
                 "GateMARMUX selector",
                 "GateMARMUX (shape)",
@@ -1008,11 +1008,11 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Compute PC-relative address and load MAR.",
-            "Read memory into MDR.",
-            "Load MAR with pointer from MDR.",
-            "Move SR onto bus and load MDR.",
-            "Write MDR to memory at MAR."
+            "Compute PC-indirect address (address of address) and load MAR.",
+            "Read memory value (address) into MDR.",
+            "Transfer address from MDR to MAR for writing at this address.",
+            "Move data value (from Source Register) into MDR.",
+            "Write value (from MDR) to memory at address (from MAR)."
         ]
     },
     "STR": {
@@ -1056,7 +1056,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR to MARMUX (3)",
                 "1 (MARMUX selector)",
                 "MARMUX selector",
-                "MARMUX (shape)",               
+                "MARMUX (shape)",
                 "1 (GateMARMUX)",
                 "GateMARMUX selector",
                 "GateMARMUX (shape)",
@@ -1106,9 +1106,9 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Compute BaseR + offset and load MAR.",
-            "Move SR onto bus and load MDR.",
-            "Write MDR to memory at MAR."
+            "Compute address (baseR + offset6) and load MAR.",
+            "Move data value (from Source Register) into MDR.",
+            "Write value (from MDR) to memory at address (from MAR)."
         ]
     },
     "LEA": {
@@ -1120,7 +1120,7 @@ const sequences: Record<string, MacroData> = {
             [
                 "IR to ZEXT/SEXT (1)",
                 "IR to ZEXT/SEXT (2)",
-                "Bus to SEXT [8:0]", 
+                "Bus to SEXT [8:0]",
                 "SEXT[8:0] (shape)",
                 "SEXT9 to MUX (1)",
                 "SEXT9 to MUX (2)",
@@ -1131,7 +1131,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -1179,7 +1179,7 @@ const sequences: Record<string, MacroData> = {
             [
                 "IR to ZEXT/SEXT (1)",
                 "IR to ZEXT/SEXT (2)",
-                "Bus to SEXT [8:0]", 
+                "Bus to SEXT [8:0]",
                 "SEXT[8:0] (shape)",
                 "SEXT9 to MUX (1)",
                 "SEXT9 to MUX (2)",
@@ -1190,7 +1190,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -1273,7 +1273,7 @@ const sequences: Record<string, MacroData> = {
                 "1 (GatePC)",
                 "GatePC selector",
                 "GatePC (shape)",
-                "PC to BUS",      
+                "PC to BUS",
                 "Top Arrow",
                 "Bus to Register",
                 "01 (DRMUX selector)",
@@ -1299,7 +1299,7 @@ const sequences: Record<string, MacroData> = {
                 "ADDR2MUX to ADDR (2)",
                 "ADDR2MUX to ADDR (3)",
                 "PC to MUXES (joint line)",
-                "PC to ADDR1MUX(1)", 
+                "PC to ADDR1MUX(1)",
                 "PC to ADDR1MUX(2)",
                 "PC to ADDR1MUX(3)",
                 "0 (ADDR1MUX selector)",
@@ -1321,7 +1321,7 @@ const sequences: Record<string, MacroData> = {
             ]
         ],
         "cycleDescriptions": [
-            "Save PC to R7, compute PC-relative target, and update PC."
+            "Save PC to R7, compute PC-relative target, update PC."
         ]
     },
     "JSRR": {
