@@ -39,7 +39,7 @@ const stepIndexModel = computed({
       <div class="flex flex-col gap-2.5">
         <label class="flex flex-col gap-1">
           <span class="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide">Example</span>
-          <Select v-model="selectedExampleIdModel" :options="examples" optionLabel="name" optionValue="id" class="w-full text-left" />
+          <Select v-model="selectedExampleIdModel" :options="examples" optionLabel="name" optionValue="id" class="w-full text-left" overlayClass="cc-select-overlay" />
         </label>
 
         <div class="cc-input font-mono cc-readonly bg-surface-50 dark:bg-surface-900/50 min-h-[9.5rem]">

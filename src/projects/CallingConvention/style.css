@@ -188,22 +188,30 @@
 }
 
 /* Select panel overlay */
-.p-select-overlay {
+.cc-select-overlay {
+  --gt-dark-navy: #001a33;
+  --border-strong: rgba(179, 163, 105, 0.4);
+  --text-secondary: #c8b98a;
+  --gt-light-gold: #E8D5A3;
+  --gt-gold: #B3A369;
+}
+
+.cc-select-overlay.p-select-overlay {
   background: var(--gt-dark-navy) !important;
   border: 1px solid var(--border-strong) !important;
 }
 
-.p-select-option {
+.cc-select-overlay .p-select-option {
   color: var(--text-secondary) !important;
   font-size: 0.88rem !important;
 }
 
-.p-select-option:hover {
+.cc-select-overlay .p-select-option:hover {
   background: rgba(179, 163, 105, 0.1) !important;
   color: var(--gt-light-gold) !important;
 }
 
-.p-select-option.p-select-option-selected {
+.cc-select-overlay .p-select-option.p-select-option-selected {
   background: var(--gt-gold) !important;
   color: var(--gt-dark-navy) !important;
 }
