@@ -123,7 +123,7 @@ export const examples: CallingConventionExample[] = [
       'LDR R0, R5, #4    ; load a',
       'LDR R1, R5, #5    ; load b',
       'ADD R0, R0, R1    ; a + b',
-      'STR R0, R5, #0    ; store sum',
+      'STR R0, R5, #3    ; store sum',
       '; ------------'
     ]
   },
@@ -150,7 +150,7 @@ export const examples: CallingConventionExample[] = [
       'RECURSE:',
       '                 ; (omitted FACTORIAL(n-1) call)',
       'DONE:',
-      'STR R0, R5, #0    ; store temp',
+      'STR R0, R5, #3    ; store temp',
       '; ------------'
     ]
   },
@@ -196,6 +196,10 @@ export const examples: CallingConventionExample[] = [
       'LDR R1, R5, #7    ; load d',
       'ADD R0, R0, R1    ; c + d',
       'STR R0, R5, #-1   ; store s2',
+      'LDR R0, R5, #0    ; load s1',
+      'LDR R1, R5, #-1   ; load s2',
+      'ADD R0, R0, R1    ; s1 + s2',
+      'STR R0, R5, #3    ; store return value',
       '; ------------'
     ]
   }
