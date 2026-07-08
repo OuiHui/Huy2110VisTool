@@ -51,3 +51,16 @@ export type AsmLine = {
   step: number;
   addr?: string;
 };
+
+export type MicroOp =
+  | { op: 'dec-sp' }
+  | { op: 'push-empty'; kind: CellKind; label: string }
+  | { op: 'str-at-sp'; kind: CellKind; label: string; value: string }
+  | { op: 'jsr'; returnAddr: number }
+  | { op: 'set-fp' }
+  | { op: 'alloc-locals'; count: number; names: string[] }
+  | { op: 'inc-sp'; count: number }
+  | { op: 'ldr-r5' }
+  | { op: 'ldr-r7' }
+  | { op: 'write-ret-val'; value: string }
+  | { op: 'noop' };

@@ -1,23 +1,27 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { splitAsmComment } from '../useCallingConvention';
-import type { CallingConventionExample, StepActor, StepDefinition } from '../types';
+import type { CallingConventionExample, StepDefinition } from '../types';
 
 const props = defineProps<{
   examples: CallingConventionExample[];
   selectedExampleId: string;
   selectedExample: CallingConventionExample;
-  stepIndex: number;
+  instrIndex: number;
+  blockIndex: number;
+  totalInstrs: number;
+  activeLineAddr: string | undefined;
   steps: ReadonlyArray<StepDefinition>;
-  stepAsmLines: string[];
-  currentActor: StepActor;
+  currentActor: 'caller' | 'callee';
 }>();
 
 const emit = defineEmits<{
   'update:selectedExampleId': [value: string];
-  'update:stepIndex': [value: number];
-  prev: [];
-  next: [];
+  'update:instrIndex': [value: number];
+  instrPrev: [];
+  instrNext: [];
+  blockPrev: [];
+  blockNext: [];
   reset: [];
 }>();
 
@@ -26,10 +30,13 @@ const selectedExampleIdModel = computed({
   set: (value: string) => emit('update:selectedExampleId', value)
 });
 
-const stepIndexModel = computed({
-  get: () => props.stepIndex,
-  set: (value: number) => emit('update:stepIndex', value)
+const instrIndexModel = computed({
+  get: () => Math.max(0, props.instrIndex),
+  set: (value: number) => emit('update:instrIndex', value - 1)
 });
+
+const atStart = computed(() => props.instrIndex <= -1);
+const atEnd = computed(() => props.instrIndex >= props.totalInstrs - 1);
 </script>
 
 <template>
@@ -48,41 +55,53 @@ const stepIndexModel = computed({
 
         <Divider class="!my-0" />
 
-        <div class="flex items-center gap-2">
-          <Button size="small" aria-label="Step Backward" v-tooltip.top="'Step Backward'" @click="$emit('prev')" :disabled="stepIndex === 0">
-            <mdi-step-backward />
-          </Button>
-          <Button size="small" aria-label="Step Forward" v-tooltip.top="'Step Forward'" @click="$emit('next')" :disabled="stepIndex === steps.length - 1">
-            <mdi-step-forward />
-          </Button>
-          <Button size="small" severity="secondary" @click="$emit('reset')">Reset</Button>
+        <div class="flex flex-col gap-2">
+          <!-- Instruction-level step buttons -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-surface-400 dark:text-surface-500 w-16 shrink-0">Instruction</span>
+            <Button size="small" aria-label="Previous Instruction" v-tooltip.top="'Prev Instruction'" @click="$emit('instrPrev')" :disabled="atStart">
+              <mdi-chevron-left />
+            </Button>
+            <Button size="small" aria-label="Next Instruction" v-tooltip.top="'Next Instruction'" @click="$emit('instrNext')" :disabled="atEnd">
+              <mdi-chevron-right />
+            </Button>
+            <Button size="small" severity="secondary" @click="$emit('reset')">Reset</Button>
+          </div>
+
+          <!-- Block-level step buttons -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-surface-400 dark:text-surface-500 w-16 shrink-0">Block</span>
+            <Button size="small" aria-label="Previous Block" v-tooltip.top="'Prev Block'" @click="$emit('blockPrev')" :disabled="blockIndex <= 0">
+              <mdi-chevron-double-left />
+            </Button>
+            <Button size="small" aria-label="Next Block" v-tooltip.top="'Next Block'" @click="$emit('blockNext')" :disabled="blockIndex >= steps.length - 1">
+              <mdi-chevron-double-right />
+            </Button>
+          </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <div class="flex items-start justify-between gap-2">
-            <span class="text-sm font-semibold text-surface-700 dark:text-surface-200 tabular-nums whitespace-nowrap pt-0.5">Step {{ stepIndex + 1 }} / {{ steps.length }}</span>
-            <div class="text-xs text-surface-400 dark:text-surface-500 font-mono text-right min-h-[2.4rem] leading-[1.35]">
-              <div v-for="(l, i) in stepAsmLines" :key="i" class="asm-mini-line">
-                <template v-if="l.trim().length">
-                  <span class="asm-code">{{ splitAsmComment(l).code }}</span>
-                  <span v-if="splitAsmComment(l).comment" class="asm-comment"> {{ splitAsmComment(l).comment }}</span>
-                </template>
-                <template v-else>
-                  <span class="asm-blank">&nbsp;</span>
-                </template>
-              </div>
-            </div>
-          </div>
-          <Slider v-model="stepIndexModel" :min="0" :max="steps.length - 1" :step="1" />
+          <Slider
+            v-model="instrIndexModel"
+            :min="0"
+            :max="Math.max(0, totalInstrs - 1)"
+            :step="1"
+          />
         </div>
 
         <div class="flex flex-col gap-1.5 pt-2 border-t border-surface-200 dark:border-surface-800">
           <div class="flex items-start justify-between gap-2 min-h-[2.5rem]">
-            <span class="text-base font-semibold text-surface-800 dark:text-surface-100 leading-snug">{{ steps[stepIndex].title }}</span>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-xs text-surface-400 dark:text-surface-500 font-mono tabular-nums">
+                Block {{ blockIndex }} / {{ steps.length - 1 }}
+                <template v-if="activeLineAddr"> — @{{ activeLineAddr }}</template>
+              </span>
+              <span class="text-base font-semibold text-surface-800 dark:text-surface-100 leading-snug">{{ steps[blockIndex]?.title }}</span>
+            </div>
             <span class="actor-chip shrink-0 mt-1" :class="currentActor">{{ currentActor }}</span>
           </div>
           <p class="text-sm text-surface-600 dark:text-surface-300 leading-relaxed min-h-[6rem]">
-            {{ steps[stepIndex].detail }}
+            {{ steps[blockIndex]?.detail }}
           </p>
         </div>
       </div>
