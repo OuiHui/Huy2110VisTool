@@ -11,14 +11,19 @@ const {
   steps,
   selectedExampleId,
   selectedExample,
-  stepIndex,
-  stepAsmLines,
+  instrIndex,
+  blockIndex,
+  totalInstrs,
+  activeLineAddr,
   currentActor,
   callerAsm,
   calleeAsm,
   returnAddr,
-  nextStep,
-  prevStep,
+  current,
+  instrNext,
+  instrPrev,
+  blockNext,
+  blockPrev,
   reset
 } = useCallingConvention();
 </script>
@@ -39,32 +44,37 @@ const {
             :examples="examples"
             :selectedExampleId="selectedExampleId"
             :selectedExample="selectedExample"
-            :stepIndex="stepIndex"
+            :instrIndex="instrIndex"
+            :blockIndex="blockIndex"
+            :totalInstrs="totalInstrs"
+            :activeLineAddr="activeLineAddr"
             :steps="steps"
-            :stepAsmLines="stepAsmLines"
             :currentActor="currentActor"
             @update:selectedExampleId="selectedExampleId = $event"
-            @update:stepIndex="stepIndex = $event"
-            @prev="prevStep"
-            @next="nextStep"
+            @update:instrIndex="instrIndex = $event"
+            @instrPrev="instrPrev"
+            @instrNext="instrNext"
+            @blockPrev="blockPrev"
+            @blockNext="blockNext"
             @reset="reset"
           />
           <CallingConventionStackFrame
             :selectedExample="selectedExample"
-            :stepIndex="stepIndex"
+            :blockIndex="blockIndex"
             :returnAddr="returnAddr"
+            :current="current"
           />
         </div>
 
         <!-- RIGHT: Guide steps (compact, shrink-0) + Assembly (fills) -->
         <div class="cc-right-col">
           <div class="cc-guide-row">
-            <CallingConventionGuide :stepIndex="stepIndex" />
+            <CallingConventionGuide :blockIndex="blockIndex" />
           </div>
           <div class="cc-asm-row">
             <CallingConventionAssembly
-              :selectedExample="selectedExample"
-              :stepIndex="stepIndex"
+              :blockIndex="blockIndex"
+              :activeLineAddr="activeLineAddr"
               :currentActor="currentActor"
               :callerAsm="callerAsm"
               :calleeAsm="calleeAsm"
