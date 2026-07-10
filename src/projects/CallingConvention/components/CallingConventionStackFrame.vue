@@ -1,11 +1,100 @@
 <script setup lang="ts">
-import type { CallingConventionExample } from '../types';
+import { computed } from 'vue';
+import type { CallingConventionExample, MachineState } from '../types';
 
-defineProps<{
+interface StackItem {
+  address: number;
+  label: string;
+  kind: 'initial-sp' | 'arg' | 'return-value' | 'return-addr' | 'old-r5' | 'local' | 'saved-reg';
+  name?: string;
+}
+
+const props = defineProps<{
   selectedExample: CallingConventionExample;
   blockIndex: number;
   returnAddr: string;
+  current: MachineState;
 }>();
+
+const stackItems = computed<StackItem[]>(() => {
+  const items: StackItem[] = [];
+  const { numParams, numLocals, argNames, localNames, usedRegs } = props.selectedExample;
+
+  // 1. Saved registers (lowest address first in the top-to-bottom layout, so we iterate in reverse)
+  for (let i = usedRegs.length - 1; i >= 0; i--) {
+    const addr = 0xFE00 - numParams - 4 - numLocals - i;
+    items.push({
+      address: addr,
+      label: `${usedRegs[i]} Saved`,
+      kind: 'saved-reg',
+      name: usedRegs[i]
+    });
+  }
+
+  // 2. Locals (iterate in reverse to show localNames[numLocals-1] at the top / lowest address)
+  for (let i = numLocals - 1; i >= 0; i--) {
+    const addr = 0xFE00 - numParams - 4 - i;
+    items.push({
+      address: addr,
+      label: `Local: ${localNames[i]}`,
+      kind: 'local',
+      name: localNames[i]
+    });
+  }
+
+  // 3. Old R5
+  const oldR5Addr = 0xFE00 - numParams - 3;
+  items.push({
+    address: oldR5Addr,
+    label: 'Old R5',
+    kind: 'old-r5'
+  });
+
+  // 4. Return Address
+  const retAddrAddr = 0xFE00 - numParams - 2;
+  items.push({
+    address: retAddrAddr,
+    label: 'Return Address (old R7)',
+    kind: 'return-addr'
+  });
+
+  // 5. Return Value
+  const retValAddr = 0xFE00 - numParams - 1;
+  items.push({
+    address: retValAddr,
+    label: 'Return Value',
+    kind: 'return-value'
+  });
+
+  // 6. Args (iterate 0 to numParams-1)
+  for (let i = 0; i < numParams; i++) {
+    const addr = 0xFE00 - numParams + i;
+    items.push({
+      address: addr,
+      label: `Arg: ${argNames[i]}`,
+      kind: 'arg',
+      name: argNames[i]
+    });
+  }
+
+  // 7. Initial SP / Bottom Ellipsis
+  items.push({
+    address: 0xFE00,
+    label: '⋮',
+    kind: 'initial-sp'
+  });
+
+  return items;
+});
+
+function getDisplayValue(item: StackItem): string {
+  if (item.kind === 'initial-sp') return '';
+  const cell = props.current.memory.get(item.address);
+  if (cell && cell.value !== '') {
+    return cell.value;
+  }
+  return '????';
+}
 </script>
 
 <template>
@@ -20,63 +109,59 @@ defineProps<{
           <div class="w-20 p-2 text-center font-mono"></div>
         </div>
 
-        <!-- Saved registers (block 8+ shifted) -->
-        <template v-for="(regName, i) in [...selectedExample.usedRegs].reverse()" :key="'saved-reg-'+i">
-          <div :class="['stack-item', 'saved-reg', { 'active-step': blockIndex === 8 || blockIndex === 10 }]">
-            <div class="w-14 pr-2 py-2 text-right font-bold stack-ptr-r6 transition-all duration-300 ease-in-out" :class="(blockIndex === 8 || blockIndex === 9) && i === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
-            <div class="flex-1 p-2 text-center">{{ regName }} Saved</div>
-            <div class="w-20 p-2 text-center font-mono" :class="{ 'value-resolved': blockIndex >= 8 }">{{ blockIndex >= 8 ? `Old ${regName}` : '????' }}</div>
-          </div>
-        </template>
-
-        <!-- Locals (block 7+ shifted) -->
-        <template v-for="(localName, i) in [...selectedExample.localNames].reverse()" :key="'local-'+i">
-          <div :class="['stack-item', 'local', { 'active-step': blockIndex === 7 }]">
-            <div class="w-14 pr-2 py-1 text-right font-bold flex flex-col justify-center items-end gap-1">
-              <span v-if="i === 0" class="stack-ptr-r6 transition-all duration-300 ease-in-out" :class="blockIndex === 7 || blockIndex === 10 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</span>
-              <span v-if="i === selectedExample.numLocals - 1" class="stack-ptr-r5 transition-all duration-300 ease-in-out" :class="blockIndex >= 6 && blockIndex <= 11 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'">R5 &rarr;</span>
+        <template v-for="item in stackItems" :key="item.address">
+          <!-- Initial SP / Bottom Ellipsis -->
+          <div v-if="item.kind === 'initial-sp'" class="stack-item ellipsis">
+            <div class="w-14 pr-2 text-right font-mono font-bold flex flex-col justify-center items-end text-[10px] leading-tight select-none">
+              <span
+                class="stack-ptr-r6 transition-all duration-300 ease-in-out"
+                :class="current.R6 === item.address ? 'opacity-100 translate-y-0' : 'opacity-0 h-0 w-0 overflow-hidden pointer-events-none'"
+              >
+                R6&nbsp;&rarr;
+              </span>
+              <span
+                class="stack-ptr-r5 transition-all duration-300 ease-in-out"
+                :class="current.R5 === item.address ? 'opacity-100 translate-y-0' : 'opacity-0 h-0 w-0 overflow-hidden pointer-events-none'"
+              >
+                R5&nbsp;&rarr;
+              </span>
             </div>
-            <div class="flex-1 p-2 text-center">Local: {{ localName }}</div>
-            <div class="w-20 p-2 text-center font-mono">????</div>
+            <div class="flex-1 py-1 text-center font-bold text-lg leading-none">&#8942;</div>
+            <div class="w-20 p-2 text-center font-mono"></div>
+          </div>
+
+          <!-- Normal Stack Item -->
+          <div
+            v-else
+            :class="[
+              'stack-item',
+              item.kind,
+              { 'active-step': current.highlightAddrs.has(item.address) }
+            ]"
+          >
+            <div class="w-14 pr-2 text-right font-mono font-bold flex flex-col justify-center items-end text-[10px] leading-tight select-none">
+              <span
+                class="stack-ptr-r6 transition-all duration-300 ease-in-out"
+                :class="current.R6 === item.address ? 'opacity-100 translate-y-0' : 'opacity-0 h-0 w-0 overflow-hidden pointer-events-none'"
+              >
+                R6&nbsp;&rarr;
+              </span>
+              <span
+                class="stack-ptr-r5 transition-all duration-300 ease-in-out"
+                :class="current.R5 === item.address ? 'opacity-100 translate-y-0' : 'opacity-0 h-0 w-0 overflow-hidden pointer-events-none'"
+              >
+                R5&nbsp;&rarr;
+              </span>
+            </div>
+            <div class="flex-1 p-2 text-center">{{ item.label }}</div>
+            <div
+              class="w-20 p-2 text-center font-mono"
+              :class="{ 'value-resolved': getDisplayValue(item) !== '????' }"
+            >
+              {{ getDisplayValue(item) }}
+            </div>
           </div>
         </template>
-
-        <!-- Old R5 (block 5+ shifted) -->
-        <div :class="['stack-item', 'old-r5', { 'active-step': blockIndex === 5 || blockIndex === 12 }]">
-          <div class="w-14 pr-2 py-2 text-right font-bold stack-ptr-r6 transition-all duration-300 ease-in-out" :class="blockIndex === 5 || blockIndex === 6 || blockIndex === 11 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
-          <div class="flex-1 p-2 text-center">Old R5</div>
-          <div class="w-20 p-2 text-center font-mono" :class="{ 'value-resolved': blockIndex >= 5 }">{{ blockIndex >= 5 ? 'xFE10' : '????' }}</div>
-        </div>
-
-        <!-- Return Address / Old R7 (block 4+ shifted) -->
-        <div :class="['stack-item', 'return-addr', { 'active-step': blockIndex === 4 || blockIndex === 13 }]">
-          <div class="w-14 pr-2 py-2 text-right font-bold stack-ptr-r6 transition-all duration-300 ease-in-out" :class="blockIndex === 4 || blockIndex === 12 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
-          <div class="flex-1 p-2 text-center">Return Address (old R7)</div>
-          <div class="w-20 p-2 text-center font-mono" :class="{ 'value-resolved': blockIndex >= 4 }">{{ blockIndex >= 4 ? returnAddr : '????' }}</div>
-        </div>
-
-        <!-- Return Value slot (block 3+ shifted) -->
-        <div :class="['stack-item', 'return-value', { 'active-step': blockIndex === 3 || blockIndex === 15 || blockIndex === 9 }]">
-          <div class="w-14 pr-2 py-2 text-right font-bold stack-ptr-r6 transition-all duration-300 ease-in-out" :class="blockIndex === 3 || blockIndex === 13 || blockIndex === 14 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
-          <div class="flex-1 p-2 text-center">Return Value</div>
-          <div class="w-20 p-2 text-center font-mono" :class="{ 'value-resolved': blockIndex >= 9 }">{{ blockIndex >= 9 ? selectedExample.returnValue : '????' }}</div>
-        </div>
-
-        <!-- Args (block 1+ shifted) -->
-        <template v-for="(argName, i) in selectedExample.argNames" :key="'arg-'+i">
-          <div :class="['stack-item', 'arg', { 'active-step': blockIndex === 1 || blockIndex === 16 }]">
-            <div class="w-14 pr-2 py-2 text-right font-bold stack-ptr-r6 transition-all duration-300 ease-in-out" :class="i === 0 && (blockIndex === 1 || blockIndex === 2 || blockIndex === 15) ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
-            <div class="flex-1 p-2 text-center">Arg: {{ argName }}</div>
-            <div class="w-20 p-2 text-center font-mono" :class="{ 'value-resolved': blockIndex >= 1 }">{{ blockIndex >= 1 ? (selectedExample.argValues[i] || 'N/A') : '????' }}</div>
-          </div>
-        </template>
-
-        <!-- Bottom ellipsis — R6 points here at block 0 and block 16 -->
-        <div class="stack-item ellipsis">
-          <div class="w-14 pr-2 py-2 text-right font-bold stack-ptr-r6 transition-all duration-300 ease-in-out" :class="blockIndex === 0 || blockIndex === 16 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'">R6 &rarr;</div>
-          <div class="flex-1 py-1 text-center font-bold text-lg leading-none">&#8942;</div>
-          <div class="w-20 p-2 text-center font-mono"></div>
-        </div>
       </div>
     </template>
   </Card>

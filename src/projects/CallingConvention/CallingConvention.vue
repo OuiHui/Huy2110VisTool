@@ -19,6 +19,7 @@ const {
   callerAsm,
   calleeAsm,
   returnAddr,
+  current,
   instrNext,
   instrPrev,
   blockNext,
@@ -61,6 +62,7 @@ const {
             :selectedExample="selectedExample"
             :blockIndex="blockIndex"
             :returnAddr="returnAddr"
+            :current="current"
           />
         </div>
 

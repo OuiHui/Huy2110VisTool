@@ -121,7 +121,7 @@ export function useCallingConvention() {
         text: `STR ${reg}, R6, #0    ; save ${reg}`,
         step: 8,
         addr: fmt(currentAddr++),
-        microOp: { op: 'str-at-sp', kind: 'saved-reg', label: `saved ${reg}`, value: '' }
+        microOp: { op: 'str-at-sp', kind: 'saved-reg', label: `saved ${reg}`, value: `Old ${reg}` }
       });
     }
 
