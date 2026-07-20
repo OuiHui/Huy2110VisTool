@@ -55,46 +55,46 @@ import type { HighlightRange, PseudocodeState } from './sequences';
         @apply text-surface-400 dark:text-surface-500;
     }
     .cy-done-0 .cy-on-0 {
-        @apply text-red-500;
+        @apply text-red-400/90;
     }
     .cy-active-0 .cy-on-0 {
-        @apply text-red-800 dark:text-red-200;
+        @apply text-red-300 font-bold bg-red-500/25 px-1 rounded;
     }
     .cy-done-1 .cy-on-1 {
-        @apply text-orange-500;
+        @apply text-orange-400/90;
     }
     .cy-active-1 .cy-on-1 {
-        @apply text-orange-800 dark:text-orange-200;
+        @apply text-orange-300 font-bold bg-orange-500/25 px-1 rounded;
     }
     .cy-done-2 .cy-on-2 {
-        @apply text-yellow-500;
+        @apply text-yellow-300/90;
     }
     .cy-active-2 .cy-on-2 {
-        @apply text-yellow-800 dark:text-yellow-200;
+        @apply text-yellow-200 font-bold bg-yellow-500/25 px-1 rounded;
     }
     .cy-done-3 .cy-on-3 {
-        @apply text-green-500;
+        @apply text-green-400/90;
     }
     .cy-active-3 .cy-on-3 {
-        @apply text-green-800 dark:text-green-200;
+        @apply text-green-300 font-bold bg-green-500/25 px-1 rounded;
     }
     .cy-done-4 .cy-on-4 {
-        @apply text-blue-500;
+        @apply text-sky-400/90;
     }
     .cy-active-4 .cy-on-4 {
-        @apply text-blue-800 dark:text-blue-200;
+        @apply text-sky-300 font-bold bg-sky-500/25 px-1 rounded;
     }
     .cy-done-5 .cy-on-5 {
-        @apply text-purple-500;
+        @apply text-purple-300/90;
     }
     .cy-active-5 .cy-on-5 {
-        @apply text-purple-800 dark:text-purple-200;
+        @apply text-purple-200 font-bold bg-purple-500/25 px-1 rounded;
     }
     .cy-done-6 .cy-on-6 {
-        @apply text-pink-500;
+        @apply text-pink-400/90;
     }
     .cy-active-6 .cy-on-6 {
-        @apply text-pink-800 dark:text-pink-200;
+        @apply text-pink-300 font-bold bg-pink-500/25 px-1 rounded;
     }
 </style>
 

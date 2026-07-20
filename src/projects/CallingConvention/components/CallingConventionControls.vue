@@ -45,11 +45,11 @@ const atEnd = computed(() => props.instrIndex >= props.totalInstrs - 1);
     <template #content>
       <div class="flex flex-col gap-2.5">
         <label class="flex flex-col gap-1">
-          <span class="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide">Example</span>
+          <span class="text-xs font-semibold text-slate-300 uppercase tracking-wide opacity-90">Example</span>
           <Select v-model="selectedExampleIdModel" :options="examples" optionLabel="name" optionValue="id" class="w-full text-left" overlayClass="cc-select-overlay" />
         </label>
 
-        <div class="cc-input font-mono cc-readonly bg-surface-50 dark:bg-surface-900/50 min-h-[9.5rem]">
+        <div class="cc-input font-mono cc-readonly bg-slate-900/50 min-h-[9.5rem]">
 {{ selectedExample.cCode }}
         </div>
 
@@ -58,7 +58,7 @@ const atEnd = computed(() => props.instrIndex >= props.totalInstrs - 1);
         <div class="flex flex-col gap-2">
           <!-- Instruction-level step buttons -->
           <div class="flex items-center gap-2">
-            <span class="text-xs text-surface-400 dark:text-surface-500 w-16 shrink-0">Instruction</span>
+            <span class="text-xs text-slate-300 w-16 shrink-0 opacity-80">Instruction</span>
             <Button size="small" aria-label="Previous Instruction" v-tooltip.top="'Prev Instruction'" @click="$emit('instrPrev')" :disabled="atStart">
               <mdi-chevron-left />
             </Button>
@@ -70,7 +70,7 @@ const atEnd = computed(() => props.instrIndex >= props.totalInstrs - 1);
 
           <!-- Block-level step buttons -->
           <div class="flex items-center gap-2">
-            <span class="text-xs text-surface-400 dark:text-surface-500 w-16 shrink-0">Block</span>
+            <span class="text-xs text-slate-300 w-16 shrink-0 opacity-80">Block</span>
             <Button size="small" aria-label="Previous Block" v-tooltip.top="'Prev Block'" @click="$emit('blockPrev')" :disabled="blockIndex <= 0">
               <mdi-chevron-double-left />
             </Button>
@@ -89,18 +89,18 @@ const atEnd = computed(() => props.instrIndex >= props.totalInstrs - 1);
           />
         </div>
 
-        <div class="flex flex-col gap-1.5 pt-2 border-t border-surface-200 dark:border-surface-800">
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-700/60">
           <div class="flex items-start justify-between gap-2 min-h-[2.5rem]">
             <div class="flex flex-col gap-0.5">
-              <span class="text-xs text-surface-400 dark:text-surface-500 font-mono tabular-nums">
+              <span class="text-xs text-slate-300 font-mono tabular-nums opacity-80">
                 Block {{ blockIndex }} / {{ steps.length - 1 }}
                 <template v-if="activeLineAddr"> — @{{ activeLineAddr }}</template>
               </span>
-              <span class="text-base font-semibold text-surface-800 dark:text-surface-100 leading-snug">{{ steps[blockIndex]?.title }}</span>
+              <span class="text-base font-semibold text-slate-100 leading-snug">{{ steps[blockIndex]?.title }}</span>
             </div>
             <span class="actor-chip shrink-0 mt-1" :class="currentActor">{{ currentActor }}</span>
           </div>
-          <p class="text-sm text-surface-600 dark:text-surface-300 leading-relaxed min-h-[6rem]">
+          <p class="text-sm text-slate-200 leading-relaxed min-h-[6rem]">
             {{ steps[blockIndex]?.detail }}
           </p>
         </div>

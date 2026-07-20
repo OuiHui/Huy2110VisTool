@@ -74,7 +74,7 @@ watch(() => props.blockIndex, async () => {
                   :class="['asm-line', 'caller', { 'active-instr': activeLineAddr !== undefined && activeLineAddr === line.addr }]"
                   role="listitem"
                 >
-                  <span v-if="line.addr" class="text-surface-400 dark:text-surface-500 mr-3 select-none inline-block w-12">{{ line.addr }}</span>
+                  <span v-if="line.addr" class="text-slate-400 mr-3 select-none inline-block w-12">{{ line.addr }}</span>
                   <span v-else class="inline-block w-12 mr-3"></span>
                   <span class="asm-code">{{ splitAsmComment(line.text).code }}</span><span v-if="splitAsmComment(line.text).comment" class="asm-comment"> {{ splitAsmComment(line.text).comment }}</span>
                 </div>
@@ -98,7 +98,7 @@ watch(() => props.blockIndex, async () => {
                   :class="['asm-line', 'callee', { 'active-instr': activeLineAddr !== undefined && activeLineAddr === line.addr }]"
                   role="listitem"
                 >
-                  <span v-if="line.addr" class="text-surface-400 dark:text-surface-500 mr-3 select-none inline-block w-12">{{ line.addr }}</span>
+                  <span v-if="line.addr" class="text-slate-400 mr-3 select-none inline-block w-12">{{ line.addr }}</span>
                   <span v-else class="inline-block w-12 mr-3"></span>
                   <span class="asm-code">{{ splitAsmComment(line.text).code }}</span><span v-if="splitAsmComment(line.text).comment" class="asm-comment"> {{ splitAsmComment(line.text).comment }}</span>
                 </div>

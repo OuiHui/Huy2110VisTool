@@ -10,7 +10,7 @@ defineProps<{
     <template #content>
       <div class="grid grid-cols-2 gap-3 text-sm">
         <div>
-          <h3 class="font-bold mb-1 border-b border-surface-200 dark:border-surface-700 pb-1">Buildup</h3>
+          <h3 class="font-bold mb-1 border-b border-slate-700/60 pb-1">Buildup</h3>
           <div class="mt-2 font-semibold"><span class="cc-caller-text">Caller</span>:</div>
           <ol class="list-decimal list-inside ml-1 space-y-1">
             <li :class="['transition-colors', { 'cc-caller-active': blockIndex === 1 }]">Pushes arguments right-to-left</li>
@@ -27,7 +27,7 @@ defineProps<{
           </ol>
         </div>
         <div>
-          <h3 class="font-bold mb-1 border-b border-surface-200 dark:border-surface-700 pb-1">Teardown</h3>
+          <h3 class="font-bold mb-1 border-b border-slate-700/60 pb-1">Teardown</h3>
           <div class="mt-2 font-semibold"><span class="cc-callee-text">Callee</span>:</div>
           <ol class="list-decimal list-inside ml-1 space-y-1" start="9">
             <li :class="['transition-colors', { 'cc-callee-active': blockIndex === 9 }]">Execute Body / Stores result</li>
