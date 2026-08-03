@@ -98,7 +98,7 @@ function getDisplayValue(item: StackItem): string {
 </script>
 
 <template>
-  <Card>
+  <Card class="cc-stack-card">
     <template #title>Stack Frame</template>
     <template #content>
       <div class="stack-diagram font-mono text-[12px] shadow-sm flex flex-col">

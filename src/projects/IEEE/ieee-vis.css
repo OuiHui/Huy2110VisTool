@@ -31,6 +31,8 @@
     flex-direction: column;
     overflow-x: auto;
     padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(179, 163, 105, 0.35) rgba(255, 255, 255, 0.05);
 }
 
 .ieee-root .bits-wrapper::-webkit-scrollbar { height: 5px; }
@@ -40,6 +42,7 @@
 .ieee-root .bit-labels {
     display: grid;
     grid-template-columns: repeat(32, minmax(20px, 1fr));
+    min-width: 640px;
     gap: var(--bit-gap);
     padding: 0 10px 4px 10px;
     font-family: 'JetBrains Mono', monospace;
@@ -59,6 +62,7 @@
 .ieee-root .bit-display {
     display: grid;
     grid-template-columns: repeat(32, minmax(20px, 1fr));
+    min-width: 640px;
     gap: var(--bit-gap);
     margin: 0.625rem 0;
     padding: 0.625rem 10px;
@@ -110,6 +114,7 @@
 .ieee-root .bit-brackets {
     display: flex;
     width: 100%;
+    min-width: 640px;
     margin: 3px 0 0.875rem 0;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.68rem;

@@ -55,6 +55,10 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   color: var(--text-primary) !important;
+  resize: vertical;
+  overflow: auto;
+  min-height: 2.5rem;
+  max-height: max-content;
 }
 
 .cc-readonly {
@@ -92,16 +96,17 @@
 .cc-sidebar {
   width: 360px;
   flex-shrink: 0;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
   gap: .75rem;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.cc-sidebar>* {
-  min-height: 0;
-  overflow-y: auto;
+.cc-controls-card,
+.cc-stack-card {
+  flex-shrink: 0;
 }
 
 /* Right column: Guide on top (compact), Assembly below (fills) */
@@ -160,11 +165,20 @@
   box-shadow: var(--shadow-md) !important;
 }
 
+.cc-page-shell .p-card-body {
+  padding: 0.75rem 0.85rem !important;
+}
+
+.cc-page-shell .p-card-content {
+  padding: 0 !important;
+}
+
 .cc-page-shell .p-card-title {
   color: var(--gt-light-gold) !important;
-  font-size: 1.1rem !important;
+  font-size: 1.05rem !important;
   font-weight: 600 !important;
   letter-spacing: -0.01em;
+  margin-bottom: 0.35rem !important;
 }
 
 .cc-page-shell .p-divider {
@@ -484,4 +498,47 @@
 
 .stack-ptr-r5 {
   color: #4ade80 !important;
+}
+
+/* ── Small Screens Responsive Behavior ── */
+@media (max-width: 900px) {
+  .cc-page-shell {
+    position: relative;
+    top: 0;
+    min-height: calc(100vh - 56px);
+    height: auto;
+    overflow-y: auto;
+  }
+  .cc-page-inner {
+    height: auto;
+    overflow: visible;
+  }
+  .cc-main-layout {
+    flex-direction: column;
+    overflow: visible;
+  }
+  .cc-sidebar {
+    width: 100%;
+    overflow: visible;
+  }
+}
+
+@media (max-height: 750px) and (min-width: 901px) {
+  .cc-page-shell {
+    position: relative;
+    top: 0;
+    min-height: calc(100vh - 56px);
+    height: auto;
+    overflow-y: auto;
+  }
+  .cc-page-inner {
+    height: auto;
+    overflow: visible;
+  }
+  .cc-main-layout {
+    overflow: visible;
+  }
+  .cc-sidebar {
+    overflow: visible;
+  }
 }

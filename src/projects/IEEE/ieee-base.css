@@ -29,8 +29,29 @@
 .ieee-root {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--gt-dark-navy);
-    min-height: 100vh;
+    height: calc(100dvh - 56px);
+    overflow-y: auto;
     color: var(--text-primary);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(179, 163, 105, 0.35) rgba(0, 26, 51, 0.5);
+}
+
+.ieee-root::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.ieee-root::-webkit-scrollbar-thumb {
+    background: rgba(179, 163, 105, 0.35);
+    border-radius: 4px;
+}
+
+.ieee-root::-webkit-scrollbar-thumb:hover {
+    background: rgba(179, 163, 105, 0.55);
+}
+
+.ieee-root::-webkit-scrollbar-track {
+    background: rgba(0, 26, 51, 0.5);
 }
 
 .ieee-root .container {
