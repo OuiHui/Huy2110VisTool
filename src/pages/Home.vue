@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import FeedbackForm from '../components/FeedbackForm.vue';
+
 const projects = [
   { path: '/ieee', title: 'IEEE 754 Floating Point', desc: 'Visualize the mathematics and representation of floating point conversion' },
   { path: '/kmap', title: 'Boolean Logic & K-Maps', desc: 'Visualize different logical expressions and their simplifications using Karnaugh maps.' },
@@ -21,7 +23,6 @@ const filtered = computed(() => projects);
       </div>
     </section>
 
-
     <!-- Project Cards -->
     <section class="projects-section">
       <div class="projects-row">
@@ -40,6 +41,9 @@ const filtered = computed(() => projects);
         <p v-if="!filtered.length" class="empty">No matches – try a different term.</p>
       </div>
     </section>
+
+    <!-- Feedback Modal & Floating Trigger -->
+    <FeedbackForm />
 
   </div>
 </template>
