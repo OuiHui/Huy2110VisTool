@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import CallingConventionAssembly from './components/CallingConventionAssembly.vue';
 import CallingConventionControls from './components/CallingConventionControls.vue';
 import CallingConventionGuide from './components/CallingConventionGuide.vue';
@@ -26,6 +27,8 @@ const {
   blockPrev,
   reset
 } = useCallingConvention();
+
+const guideCollapsed = ref(false);
 </script>
 
 <template>
@@ -66,10 +69,14 @@ const {
           />
         </div>
 
-        <!-- RIGHT: Guide steps (compact, shrink-0) + Assembly (fills) -->
+        <!-- RIGHT: Guide steps (collapsible) + Assembly (fills) -->
         <div class="cc-right-col">
           <div class="cc-guide-row">
-            <CallingConventionGuide :blockIndex="blockIndex" />
+            <CallingConventionGuide
+              :blockIndex="blockIndex"
+              :collapsed="guideCollapsed"
+              @toggle="guideCollapsed = !guideCollapsed"
+            />
           </div>
           <div class="cc-asm-row">
             <CallingConventionAssembly

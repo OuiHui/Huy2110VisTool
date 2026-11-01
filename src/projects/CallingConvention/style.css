@@ -1,4 +1,4 @@
-/* ── Georgia Tech Navy Theme Colors ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Georgia Tech Navy Theme Colors Ã¢â€â‚¬Ã¢â€â‚¬ */
 .cc-page-shell {
   --gt-navy: #003057;
   --gt-gold: #B3A369;
@@ -66,7 +66,7 @@
   user-select: text;
 }
 
-/* ── Centered inner container with max-width ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Centered inner container with max-width Ã¢â€â‚¬Ã¢â€â‚¬ */
 .cc-page-inner {
   width: 100%;
   max-width: 1600px;
@@ -87,7 +87,7 @@
   white-space: normal;
 }
 
-/* ── 2-column: narrow sidebar + right content ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ 2-column: narrow sidebar + right content Ã¢â€â‚¬Ã¢â€â‚¬ */
 .cc-main-layout {
   flex: 1;
   display: flex;
@@ -127,6 +127,56 @@
   flex-shrink: 0;
 }
 
+.cc-guide-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cc-guide-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: .4rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.cc-guide-toggle:hover {
+  background: rgba(179, 163, 105, 0.1);
+  border-color: var(--gt-gold);
+  color: var(--gt-light-gold);
+}
+
+.cc-guide-toggle-icon {
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.cc-guide-toggle-icon--collapsed {
+  transform: rotate(180deg);
+}
+
+/* Guide collapse transition */
+.cc-guide-collapse-enter-active,
+.cc-guide-collapse-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform-origin: top;
+}
+
+.cc-guide-collapse-enter-from,
+.cc-guide-collapse-leave-to {
+  opacity: 0;
+  transform: scaleY(0.92);
+}
+
 .cc-asm-row {
   flex: 1;
   min-height: 0;
@@ -160,7 +210,7 @@
   flex-direction: column;
 }
 
-/* ── PrimeVue Components Theme Overrides ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ PrimeVue Components Theme Overrides Ã¢â€â‚¬Ã¢â€â‚¬ */
 .cc-page-shell .p-card {
   background: var(--surface) !important;
   border: 1px solid var(--border-color) !important;
@@ -274,7 +324,7 @@
   border: 2px solid var(--gt-gold) !important;
 }
 
-/* ── Actor Chips ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Actor Chips Ã¢â€â‚¬Ã¢â€â‚¬ */
 .actor-chip {
   font-size: .72rem;
   font-weight: 950;
@@ -299,7 +349,7 @@
   color: var(--callee-color) !important;
 }
 
-/* ── Active Guide Steps ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Active Guide Steps Ã¢â€â‚¬Ã¢â€â‚¬ */
 .cc-caller-active {
   color: var(--caller-color) !important;
   font-weight: 700 !important;
@@ -318,7 +368,7 @@
   color: var(--callee-color) !important;
 }
 
-/* ── Assembly Column & Pre Area ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Assembly Column & Pre Area Ã¢â€â‚¬Ã¢â€â‚¬ */
 .asm {
   display: grid;
   grid-template-columns: 1fr;
@@ -430,7 +480,7 @@
   background: rgba(74, 222, 128, 0.15) !important;
 }
 
-/* ── Stack Diagram & Slot Items ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Stack Diagram & Slot Items Ã¢â€â‚¬Ã¢â€â‚¬ */
 .stack-diagram {
   border-radius: 6px;
   overflow: hidden;
@@ -503,7 +553,7 @@
   color: #4ade80 !important;
 }
 
-/* ── Small Screens Responsive Behavior ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Small Screens Responsive Behavior Ã¢â€â‚¬Ã¢â€â‚¬ */
 @media (max-width: 900px) {
   .cc-page-shell {
     position: relative;
